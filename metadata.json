@@ -1,0 +1,6 @@
+{
+  "name": "Каталог постов Telegram",
+  "description": "Telegram Mini App каталог материалов канала с баннерами, поиском по тегам, разбором болей и интеграцией SDK.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
