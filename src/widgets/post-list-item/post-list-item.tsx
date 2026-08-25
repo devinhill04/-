@@ -1,5 +1,5 @@
 import React from 'react';
-import { ExternalLink, Tag } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import { Post } from '../../entities/post/model/types';
 import { openPostLink } from '../../shared/lib/open-telegram-link';
 import { track } from '../../shared/lib/analytics';
@@ -18,7 +18,7 @@ export const PostListItem: React.FC<PostListItemProps> = ({ post, onTagClick }) 
       title: post.title,
       category: post.category,
       channel: post.channel,
-      tagsCount: post.tags?.length || 0
+      tagsCount: post.tags?.length || 0,
     });
     openPostLink(post.url, post.title);
   };
@@ -26,34 +26,22 @@ export const PostListItem: React.FC<PostListItemProps> = ({ post, onTagClick }) 
   return (
     <div
       onClick={handlePostClick}
-      className="dark:bg-slate-900/80 dark:hover:bg-slate-800/90 dark:border-slate-800 dark:hover:border-slate-700/80 bg-white hover:bg-slate-50 border-slate-200/80 hover:border-slate-300 rounded-2xl p-3.5 transition-all cursor-pointer group active:scale-98 shadow-sm flex flex-col justify-between border"
+      className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/90 hover:border-slate-300 dark:hover:border-slate-700 rounded-2xl p-4 transition-all cursor-pointer group active:scale-[0.99] shadow-2xs flex flex-col justify-between gap-3 min-h-[92px]"
     >
-      <div className="flex gap-3 items-start">
-        {post.image && (
-          <img
-            src={post.image}
-            alt={post.title}
-            className="w-20 h-20 rounded-xl object-cover shrink-0 border dark:border-slate-700/50 border-slate-200 group-hover:scale-105 transition-transform duration-300"
-          />
-        )}
+      {/* Top Part: Title + External Link Icon */}
+      <div className="flex items-start justify-between gap-2.5">
+        <h4 className="text-[13px] font-bold text-slate-900 dark:text-slate-100 group-hover:text-[#5542F6] dark:group-hover:text-purple-400 transition-colors leading-snug line-clamp-2">
+          {post.title}
+        </h4>
 
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-1">
-            <h4 className="text-xs font-bold dark:text-slate-100 text-slate-900 group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors line-clamp-2 leading-snug">
-              {post.title}
-            </h4>
-            <ExternalLink className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 group-hover:text-purple-500 shrink-0 mt-0.5" />
-          </div>
-
-          <p className="text-[11px] dark:text-slate-400 text-slate-600 mt-1 line-clamp-2 leading-tight">
-            {post.description}
-          </p>
+        <div className="shrink-0 p-0.5 text-slate-400 dark:text-slate-500 group-hover:text-[#5542F6] dark:group-hover:text-purple-400 transition-colors">
+          <ExternalLink className="w-4 h-4" />
         </div>
       </div>
 
-      <div className="mt-3 pt-2.5 border-t dark:border-slate-800/80 border-slate-100 flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400">
-        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
-          <Tag className="w-3 h-3 text-purple-500 dark:text-purple-400 shrink-0" />
+      {/* Bottom Part: Clean Tag Badges */}
+      {post.tags && post.tags.length > 0 && (
+        <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
           {post.tags.slice(0, 3).map((tag, i) => (
             <button
               key={i}
@@ -65,13 +53,13 @@ export const PostListItem: React.FC<PostListItemProps> = ({ post, onTagClick }) 
                   onTagClick(tag);
                 }
               }}
-              className="dark:bg-slate-800/80 dark:text-slate-300 bg-slate-100 text-slate-700 hover:text-purple-600 dark:hover:text-purple-300 px-1.5 py-0.5 rounded whitespace-nowrap font-medium transition-colors"
+              className="bg-[#F5F6F8] dark:bg-slate-800/80 hover:bg-slate-200/70 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 px-2.5 py-0.5 rounded-lg text-[11px] font-medium transition-colors cursor-pointer"
             >
               #{tag}
             </button>
           ))}
         </div>
-      </div>
+      )}
     </div>
   );
 };

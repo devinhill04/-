@@ -7,14 +7,14 @@ export interface CategoryConfig {
 
 export const CATEGORIES: CategoryConfig[] = [
   {
-    id: "evergreen",
-    title: "Вечнозелёные материалы",
+    id: "basics",
+    title: "Основы и правила",
     description: "Базовые гайды, правила и чек-листы для любого этапа",
     iconName: "BookOpen"
   },
   {
     id: "invest",
-    title: "Инвест-идеи и разборы",
+    title: "Инвестидеи и разборы",
     description: "Анализ акций, облигаций, сырьевых секторов и отчетов",
     iconName: "TrendingUp"
   },
@@ -22,6 +22,6 @@ export const CATEGORIES: CategoryConfig[] = [
     id: "useful",
     title: "Полезное и инструменты",
     description: "Налоговые вычеты, ИИС, лайфхаки и личные финансы",
-    iconName: "ShieldCheck"
+    iconName: "Bookmark"
   }
 ];

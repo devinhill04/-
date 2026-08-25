@@ -1,19 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 import { CATEGORIES } from '../../shared/config/categories';
 import { triggerHaptic } from '../../lib/telegram';
-import { BookOpen, TrendingUp, ShieldCheck, Layers } from 'lucide-react';
 
 interface QuickNavProps {
   activeCategory: string;
   onSelectCategory: (categoryId: string) => void;
 }
-
-const categoryIcons: Record<string, React.ReactNode> = {
-  all: <Layers className="w-3.5 h-3.5" />,
-  evergreen: <BookOpen className="w-3.5 h-3.5" />,
-  invest: <TrendingUp className="w-3.5 h-3.5" />,
-  useful: <ShieldCheck className="w-3.5 h-3.5" />,
-};
 
 export const QuickNav: React.FC<QuickNavProps> = ({ activeCategory, onSelectCategory }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -36,18 +28,13 @@ export const QuickNav: React.FC<QuickNavProps> = ({ activeCategory, onSelectCate
     }
   }, [activeCategory]);
 
-  const allCategories = [
-    { id: 'all', title: 'Все разделы' },
-    ...CATEGORIES,
-  ];
-
   return (
-    <div className="sticky top-[101px] z-30 dark:bg-slate-950/95 bg-white/95 backdrop-blur-xl py-2.5 -mx-4 px-4 border-y dark:border-slate-800/80 border-slate-200/80 transition-all shadow-xs">
+    <div className="sticky top-[61px] z-30 dark:bg-slate-950/95 bg-[#F4F5F7]/95 backdrop-blur-xl py-2 -mx-4 px-4 transition-all">
       <div
         ref={containerRef}
-        className="flex items-center gap-2 max-w-md mx-auto overflow-x-auto no-scrollbar scroll-smooth"
+        className="flex items-center gap-2 max-w-[430px] mx-auto overflow-x-auto no-scrollbar scroll-smooth"
       >
-        {allCategories.map((cat) => {
+        {CATEGORIES.map((cat) => {
           const isActive = activeCategory === cat.id;
           return (
             <button
@@ -57,13 +44,12 @@ export const QuickNav: React.FC<QuickNavProps> = ({ activeCategory, onSelectCate
                 triggerHaptic('light');
                 onSelectCategory(cat.id);
               }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 border shrink-0 active:scale-95 ${
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 active:scale-95 cursor-pointer ${
                 isActive
-                  ? 'bg-purple-600 text-white border-purple-500 shadow-md shadow-purple-600/30'
-                  : 'dark:bg-slate-900/80 dark:text-slate-300 dark:border-slate-800/80 dark:hover:bg-slate-800 bg-white text-slate-700 border-slate-200/80 hover:bg-slate-50 shadow-2xs'
+                  ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 shadow-xs'
+                  : 'bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200/90 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 shadow-2xs'
               }`}
             >
-              {categoryIcons[cat.id] || <Layers className="w-3.5 h-3.5" />}
               <span>{cat.title}</span>
             </button>
           );
