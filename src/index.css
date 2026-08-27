@@ -1,10 +1,21 @@
 @import "tailwindcss";
 
+@theme {
+  --font-manrope: 'Manrope', 'Inter', sans-serif;
+}
+
 @variant dark (&:where(.dark, .dark *));
 
 @layer base {
   :root {
     color-scheme: dark;
+    --Content-Dark: #161616;
+    --Content-Dark_Gray: #7D7C82;
+    --Content-Light_Gray: #F9F9F9;
+    --Buttons-Bg-Button_Bg_Dark: #161616;
+    --Buttons-Text-Button_Text_White: #FFF;
+    --Buttons-Text-Button_Text_Dark: #161616;
+    --Bg-bg-main: #FFF;
   }
 
   html.light {
