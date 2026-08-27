@@ -1,37 +1,23 @@
 @import "tailwindcss";
 
-@theme {
-  --font-manrope: 'Manrope', 'Inter', sans-serif;
-}
-
 @variant dark (&:where(.dark, .dark *));
 
 @layer base {
   :root {
-    color-scheme: dark;
-    --Content-Dark: #161616;
-    --Content-Dark_Gray: #7D7C82;
-    --Content-Light_Gray: #F9F9F9;
-    --Buttons-Bg-Button_Bg_Dark: #161616;
-    --Buttons-Text-Button_Text_White: #FFF;
-    --Buttons-Text-Button_Text_Dark: #161616;
-    --Bg-bg-main: #FFF;
-  }
-
-  html.light {
     color-scheme: light;
   }
 
+  html.dark {
+    color-scheme: dark;
+  }
+
   body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    @apply bg-slate-950 text-slate-100 transition-colors duration-200;
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    @apply bg-white text-[#161616] dark:bg-[#111111] dark:text-white transition-colors duration-150;
   }
 
-  html.light body {
-    @apply bg-slate-100 text-slate-900;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Manrope', 'Inter', sans-serif;
+  h1, h2, h3, h4, h5, h6, p, span, button, input {
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 }
+

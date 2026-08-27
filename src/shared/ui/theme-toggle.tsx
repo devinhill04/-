@@ -1,9 +1,8 @@
 import React from 'react';
-import { Sun } from 'lucide-react';
+import { Moon, Sun } from 'lucide-react';
 import { useTheme } from '../theme/theme-context';
 import { track } from '../lib/analytics';
 import { triggerHaptic } from '../../lib/telegram';
-import MoonIcon from '../../assets/icons/moon.svg?react';
 
 export const ThemeToggle: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
@@ -15,18 +14,27 @@ export const ThemeToggle: React.FC = () => {
     toggleTheme();
   };
 
+  const isDark = theme === 'dark';
+
   return (
     <button
+      id="theme-toggle-btn"
       onClick={handleToggle}
-      // Btn/Mode_Switch: padding 8px, gap 10px, radius 8px, bg #F9F9F9
-      className="flex items-center gap-2.5 p-2 rounded-[8px] bg-[var(--Content-Light_Gray)] dark:bg-slate-800/80 dark:hover:bg-slate-700/80 transition-all active:scale-95"
-      title={`Переключить тему (сейчас: ${theme === 'dark' ? 'тёмная' : 'светлая'})`}
+      aria-label="Переключить тему"
+      style={{
+        width: '40px',
+        height: '40px',
+        borderRadius: '8px',
+      }}
+      className="bg-[#F9F9F9] dark:bg-white/10 text-[#161616] dark:text-white flex items-center justify-center cursor-pointer hover:opacity-80 active:scale-95 transition-all select-none border border-black/5 dark:border-white/10"
+      title={`Переключить тему (сейчас: ${isDark ? 'тёмная' : 'светлая'})`}
     >
-      {theme === 'dark' ? (
-        <Sun className="w-6 h-6 text-amber-400" />
+      {isDark ? (
+        <Sun className="w-5 h-5 text-white stroke-[1.5]" />
       ) : (
-        <MoonIcon className="w-6 h-6 text-[var(--Content-Dark)]" />
+        <Moon className="w-5 h-5 text-[#161616] stroke-[1.5]" />
       )}
     </button>
   );
 };
+
