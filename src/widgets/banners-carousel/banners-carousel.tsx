@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { openPostLink } from '../../shared/lib/open-telegram-link';
 import { AnalyticsService } from '../../shared/analytics/analytics';
 import { triggerHaptic } from '../../lib/telegram';
@@ -47,6 +47,38 @@ export const BannersCarousel: React.FC<BannersCarouselProps> = ({
   onOpenResources,
 }) => {
   const order = useMemo(() => getSessionBannerOrder(), []);
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const dragState = useRef({ isDown: false, startX: 0, startScroll: 0, moved: false });
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    if (!scrollerRef.current) return;
+    dragState.current = {
+      isDown: true,
+      startX: e.clientX,
+      startScroll: scrollerRef.current.scrollLeft,
+      moved: false,
+    };
+    setIsDragging(true);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!dragState.current.isDown || !scrollerRef.current) return;
+    const delta = e.clientX - dragState.current.startX;
+    if (Math.abs(delta) > 3) dragState.current.moved = true;
+    scrollerRef.current.scrollLeft = dragState.current.startScroll - delta;
+  };
+
+  const endDrag = () => {
+    dragState.current.isDown = false;
+    setIsDragging(false);
+  };
+
+  // Клик по баннеру не должен срабатывать, если это было перетаскивание
+  const guardClick = (handler: () => void) => () => {
+    if (dragState.current.moved) return;
+    handler();
+  };
 
   const handleOpenIfPlus = () => {
     triggerHaptic('heavy');
@@ -71,7 +103,7 @@ export const BannersCarousel: React.FC<BannersCarouselProps> = ({
       <div
         key="resources"
         id="banner-all-resources"
-        onClick={handleOpenResources}
+        onClick={guardClick(handleOpenResources)}
         style={{ width: '320px', minWidth: '320px', height: '140px', borderRadius: '12px' }}
         className="snap-start shrink-0 relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform bg-[#F9F9F7] dark:bg-neutral-800 shadow-2xs"
       >
@@ -86,7 +118,7 @@ export const BannersCarousel: React.FC<BannersCarouselProps> = ({
       <div
         key="if-plus"
         id="banner-if-plus"
-        onClick={handleOpenIfPlus}
+        onClick={guardClick(handleOpenIfPlus)}
         style={{ width: '320px', minWidth: '320px', height: '140px', borderRadius: '12px' }}
         className="snap-start shrink-0 relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform bg-black shadow-2xs"
       >
@@ -101,7 +133,7 @@ export const BannersCarousel: React.FC<BannersCarouselProps> = ({
       <div
         key="gift"
         id="banner-gift-guide"
-        onClick={handleOpenGiftGuide}
+        onClick={guardClick(handleOpenGiftGuide)}
         style={{ width: '320px', minWidth: '320px', height: '140px', borderRadius: '12px' }}
         className="snap-start shrink-0 relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform bg-white shadow-2xs"
       >
@@ -117,7 +149,14 @@ export const BannersCarousel: React.FC<BannersCarouselProps> = ({
   return (
     <div className="w-full overflow-hidden select-none">
       <div
-        className="flex gap-2 overflow-x-auto no-scrollbar snap-x snap-mandatory py-1 px-3 items-stretch"
+        ref={scrollerRef}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={endDrag}
+        onPointerLeave={endDrag}
+        className={`flex gap-2 overflow-x-auto no-scrollbar snap-x snap-mandatory py-1 px-3 items-stretch ${
+          isDragging ? 'cursor-grabbing snap-none' : 'cursor-grab'
+        }`}
         style={{ scrollPaddingLeft: '12px', scrollPaddingRight: '12px' }}
       >
         {order.map((id) => banners[id])}

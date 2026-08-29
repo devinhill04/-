@@ -137,9 +137,10 @@ export const HomePage: React.FC = () => {
                         fontSize: '20px',
                         lineHeight: '25px',
                       }}
-                      className="text-[#161616] dark:text-white"
+                      className="text-[#161616] dark:text-white flex flex-col"
                     >
-                      {`Результаты поиска по тегу ${selectedTag}`}
+                      <span>Результаты поиска по тегу</span>
+                      <span className="text-[#5737FA]">{selectedTag}</span>
                     </h3>
                   </div>
 
@@ -159,6 +160,7 @@ export const HomePage: React.FC = () => {
                           key={post.id}
                           post={post}
                           onTagClick={handleSelectTag}
+                          showTags={false}
                         />
                       ))
                     )}

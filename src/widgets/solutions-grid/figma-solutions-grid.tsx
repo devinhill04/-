@@ -29,7 +29,7 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
           }}
           className="text-[#161616] dark:text-white"
         >
-          {'Навигатор по вашим\nзадачам'}
+          Навигатор по вашим<br />задачам
         </h2>
         <p
           style={{
@@ -40,7 +40,7 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
           }}
           className="text-[#161616]/80 dark:text-neutral-300"
         >
-          {'Выберите проблему — получите\nготовую подборку постов'}
+          Выберите проблему — получите<br />готовую подборку постов
         </p>
       </div>
 
