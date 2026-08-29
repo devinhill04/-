@@ -7,9 +7,10 @@ import { triggerHaptic } from '../../lib/telegram';
 interface FigmaPostCardProps {
   post: Post;
   onTagClick?: (tag: string) => void;
+  showTags?: boolean;
 }
 
-export const FigmaPostCard: React.FC<FigmaPostCardProps> = ({ post, onTagClick }) => {
+export const FigmaPostCard: React.FC<FigmaPostCardProps> = ({ post, onTagClick, showTags = true }) => {
   const handleClick = () => {
     triggerHaptic('light');
     openPostLink(post.url, post.title);
@@ -42,7 +43,7 @@ export const FigmaPostCard: React.FC<FigmaPostCardProps> = ({ post, onTagClick }
         </h4>
 
         {/* Info Tags */}
-        {post.tags && post.tags.length > 0 && (
+        {showTags && post.tags && post.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 items-center">
             {post.tags.map((tag, idx) => {
               const formattedTag = tag.startsWith('#') ? tag : `#${tag}`;

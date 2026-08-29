@@ -30,7 +30,7 @@ export const FigmaHeader: React.FC<FigmaHeaderProps> = ({
           {/* Avatar (56x56, cornerRadius: 12) */}
           <div
             style={{ width: '56px', height: '56px', borderRadius: '12px' }}
-            className="overflow-hidden shrink-0 bg-[#F5F5F5] border border-black/5 dark:border-white/10"
+            className="overflow-hidden shrink-0 bg-[#F5F5F5]"
           >
             <img
               src="/figma_assets/fill_ad6b082b617a802b8358b6de4c2b025b81969cdc.png"

@@ -26,7 +26,7 @@ export const ThemeToggle: React.FC = () => {
         height: '40px',
         borderRadius: '8px',
       }}
-      className="bg-[#F9F9F9] dark:bg-white/10 text-[#161616] dark:text-white flex items-center justify-center cursor-pointer hover:opacity-80 active:scale-95 transition-all select-none border border-black/5 dark:border-white/10"
+      className="bg-[#F9F9F9] dark:bg-white/10 text-[#161616] dark:text-white flex items-center justify-center cursor-pointer hover:opacity-80 active:scale-95 transition-all select-none"
       title={`Переключить тему (сейчас: ${isDark ? 'тёмная' : 'светлая'})`}
     >
       {isDark ? (
