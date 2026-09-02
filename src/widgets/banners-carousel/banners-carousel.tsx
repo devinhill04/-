@@ -110,7 +110,7 @@ export const BannersCarousel: React.FC<BannersCarouselProps> = ({
         <img
           src="/figma_assets/exact_banner_all_resources.png"
           alt="Все наши ресурсы и площадки"
-          className="w-full h-full object-contain pointer-events-none"
+          className="w-full h-full object-cover pointer-events-none"
         />
       </div>
     ),
@@ -125,7 +125,7 @@ export const BannersCarousel: React.FC<BannersCarouselProps> = ({
         <img
           src="/figma_assets/exact_banner_if_plus.png"
           alt="Подписка IF+"
-          className="w-full h-full object-contain pointer-events-none"
+          className="w-full h-full object-cover pointer-events-none"
         />
       </div>
     ),
@@ -140,7 +140,7 @@ export const BannersCarousel: React.FC<BannersCarouselProps> = ({
         <img
           src="/figma_assets/exact_banner_gift.png"
           alt="Гайд по ИИС-3 и дивидендам"
-          className="w-full h-full object-contain pointer-events-none"
+          className="w-full h-full object-cover pointer-events-none"
         />
       </div>
     ),

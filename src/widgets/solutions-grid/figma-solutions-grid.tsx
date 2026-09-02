@@ -19,11 +19,11 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
   return (
     <div className="w-full px-3 py-3 flex flex-col gap-6 select-none">
       {/* Title + Subtitle section (w:390, h:104, pad: 12) */}
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 items-center text-center">
         <h2
           style={{
             fontFamily: "'Manrope', sans-serif",
-            fontWeight: 600,
+            fontWeight: 700,
             fontSize: '24px',
             lineHeight: '30px',
           }}
@@ -34,7 +34,7 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
         <p
           style={{
             fontFamily: "'Manrope', sans-serif",
-            fontWeight: 400,
+            fontWeight: 500,
             fontSize: '14px',
             lineHeight: '18px',
           }}
@@ -66,7 +66,7 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
               <h3
                 style={{
                   fontFamily: "'Manrope', sans-serif",
-                  fontWeight: 600,
+                  fontWeight: 700,
                   fontSize: '16px',
                   lineHeight: '20px',
                 }}
@@ -80,13 +80,13 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
               <p
                 style={{
                   fontFamily: "'Manrope', sans-serif",
-                  fontWeight: 500,
+                  fontWeight: 600,
                   fontSize: '12px',
                   lineHeight: '15px',
                 }}
                 className="text-[#161616] max-w-[130px]"
               >
-                {painLearning.body}
+                {'Я новичок, с чего'}<br />мне начать?
               </p>
             </div>
 
@@ -117,13 +117,13 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
               <h3
                 style={{
                   fontFamily: "'Manrope', sans-serif",
-                  fontWeight: 600,
+                  fontWeight: 700,
                   fontSize: '16px',
                   lineHeight: '20px',
                 }}
                 className="text-[#161616]"
               >
-                {'Личные\nфинансы'}
+                Личные<br />финансы
               </h3>
             </div>
 
@@ -131,11 +131,11 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
               <p
                 style={{
                   fontFamily: "'Manrope', sans-serif",
-                  fontWeight: 500,
+                  fontWeight: 600,
                   fontSize: '12px',
                   lineHeight: '15px',
                 }}
-                className="text-[#161616] max-w-[130px]"
+                className="text-[#161616] whitespace-nowrap"
               >
                 {painPersonalFinance.body}
               </p>
@@ -182,13 +182,15 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
             <p
               style={{
                 fontFamily: "'Manrope', sans-serif",
-                fontWeight: 400,
+                fontWeight: 600,
                 fontSize: '12px',
                 lineHeight: '18px',
               }}
               className="text-[#161616]"
             >
-              {painBankLifehacks.body}
+              {'Хочу знать хитрые схемы с простыми'}<br />
+              {'банковскими продуктами (вклад, кредитка,'}<br />
+              дебетовые карты)
             </p>
           </div>
 
@@ -324,7 +326,7 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
               <h3
                 style={{
                   fontFamily: "'Manrope', sans-serif",
-                  fontWeight: 600,
+                  fontWeight: 700,
                   fontSize: '16px',
                   lineHeight: '20px',
                 }}
@@ -338,13 +340,13 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
               <p
                 style={{
                   fontFamily: "'Manrope', sans-serif",
-                  fontWeight: 500,
+                  fontWeight: 600,
                   fontSize: '12px',
                   lineHeight: '15px',
                 }}
                 className="text-[#161616] max-w-[130px]"
               >
-                {painTaxes.body}
+                {'Как не потерять'}<br />и сэкономить на налогах?
               </p>
             </div>
 
@@ -378,13 +380,13 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
               <h3
                 style={{
                   fontFamily: "'Manrope', sans-serif",
-                  fontWeight: 600,
+                  fontWeight: 700,
                   fontSize: '16px',
                   lineHeight: '20px',
                 }}
                 className="text-[#161616]"
               >
-                {'Пенсия\nи пассивный\nдоход'}
+                Пенсия<br />и пассивный<br />доход
               </h3>
             </div>
 
@@ -392,13 +394,13 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
               <p
                 style={{
                   fontFamily: "'Manrope', sans-serif",
-                  fontWeight: 500,
+                  fontWeight: 600,
                   fontSize: '12px',
                   lineHeight: '15px',
                 }}
                 className="text-[#161616] max-w-[130px]"
               >
-                {painPension.body}
+                {'Как обеспечить себе'}<br />нормальную старость?
               </p>
             </div>
 
@@ -428,13 +430,13 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
               <h3
                 style={{
                   fontFamily: "'Manrope', sans-serif",
-                  fontWeight: 600,
+                  fontWeight: 700,
                   fontSize: '16px',
                   lineHeight: '20px',
                 }}
                 className="text-[#161616]"
               >
-                {'Ипотека,\nкредиты, и долги'}
+                Ипотека,<br />кредиты, и долги
               </h3>
             </div>
 
@@ -442,13 +444,13 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
               <p
                 style={{
                   fontFamily: "'Manrope', sans-serif",
-                  fontWeight: 500,
+                  fontWeight: 600,
                   fontSize: '12px',
                   lineHeight: '15px',
                 }}
                 className="text-[#161616] max-w-[130px]"
               >
-                {painMortgage.body}
+                {'Как быстрее разобраться'}<br />с долгами?
               </p>
             </div>
 

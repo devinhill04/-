@@ -31,14 +31,14 @@ export const FigmaPainDetailScreen: React.FC<FigmaPainDetailScreenProps> = ({
 
   return (
     <div className="w-full max-w-[390px] mx-auto px-3 py-2 flex flex-col gap-4">
-      {/* Navigation / Section + Back (w:390, h:30, gap:12) */}
-      <div className="flex items-center gap-3 py-2 border-b border-black/5 dark:border-white/10">
+      {/* Navigation / Section + Back */}
+      <div className="relative flex items-center justify-center pt-6 pb-2">
         <button
           onClick={() => {
             triggerHaptic('light');
             onBack();
           }}
-          className="p-1 -ml-1 text-[#161616] dark:text-white hover:opacity-70 transition-opacity cursor-pointer flex items-center justify-center"
+          className="absolute left-0 p-1 text-[#161616] dark:text-white hover:opacity-70 transition-opacity cursor-pointer flex items-center justify-center"
         >
           <ArrowLeft className="w-6 h-6" />
         </button>

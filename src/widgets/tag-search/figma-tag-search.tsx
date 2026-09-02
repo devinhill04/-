@@ -29,11 +29,11 @@ export const FigmaTagSearch: React.FC<FigmaTagSearchProps> = ({
     <div className="w-full px-3 py-3 flex flex-col gap-4">
       {/* Header + Icon */}
       <div className="flex items-center gap-2">
-        <Tag className="w-5 h-5 text-[#5737FA] stroke-[2]" />
+        <Tag className="w-5 h-5 text-[#5737FA] stroke-[2.5]" />
         <h2
           style={{
             fontFamily: "'Manrope', sans-serif",
-            fontWeight: 600,
+            fontWeight: 700,
             fontSize: '20px',
             lineHeight: '25px',
           }}

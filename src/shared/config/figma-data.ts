@@ -173,16 +173,27 @@ export interface FigmaEcosystemChannel {
 
 export const FIGMA_ECOSYSTEM: FigmaEcosystemChannel[] = [
   {
+    id: 'if_kira',
+    title: 'Кира Юхтенко',
+    subtitle: 'Основатель InvestFuture',
+    avatar: '/figma_assets/fill_57395bbcb316c014e24a2ed38a60c9d5f8ebe118.png',
+    links: [
+      { label: 'Telegram', url: 'https://t.me/kira_pronira' },
+      { label: 'Max', url: 'https://max.ru/kira_pronira' },
+      { label: 'YouTube', url: 'https://youtube.com/channel/UC_lfA-oU-3wV7YcghLEm9IA?si=F1Q9w0DDQ7w46l1I' },
+    ],
+  },
+  {
     id: 'if_main',
     title: 'InvestFuture',
     subtitle: 'Основной канал',
     avatar: '/figma_assets/fill_ad6b082b617a802b8358b6de4c2b025b81969cdc.png',
     links: [
       { label: 'Telegram', url: 'https://t.me/investfuture' },
-      { label: 'VK', url: 'https://vk.com/investfuture' },
-      { label: 'Max', url: 'https://max.investfuture.ru' },
-      { label: 'Youtube', url: 'https://youtube.com/@investfuture' },
-      { label: 'Rutube', url: 'https://rutube.ru/channel/23473133/' },
+      { label: 'VK', url: 'https://vk.ru/investfuture' },
+      { label: 'Max', url: 'https://max.ru/investfuture' },
+      { label: 'YouTube', url: 'https://www.youtube.com/channel/UC-WK8QlQJpAROCrO7dRvqcw' },
+      { label: 'RuTube', url: 'https://rutube.ru/u/InvestFuture/' },
     ],
   },
   {
@@ -192,10 +203,8 @@ export const FIGMA_ECOSYSTEM: FigmaEcosystemChannel[] = [
     avatar: '/figma_assets/fill_6abeac4161a12ed9b72c9691b4478cbc0f601fc0.png',
     links: [
       { label: 'Telegram', url: 'https://t.me/if_market_news' },
-      { label: 'VK', url: 'https://vk.com/investfuture' },
-      { label: 'Max', url: 'https://max.investfuture.ru' },
-      { label: 'Youtube', url: 'https://youtube.com/@investfuture' },
-      { label: 'Rutube', url: 'https://rutube.ru/channel/23473133/' },
+      { label: 'VK', url: 'https://vk.ru/if_market_news' },
+      { label: 'Max', url: 'https://max.ru/if_market_news?ysclid=mtismeam46381405746' },
     ],
   },
   {
@@ -205,10 +214,9 @@ export const FIGMA_ECOSYSTEM: FigmaEcosystemChannel[] = [
     avatar: '/figma_assets/fill_101903a8603a9867559d45c9adf4542551e28c33.png',
     links: [
       { label: 'Telegram', url: 'https://t.me/if_estate' },
-      { label: 'VK', url: 'https://vk.com/investfuture' },
-      { label: 'Max', url: 'https://max.investfuture.ru' },
-      { label: 'Youtube', url: 'https://youtube.com/@investfuture' },
-      { label: 'Rutube', url: 'https://rutube.ru/channel/23473133/' },
+      { label: 'VK', url: 'https://vk.ru/if_estate' },
+      { label: 'Max', url: 'https://max.ru/if_estate?ysclid=mtispx0cw935488868' },
+      { label: 'YouTube', url: 'https://www.youtube.com/channel/UC3-Fc7pwgF9h7TXCr8JqdgQ' },
     ],
   },
   {
@@ -217,11 +225,9 @@ export const FIGMA_ECOSYSTEM: FigmaEcosystemChannel[] = [
     subtitle: 'Акции',
     avatar: '/figma_assets/fill_bf4fd4ecd904629ecd8419c05d68fa36610f6d7a.png',
     links: [
-      { label: 'Telegram', url: 'https://t.me/if_stocks' },
-      { label: 'VK', url: 'https://vk.com/investfuture' },
-      { label: 'Max', url: 'https://max.investfuture.ru' },
-      { label: 'Youtube', url: 'https://youtube.com/@investfuture' },
-      { label: 'Rutube', url: 'https://rutube.ru/channel/23473133/' },
+      { label: 'Telegram', url: 'https://t.me/s/if_stocks' },
+      { label: 'VK', url: 'https://vk.ru/if_stocks?ysclid=mtisrfu73b173535939' },
+      { label: 'Max', url: 'https://max.ru/if_stocks?ysclid=mtisrs8u7y714867802' },
     ],
   },
   {
@@ -230,11 +236,9 @@ export const FIGMA_ECOSYSTEM: FigmaEcosystemChannel[] = [
     subtitle: 'Облигации',
     avatar: '/figma_assets/fill_11c4aa75fea962cf4acf4b47e5afac828143f68f.png',
     links: [
-      { label: 'Telegram', url: 'https://t.me/if_bonds' },
-      { label: 'VK', url: 'https://vk.com/investfuture' },
-      { label: 'Max', url: 'https://max.investfuture.ru' },
-      { label: 'Youtube', url: 'https://youtube.com/@investfuture' },
-      { label: 'Rutube', url: 'https://rutube.ru/channel/23473133/' },
+      { label: 'Telegram', url: 'https://t.me/if_bonds?ysclid=mtissaj57o555554919' },
+      { label: 'VK', url: 'https://vk.ru/if_bonds?ysclid=mtissi7xqn326876659' },
+      { label: 'Max', url: 'https://max.ru/if_bonds?ysclid=mtissos1tk685876356' },
     ],
   },
   {
@@ -243,24 +247,9 @@ export const FIGMA_ECOSYSTEM: FigmaEcosystemChannel[] = [
     subtitle: 'Работа и заработок',
     avatar: '/figma_assets/fill_7695818e5cb0ca02fff38b1f752cb9e906b763f4.png',
     links: [
-      { label: 'Telegram', url: 'https://t.me/if_jobs' },
-      { label: 'VK', url: 'https://vk.com/investfuture' },
-      { label: 'Max', url: 'https://max.investfuture.ru' },
-      { label: 'Youtube', url: 'https://youtube.com/@investfuture' },
-      { label: 'Rutube', url: 'https://rutube.ru/channel/23473133/' },
-    ],
-  },
-  {
-    id: 'if_kira',
-    title: 'Кира Юхтенко',
-    subtitle: 'Основатель InvestFuture',
-    avatar: '/figma_assets/fill_57395bbcb316c014e24a2ed38a60c9d5f8ebe118.png',
-    links: [
-      { label: 'Telegram', url: 'https://t.me/kira_juhtenko' },
-      { label: 'VK', url: 'https://vk.com/investfuture' },
-      { label: 'Max', url: 'https://max.investfuture.ru' },
-      { label: 'Youtube', url: 'https://youtube.com/@investfuture' },
-      { label: 'Rutube', url: 'https://rutube.ru/channel/23473133/' },
+      { label: 'Telegram', url: 'https://t.me/s/if_jobs?ysclid=mtisv30ajq595220899' },
+      { label: 'VK', url: 'https://vk.ru/if_jobs' },
+      { label: 'Max', url: 'https://max.ru/if_jobs?ysclid=mtisvgmd6d591457877' },
     ],
   },
   {
@@ -269,11 +258,8 @@ export const FIGMA_ECOSYSTEM: FigmaEcosystemChannel[] = [
     subtitle: 'Подписка для инвесторов',
     avatar: '/figma_assets/fill_522f975b11c1740b97d9cbfacf17366b1ee2b537.png',
     links: [
-      { label: 'Telegram', url: 'https://t.me/plus_investfuture' },
-      { label: 'VK', url: 'https://vk.com/investfuture' },
-      { label: 'Max', url: 'https://max.investfuture.ru' },
-      { label: 'Youtube', url: 'https://youtube.com/@investfuture' },
-      { label: 'Rutube', url: 'https://rutube.ru/channel/23473133/' },
+      { label: 'Telegram', url: 'https://t.me/plus_investfuture?ysclid=mtisw7tnqu36453424' },
+      { label: 'Boosty', url: 'https://boosty.to/investfuture?ysclid=mtit27k4c9162223826' },
     ],
   },
   {
@@ -282,11 +268,7 @@ export const FIGMA_ECOSYSTEM: FigmaEcosystemChannel[] = [
     subtitle: 'Новости, разборы, статьи',
     avatar: '/figma_assets/fill_305d2cfdbca815876e5ae2bad6faadb28918fe31.png',
     links: [
-      { label: 'Telegram', url: 'https://investfuture.ru' },
-      { label: 'VK', url: 'https://vk.com/investfuture' },
-      { label: 'Max', url: 'https://max.investfuture.ru' },
-      { label: 'Youtube', url: 'https://youtube.com/@investfuture' },
-      { label: 'Rutube', url: 'https://rutube.ru/channel/23473133/' },
+      { label: 'Перейти на сайт', url: 'https://investfuture.ru/?ysclid=mtit3sjyy7709985070' },
     ],
   },
 ];

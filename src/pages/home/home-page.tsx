@@ -11,7 +11,6 @@ import { usePosts } from '../../entities/post/model/use-posts';
 import { FigmaPainCard } from '../../shared/config/figma-data';
 import { AnalyticsService } from '../../shared/analytics/analytics';
 import { triggerHaptic } from '../../lib/telegram';
-import { BookOpen } from 'lucide-react';
 
 export const HomePage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'catalog' | 'solutions'>('catalog');
@@ -127,22 +126,18 @@ export const HomePage: React.FC = () => {
 
                 {/* Section: Результаты поиска по тегу (id: 79:1905 Section) */}
                 <div className="w-full px-3 flex flex-col gap-3 pt-2">
-                  {/* Header + Icon (Book_Open) */}
-                  <div className="flex items-center gap-2">
-                    <BookOpen className="w-5 h-5 text-[#161616] dark:text-neutral-300 stroke-[2]" />
-                    <h3
-                      style={{
-                        fontFamily: "'Manrope', sans-serif",
-                        fontWeight: 600,
-                        fontSize: '20px',
-                        lineHeight: '25px',
-                      }}
-                      className="text-[#161616] dark:text-white flex flex-col"
-                    >
-                      <span>Результаты поиска по тегу</span>
-                      <span className="text-[#5737FA]">{selectedTag}</span>
-                    </h3>
-                  </div>
+                  <h3
+                    style={{
+                      fontFamily: "'Manrope', sans-serif",
+                      fontWeight: 700,
+                      fontSize: '20px',
+                      lineHeight: '25px',
+                    }}
+                    className="text-[#161616] dark:text-white flex flex-col text-left"
+                  >
+                    <span>Результаты поиска по тегу</span>
+                    <span className="text-[#5737FA]">{selectedTag}</span>
+                  </h3>
 
                   {/* Posts List */}
                   <div className="flex flex-col gap-2 pt-1">

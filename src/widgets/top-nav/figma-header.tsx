@@ -93,7 +93,7 @@ export const FigmaHeader: React.FC<FigmaHeaderProps> = ({
               className={`flex-1 flex items-center justify-center transition-all cursor-pointer ${
                 activeScreen === 'catalog'
                   ? 'bg-[#161616] dark:bg-white text-white dark:text-[#161616]'
-                  : 'bg-white dark:bg-neutral-800 text-[#161616] dark:text-white border border-[#E5E5E5] dark:border-neutral-700'
+                  : 'bg-transparent text-[#161616] dark:text-white'
               }`}
             >
               Поиск по тегам
@@ -116,7 +116,7 @@ export const FigmaHeader: React.FC<FigmaHeaderProps> = ({
               className={`flex-1 flex items-center justify-center transition-all cursor-pointer ${
                 activeScreen === 'solutions'
                   ? 'bg-[#161616] dark:bg-white text-white dark:text-[#161616]'
-                  : 'bg-white dark:bg-neutral-800 text-[#161616] dark:text-white border border-[#E5E5E5] dark:border-neutral-700'
+                  : 'bg-transparent text-[#161616] dark:text-white'
               }`}
             >
               Готовые решения
