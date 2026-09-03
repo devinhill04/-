@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
 import { FigmaPainCard } from '../../shared/config/figma-data';
 import { FigmaPostCard } from '../post-card/figma-post-card';
 import { Post } from '../../entities/post/model/types';
@@ -40,7 +39,7 @@ export const FigmaPainDetailScreen: React.FC<FigmaPainDetailScreenProps> = ({
           }}
           className="absolute left-0 p-1 text-[#161616] dark:text-white hover:opacity-70 transition-opacity cursor-pointer flex items-center justify-center"
         >
-          <ArrowLeft className="w-6 h-6" />
+          <img src="/figma_assets/Arrow_Left_LG.png" alt="" className="w-6 h-6" />
         </button>
 
         <h2
