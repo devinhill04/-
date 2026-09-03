@@ -1,5 +1,5 @@
 import React from 'react';
-import { Moon, Sun } from 'lucide-react';
+import { Sun } from 'lucide-react';
 import { useTheme } from '../theme/theme-context';
 import { track } from '../lib/analytics';
 import { triggerHaptic } from '../../lib/telegram';
@@ -32,7 +32,7 @@ export const ThemeToggle: React.FC = () => {
       {isDark ? (
         <Sun className="w-5 h-5 text-white stroke-[1.5]" />
       ) : (
-        <Moon className="w-5 h-5 text-[#161616] stroke-[1.5]" />
+        <img src="/figma_assets/Mode_Switch.png" alt="" className="w-15 h-10" />
       )}
     </button>
   );

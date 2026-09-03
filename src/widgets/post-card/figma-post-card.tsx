@@ -64,7 +64,7 @@ export const FigmaPostCard: React.FC<FigmaPostCardProps> = ({ post, onTagClick, 
                     borderRadius: '4px',
                     padding: '6px 8px',
                   }}
-                  className="text-[#161616] bg-white dark:bg-neutral-700 dark:text-neutral-200 border border-black/5 dark:border-white/5 cursor-pointer hover:bg-neutral-100"
+                  className="text-[#161616] dark:bg-neutral-700 dark:text-neutral-200 border border-black/5 bg-[#F9F9F9] dark:border-white/5 cursor-pointer hover:bg-neutral-100"
                 >
                   {formattedTag}
                 </span>
@@ -76,7 +76,7 @@ export const FigmaPostCard: React.FC<FigmaPostCardProps> = ({ post, onTagClick, 
 
       {/* External Link Icon (15x15) */}
       <div className="shrink-0 pt-0.5 text-[#161616] dark:text-neutral-400 group-hover:text-[#5737FA] transition-colors">
-        <ExternalLink className="w-[18px] h-[18px]" />
+        <img src="/figma_assets/External_Link.png" alt="" className="w-[24px] h-[24px] -mt-1" />
       </div>
     </div>
   );

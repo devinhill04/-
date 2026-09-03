@@ -108,7 +108,7 @@ export const HomePage: React.FC = () => {
           /* VIEW 3: Main Screens with Banners Carousel */
           <>
             {/* Banners Slider (Frame 390x140) */}
-            <div className="py-2">
+            <div className="py-2 mt-3">
               <BannersCarousel
                 onOpenResources={() => setIsEcosystemOpen(true)}
               />
@@ -129,7 +129,7 @@ export const HomePage: React.FC = () => {
                   <h3
                     style={{
                       fontFamily: "'Manrope', sans-serif",
-                      fontWeight: 700,
+                      fontWeight: 600,
                       fontSize: '20px',
                       lineHeight: '25px',
                     }}

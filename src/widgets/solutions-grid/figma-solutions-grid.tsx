@@ -23,7 +23,7 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
         <h2
           style={{
             fontFamily: "'Manrope', sans-serif",
-            fontWeight: 700,
+            fontWeight: 600,
             fontSize: '24px',
             lineHeight: '30px',
           }}
@@ -62,11 +62,11 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
             }}
             className="relative overflow-hidden p-3.5 flex flex-col justify-between cursor-pointer group active:scale-[0.98] transition-transform"
           >
-            <div className="z-10">
+            <div className="z-10 -ml-[2px] relative -top-[2px]">
               <h3
                 style={{
                   fontFamily: "'Manrope', sans-serif",
-                  fontWeight: 700,
+                  fontWeight: 600,
                   fontSize: '16px',
                   lineHeight: '20px',
                 }}
@@ -76,17 +76,17 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
               </h3>
             </div>
 
-            <div className="z-10">
+            <div className="z-10 -ml-[2px] relative top-[2px]">
               <p
                 style={{
                   fontFamily: "'Manrope', sans-serif",
-                  fontWeight: 600,
+                  fontWeight: 500,
                   fontSize: '12px',
                   lineHeight: '15px',
                 }}
-                className="text-[#161616] max-w-[130px]"
+                className="text-[#161616] max-w-[200px]"
               >
-                {'Я новичок, с чего'}<br />мне начать?
+                {'Я новичок, с чего'}<br />мне начать
               </p>
             </div>
 
@@ -113,11 +113,11 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
             }}
             className="relative overflow-hidden p-3.5 flex flex-col justify-between cursor-pointer group active:scale-[0.98] transition-transform"
           >
-            <div className="z-10">
+            <div className="z-10 -ml-[2px] relative -top-[2px]">
               <h3
                 style={{
                   fontFamily: "'Manrope', sans-serif",
-                  fontWeight: 700,
+                  fontWeight: 600,
                   fontSize: '16px',
                   lineHeight: '20px',
                 }}
@@ -127,11 +127,11 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
               </h3>
             </div>
 
-            <div className="z-10">
+            <div className="z-10 -ml-[2px] relative top-[2px]">
               <p
                 style={{
                   fontFamily: "'Manrope', sans-serif",
-                  fontWeight: 600,
+                  fontWeight: 500,
                   fontSize: '12px',
                   lineHeight: '15px',
                 }}
@@ -164,7 +164,7 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
           }}
           className="relative overflow-hidden p-4 flex flex-col justify-between cursor-pointer group active:scale-[0.98] transition-transform"
         >
-          <div className="z-10">
+          <div className="z-10 -ml-[3px] relative -top-[3px]">
             <h3
               style={{
                 fontFamily: "'Manrope', sans-serif",
@@ -178,11 +178,11 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
             </h3>
           </div>
 
-          <div className="z-10 max-w-[220px]">
+          <div className="z-10 max-w-[260px] -ml-[2px] relative top-[2px]">
             <p
               style={{
                 fontFamily: "'Manrope', sans-serif",
-                fontWeight: 600,
+                fontWeight: 500,
                 fontSize: '12px',
                 lineHeight: '18px',
               }}
@@ -190,7 +190,7 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
             >
               {'Хочу знать хитрые схемы с простыми'}<br />
               {'банковскими продуктами (вклад, кредитка,'}<br />
-              дебетовые карты)
+              {'дебетовые карты'})
             </p>
           </div>
 
@@ -221,7 +221,7 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
               }}
               className="relative overflow-hidden p-3.5 flex flex-col justify-between cursor-pointer group active:scale-[0.98] transition-transform"
             >
-              <div className="z-10">
+              <div className="z-10 -ml-[2px] relative -top-[2px]">
                 <h3
                   style={{
                     fontFamily: "'Manrope', sans-serif",
@@ -235,7 +235,7 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
                 </h3>
               </div>
 
-              <div className="z-10">
+              <div className="z-10 -ml-[2px] relative top-[2px]">
                 <p
                   style={{
                     fontFamily: "'Manrope', sans-serif",
@@ -243,7 +243,7 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
                     fontSize: '12px',
                     lineHeight: '15px',
                   }}
-                  className="text-[#161616] max-w-[130px]"
+                  className="text-[#161616] max-w-[200px]"
                 >
                   {painTransfers.body}
                 </p>
@@ -271,7 +271,7 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
               }}
               className="relative overflow-hidden p-3.5 flex flex-col justify-between cursor-pointer group active:scale-[0.98] transition-transform"
             >
-              <div className="z-10">
+              <div className="z-10 -ml-[2px] relative -top-[2px]">
                 <h3
                   style={{
                     fontFamily: "'Manrope', sans-serif",
@@ -285,7 +285,7 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
                 </h3>
               </div>
 
-              <div className="z-10">
+              <div className="z-10 -ml-[2px] relative top-[2px]">
                 <p
                   style={{
                     fontFamily: "'Manrope', sans-serif",
@@ -293,7 +293,7 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
                     fontSize: '12px',
                     lineHeight: '15px',
                   }}
-                  className="text-[#161616] max-w-[130px]"
+                  className="text-[#161616] max-w-[200px]"
                 >
                   {painDeductions.body}
                 </p>
@@ -322,11 +322,11 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
             }}
             className="relative overflow-hidden p-4 flex flex-col justify-between cursor-pointer group active:scale-[0.98] transition-transform"
           >
-            <div className="z-10">
+            <div className="z-10 -ml-[3px] relative -top-[4px]">
               <h3
                 style={{
                   fontFamily: "'Manrope', sans-serif",
-                  fontWeight: 700,
+                  fontWeight: 600,
                   fontSize: '16px',
                   lineHeight: '20px',
                 }}
@@ -336,17 +336,17 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
               </h3>
             </div>
 
-            <div className="z-10">
+            <div className="z-10 -ml-[3px] relative top-[4px]">
               <p
                 style={{
                   fontFamily: "'Manrope', sans-serif",
-                  fontWeight: 600,
+                  fontWeight: 500,
                   fontSize: '12px',
                   lineHeight: '15px',
                 }}
-                className="text-[#161616] max-w-[130px]"
+                className="text-[#161616] max-w-[360px]"
               >
-                {'Как не потерять'}<br />и сэкономить на налогах?
+                {'Как не потерять'}<br />и сэкономить на налогах
               </p>
             </div>
 
@@ -376,11 +376,11 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
             }}
             className="relative overflow-hidden p-3.5 flex flex-col justify-between cursor-pointer group active:scale-[0.98] transition-transform"
           >
-            <div className="z-10">
+            <div className="z-10 -ml-[2px] relative -top-[2px]">
               <h3
                 style={{
                   fontFamily: "'Manrope', sans-serif",
-                  fontWeight: 700,
+                  fontWeight: 600,
                   fontSize: '16px',
                   lineHeight: '20px',
                 }}
@@ -390,17 +390,17 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
               </h3>
             </div>
 
-            <div className="z-10">
+            <div className="z-10 -ml-[2px] relative top-[2px]">
               <p
                 style={{
                   fontFamily: "'Manrope', sans-serif",
-                  fontWeight: 600,
+                  fontWeight: 500,
                   fontSize: '12px',
                   lineHeight: '15px',
                 }}
-                className="text-[#161616] max-w-[130px]"
+                className="text-[#161616] max-w-[200px]"
               >
-                {'Как обеспечить себе'}<br />нормальную старость?
+                {'Как обеспечить себе'}<br />нормальную старость
               </p>
             </div>
 
@@ -426,31 +426,31 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
             }}
             className="relative overflow-hidden p-3.5 flex flex-col justify-between cursor-pointer group active:scale-[0.98] transition-transform"
           >
-            <div className="z-10">
+            <div className="z-10 -ml-[2px] relative -top-[2px]">
               <h3
                 style={{
                   fontFamily: "'Manrope', sans-serif",
-                  fontWeight: 700,
+                  fontWeight: 600,
                   fontSize: '16px',
                   lineHeight: '20px',
                 }}
                 className="text-[#161616]"
               >
-                Ипотека,<br />кредиты, и долги
+                Ипотека, кредиты,<br />и долги
               </h3>
             </div>
 
-            <div className="z-10">
+            <div className="z-10 -ml-[2px] relative top-[2px]">
               <p
                 style={{
                   fontFamily: "'Manrope', sans-serif",
-                  fontWeight: 600,
+                  fontWeight: 500,
                   fontSize: '12px',
                   lineHeight: '15px',
                 }}
-                className="text-[#161616] max-w-[130px]"
+                className="text-[#161616] max-w-[360px]"
               >
-                {'Как быстрее разобраться'}<br />с долгами?
+                {'Как быстрее разобраться'}<br />с долгами
               </p>
             </div>
 

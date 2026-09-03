@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Tag, ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { FIGMA_TAGS } from '../../shared/config/figma-data';
 import { triggerHaptic } from '../../lib/telegram';
 
@@ -26,14 +26,14 @@ export const FigmaTagSearch: React.FC<FigmaTagSearchProps> = ({
   const hiddenCount = tagsList.length - 10;
 
   return (
-    <div className="w-full px-3 py-3 flex flex-col gap-4">
+    <div className="w-full px-3 py-3 flex flex-col gap-4 mt-3">
       {/* Header + Icon */}
       <div className="flex items-center gap-2">
-        <Tag className="w-5 h-5 text-[#5737FA] stroke-[2.5]" />
+        <img src="/figma_assets/Tag.png" alt="" className="w-6 h-6" />
         <h2
           style={{
             fontFamily: "'Manrope', sans-serif",
-            fontWeight: 700,
+            fontWeight: 600,
             fontSize: '20px',
             lineHeight: '25px',
           }}
@@ -85,7 +85,6 @@ export const FigmaTagSearch: React.FC<FigmaTagSearchProps> = ({
             style={{
               borderRadius: '999px',
               padding: '8px 12px 8px 16px',
-              background: '#161616',
               height: '31px',
               fontFamily: "'Manrope', sans-serif",
               fontWeight: 500,
@@ -93,7 +92,7 @@ export const FigmaTagSearch: React.FC<FigmaTagSearchProps> = ({
               lineHeight: '15px',
               color: '#FFFFFF',
             }}
-            className="inline-flex items-center justify-center gap-1 cursor-pointer hover:bg-black active:scale-95 transition-all dark:bg-white dark:text-[#161616]"
+            className="inline-flex items-center justify-center gap-1 cursor-pointer hover:opacity-90 active:scale-95 transition-all bg-[#161616] text-white"
           >
             <span>{isExpanded ? 'Свернуть' : `Еще ${hiddenCount}`}</span>
             {isExpanded ? (
