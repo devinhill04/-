@@ -21,11 +21,10 @@ export const FigmaPostCard: React.FC<FigmaPostCardProps> = ({ post, onTagClick, 
       onClick={handleClick}
       style={{
         borderRadius: '12px',
-        background: '#F9F9F9',
         padding: '16px',
         gap: '8px',
       }}
-      className="w-full flex items-start justify-between cursor-pointer group active:scale-[0.99] transition-all border border-transparent dark:bg-neutral-800/80 dark:hover:bg-neutral-800"
+      className="w-full flex items-start justify-between cursor-pointer group active:scale-[0.99] transition-all border border-transparent bg-[#F9F9F9] dark:bg-neutral-800/80 dark:hover:bg-neutral-800"
     >
       {/* Content */}
       <div className="flex flex-col gap-4 flex-1 min-w-0 pr-2">
@@ -64,9 +63,8 @@ export const FigmaPostCard: React.FC<FigmaPostCardProps> = ({ post, onTagClick, 
                     lineHeight: '12.5px',
                     borderRadius: '4px',
                     padding: '6px 8px',
-                    background: '#FFFFFF',
                   }}
-                  className="text-[#161616] dark:bg-neutral-700 dark:text-neutral-200 border border-black/5 dark:border-white/5 cursor-pointer hover:bg-neutral-100"
+                  className="text-[#161616] bg-white dark:bg-neutral-700 dark:text-neutral-200 border border-black/5 dark:border-white/5 cursor-pointer hover:bg-neutral-100"
                 >
                   {formattedTag}
                 </span>

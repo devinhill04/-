@@ -51,10 +51,9 @@ export const FigmaEcosystemScreen: React.FC<FigmaEcosystemScreenProps> = ({ onBa
                 }}
                 style={{
                   borderRadius: '12px',
-                  background: '#F9F9F9',
                   padding: '12px',
                 }}
-                className="w-full flex items-center gap-3 dark:bg-neutral-800/80 cursor-pointer active:scale-[0.99] transition-transform text-left"
+                className="w-full flex items-center gap-3 bg-[#F9F9F9] dark:bg-neutral-800/80 cursor-pointer active:scale-[0.99] transition-transform text-left"
               >
                 <div className="w-11 h-11 rounded-full overflow-hidden shrink-0 bg-neutral-200">
                   <img
@@ -99,10 +98,9 @@ export const FigmaEcosystemScreen: React.FC<FigmaEcosystemScreenProps> = ({ onBa
               key={channel.id}
               style={{
                 borderRadius: '12px',
-                background: '#F9F9F9',
                 padding: '12px',
               }}
-              className="w-full flex flex-col gap-3 dark:bg-neutral-800/80"
+              className="w-full flex flex-col gap-3 bg-[#F9F9F9] dark:bg-neutral-800/80"
             >
               {/* Top row: Avatar + Title + Subtitle */}
               <div className="flex items-center gap-3">

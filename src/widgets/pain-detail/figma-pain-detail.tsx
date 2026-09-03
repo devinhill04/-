@@ -76,8 +76,8 @@ export const FigmaPainDetailScreen: React.FC<FigmaPainDetailScreenProps> = ({
             {remaining > 0 && (
               <button
                 onClick={handleShowMore}
-                style={{ borderRadius: '8px', background: '#F9F9F9' }}
-                className="w-full h-10 flex items-center justify-center text-[#161616] dark:bg-neutral-800 dark:text-neutral-200 font-manrope text-[14px] font-medium transition-all active:scale-[0.99] cursor-pointer"
+                style={{ borderRadius: '8px' }}
+                className="w-full h-10 flex items-center justify-center text-[#161616] bg-[#F9F9F9] dark:bg-neutral-800 dark:text-neutral-200 font-manrope text-[14px] font-medium transition-all active:scale-[0.99] cursor-pointer"
               >
                 {`Показать ещё ${Math.min(PAGE_SIZE, remaining)} публикаций`}
               </button>

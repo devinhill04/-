@@ -170,13 +170,12 @@ export const HomePage: React.FC = () => {
                         style={{
                           height: '40px',
                           borderRadius: '8px',
-                          background: '#F9F9F9',
                           fontFamily: "'Manrope', sans-serif",
                           fontWeight: 500,
                           fontSize: '12px',
                           lineHeight: '15px',
                         }}
-                        className="w-full flex items-center justify-center text-[#161616] dark:bg-neutral-800 dark:text-white hover:bg-neutral-200 transition-colors mt-2 cursor-pointer"
+                        className="w-full flex items-center justify-center text-[#161616] bg-[#F9F9F9] dark:bg-neutral-800 dark:text-white hover:bg-neutral-200 transition-colors mt-2 cursor-pointer"
                       >
                         {`Показать еще ${Math.min(10, filteredPosts.length - postsLimit)} публикаций`}
                       </button>
