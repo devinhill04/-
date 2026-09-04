@@ -1,0 +1,19 @@
+services:
+  if-navigation-miniapp:
+    image: ${DOCKER_IMAGE}
+    container_name: if-navigation-miniapp
+    restart: unless-stopped
+    networks:
+      - if-navigation-miniapp
+    ports:
+      - "127.0.0.1:8080:80"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/healthz"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+networks:
+  if-navigation-miniapp:
+    external: true
+    name: if-navigation-miniapp
