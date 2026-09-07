@@ -89,7 +89,7 @@ export const BannersCarousel: React.FC<BannersCarouselProps> = ({
   const handleOpenGiftGuide = () => {
     triggerHaptic('medium');
     AnalyticsService.track('lead_magnet_open', { source: 'carousel_gift_banner' });
-    openPostLink('https://t.me/investfuture', 'Кредитные карусели');
+    openPostLink('https://t.me/investfuture/15154', 'Кредитные карусели');
   };
 
   const handleOpenResources = () => {

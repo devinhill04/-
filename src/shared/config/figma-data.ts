@@ -237,7 +237,7 @@ export const FIGMA_ECOSYSTEM: FigmaEcosystemChannel[] = [
     id: 'if_bonds',
     title: 'IF Bonds',
     subtitle: 'Облигации',
-    avatar: '/figma_assets/fill_7695818e5cb0ca02fff38b1f752cb9e906b763f4.png',
+    avatar: '/figma_assets/fill_285c3103335d4fd4a5e3937d88154f8cc54b4520.png',
     links: [
       { label: 'Telegram', url: 'https://t.me/if_bonds?ysclid=mtissaj57o555554919' },
       { label: 'VK', url: 'https://vk.ru/if_bonds?ysclid=mtissi7xqn326876659' },
