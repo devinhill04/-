@@ -81,6 +81,11 @@ export const HomePage: React.FC = () => {
           setActivePain(null);
           setIsEcosystemOpen(false);
         }}
+        onLogoClick={() => {
+          setActiveTab('catalog');
+          setActivePain(null);
+          setIsEcosystemOpen(false);
+        }}
         showNavTabs={!activePain && !isEcosystemOpen}
       />
 

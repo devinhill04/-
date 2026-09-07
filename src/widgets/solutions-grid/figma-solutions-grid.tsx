@@ -436,7 +436,7 @@ export const FigmaSolutionsGrid: React.FC<FigmaSolutionsGridProps> = ({ onSelect
                 }}
                 className="text-[#161616]"
               >
-                Ипотека, кредиты,<br />и долги
+                Ипотека, кредиты<br />и долги
               </h3>
             </div>
 

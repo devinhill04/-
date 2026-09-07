@@ -70,6 +70,7 @@ export interface FigmaPainCard {
   id: string;
   slug: string;
   title: string;
+  detailTitle?: string;
   body: string;
   cardType: 'small' | 'horizontal' | 'vertical';
   bgColor: string;
@@ -142,6 +143,7 @@ export const FIGMA_PAIN_CARDS: FigmaPainCard[] = [
     id: 'pain_7',
     slug: 'pension',
     title: 'Пенсия и пассивный доход',
+    detailTitle: 'Пассивный доход',
     body: 'Как обеспечить себе нормальную старость',
     cardType: 'small',
     bgColor: '#FFE79F',
@@ -151,7 +153,8 @@ export const FIGMA_PAIN_CARDS: FigmaPainCard[] = [
   {
     id: 'pain_8',
     slug: 'mortgage',
-    title: 'Ипотека, кредиты, и долги',
+    title: 'Ипотека, кредиты и долги',
+    detailTitle: 'Кредиты и долги',
     body: 'Как быстрее разобраться с долгами',
     cardType: 'small',
     bgColor: '#AAE2EF',
@@ -266,7 +269,7 @@ export const FIGMA_ECOSYSTEM: FigmaEcosystemChannel[] = [
     id: 'if_site',
     title: 'Сайт InvestFuture',
     subtitle: 'Новости, разборы, статьи',
-    avatar: '/figma_assets/Avatar.png',
+    avatar: '/figma_assets/Site_Icon_New.png',
     links: [
       { label: 'Перейти на сайт', url: 'https://investfuture.ru/?ysclid=mtit3sjyy7709985070' },
     ],

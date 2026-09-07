@@ -1,11 +1,11 @@
 import React from 'react';
 import { ThemeToggle } from '../../shared/ui/theme-toggle';
-import { openPostLink } from '../../shared/lib/open-telegram-link';
 import { triggerHaptic } from '../../lib/telegram';
 
 interface FigmaHeaderProps {
   activeScreen?: 'catalog' | 'solutions' | 'ecosystem' | 'pain_detail';
   onSelectScreen?: (screen: 'catalog' | 'solutions') => void;
+  onLogoClick?: () => void;
   title?: string;
   showNavTabs?: boolean;
 }
@@ -13,6 +13,7 @@ interface FigmaHeaderProps {
 export const FigmaHeader: React.FC<FigmaHeaderProps> = ({
   activeScreen = 'catalog',
   onSelectScreen,
+  onLogoClick,
   showNavTabs = true,
 }) => {
   return (
@@ -23,7 +24,7 @@ export const FigmaHeader: React.FC<FigmaHeaderProps> = ({
         <div
           onClick={() => {
             triggerHaptic('light');
-            openPostLink('https://t.me/investfuture', 'Канал InvestFuture');
+            onLogoClick?.();
           }}
           className="flex items-center gap-3 cursor-pointer group active:opacity-80 transition-opacity"
         >

@@ -20,7 +20,7 @@ export const FigmaEcosystemScreen: React.FC<FigmaEcosystemScreenProps> = ({ onBa
           }}
           className="absolute left-0 p-1 text-[#161616] dark:text-white hover:opacity-70 transition-opacity cursor-pointer flex items-center justify-center"
         >
-          <img src="/figma_assets/Arrow_Left_LG.png" alt="" className="w-6 h-6" />
+          <img src="/figma_assets/Arrow_Left_LG.png" alt="" className="w-6 h-6 dark:invert" />
         </button>
 
         <h2
@@ -156,7 +156,7 @@ export const FigmaEcosystemScreen: React.FC<FigmaEcosystemScreenProps> = ({ onBa
                       fontSize: '12px',
                       lineHeight: '15px',
                     }}
-                    className="text-[#161616] bg-white dark:bg-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-600 transition-colors shadow-2xs shrink-0 cursor-pointer flex items-center gap-1"
+                    className="text-[#161616] bg-white hover:bg-neutral-100 transition-colors shadow-2xs shrink-0 cursor-pointer flex items-center gap-1"
                   >
                     <span>{link.label}</span>
                   </button>
