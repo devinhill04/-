@@ -138,7 +138,7 @@ export const BannersCarousel: React.FC<BannersCarouselProps> = ({
         className="snap-start shrink-0 relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform bg-white shadow-2xs"
       >
         <img
-          src="/figma_assets/exact_banner_gift.png"
+          src="/figma_assets/banner_credit_carousels_v2.png"
           alt="Кредитные карусели"
           className="w-full h-full object-cover pointer-events-none"
         />

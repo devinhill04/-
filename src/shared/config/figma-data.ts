@@ -28,7 +28,7 @@ export const FIGMA_BANNERS: FigmaBanner[] = [
     body: 'Бесплатная PDF-инструкция и подборка из 10 топовых бумаг с ежемесячным купоном',
     bgFill: 'linear-gradient(278.32deg, #FFFFFF 20%, #FED5FF 40%, #E6F0FF 100%)',
     image: '/figma_assets/banner_gift.png',
-    exactImage: '/figma_assets/exact_banner_gift.png',
+    exactImage: '/figma_assets/banner_credit_carousels_v2.png',
   },
   {
     id: 'banner_all_resources',
@@ -261,8 +261,9 @@ export const FIGMA_ECOSYSTEM: FigmaEcosystemChannel[] = [
     subtitle: 'Подписка для инвесторов',
     avatar: '/figma_assets/fill_305d2cfdbca815876e5ae2bad6faadb28918fe31.png',
     links: [
-      { label: 'Telegram', url: 'https://t.me/plus_investfuture?ysclid=mtisw7tnqu36453424' },
+      { label: 'Подписка', url: 'https://t.me/if_lms_bot' },
       { label: 'Boosty', url: 'https://boosty.to/investfuture?ysclid=mtit27k4c9162223826' },
+      { label: 'Telegram', url: 'https://t.me/plus_investfuture?ysclid=mtisw7tnqu36453424' },
     ],
   },
   {

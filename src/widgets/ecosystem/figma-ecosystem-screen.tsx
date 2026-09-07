@@ -104,7 +104,7 @@ export const FigmaEcosystemScreen: React.FC<FigmaEcosystemScreenProps> = ({ onBa
             >
               {/* Top row: Avatar + Title + Subtitle */}
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-full overflow-hidden shrink-0 bg-neutral-200">
+                <div className="w-11 h-11 rounded-full overflow-hidden shrink-0 bg-white dark:bg-neutral-800/80">
                   <img
                     src={channel.avatar}
                     alt={channel.title}
