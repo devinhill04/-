@@ -89,7 +89,7 @@ export const BannersCarousel: React.FC<BannersCarouselProps> = ({
   const handleOpenGiftGuide = () => {
     triggerHaptic('medium');
     AnalyticsService.track('lead_magnet_open', { source: 'carousel_gift_banner' });
-    openPostLink('https://t.me/investfuture', 'Гайд по ИИС-3 и дивидендам');
+    openPostLink('https://t.me/investfuture', 'Кредитные карусели');
   };
 
   const handleOpenResources = () => {
@@ -139,7 +139,7 @@ export const BannersCarousel: React.FC<BannersCarouselProps> = ({
       >
         <img
           src="/figma_assets/exact_banner_gift.png"
-          alt="Гайд по ИИС-3 и дивидендам"
+          alt="Кредитные карусели"
           className="w-full h-full object-cover pointer-events-none"
         />
       </div>
