@@ -28,18 +28,37 @@ export const FigmaPostCard: React.FC<FigmaPostCardProps> = ({ post, onTagClick, 
     >
       {/* Content */}
       <div className="flex flex-col gap-4 flex-1 min-w-0 pr-2">
-        {/* Title */}
-        <h4
-          style={{
-            fontFamily: "'Manrope', sans-serif",
-            fontWeight: 500,
-            fontSize: '14px',
-            lineHeight: '17.5px',
-          }}
-          className="text-[#161616] dark:text-neutral-100 group-hover:text-[#5737FA] transition-colors"
-        >
-          {post.title}
-        </h4>
+        {/* Title + Date */}
+        <div className="flex flex-col gap-1">
+          <h4
+            style={{
+              fontFamily: "'Manrope', sans-serif",
+              fontWeight: 500,
+              fontSize: '14px',
+              lineHeight: '17.5px',
+            }}
+            className="text-[#161616] dark:text-neutral-100 group-hover:text-[#5737FA] transition-colors"
+          >
+            {post.title}
+          </h4>
+
+          {/* Date */}
+          {post.publishedAt && /^\d{4}-\d{2}-\d{2}$/.test(post.publishedAt) && (
+            <p
+              style={{
+                fontFamily: "'Manrope', sans-serif",
+                fontSize: '10px',
+                lineHeight: '125%',
+              }}
+              className="text-[#7d7c82] dark:text-neutral-500 text-left"
+            >
+              {(() => {
+                const [y, m, d] = post.publishedAt.split('-');
+                return `${d}.${m}.${y}`;
+              })()}
+            </p>
+          )}
+        </div>
 
         {/* Info Tags */}
         {showTags && post.tags && post.tags.length > 0 && (
