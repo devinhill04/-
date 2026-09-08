@@ -108,7 +108,7 @@ export const BannersCarousel: React.FC<BannersCarouselProps> = ({
         className="snap-start shrink-0 relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform bg-[#F9F9F7] dark:bg-neutral-800 shadow-2xs"
       >
         <img
-          src="/figma_assets/exact_banner_all_resources.png"
+          src="/figma_assets/banner_all_resources_v3.png"
           alt="Все наши ресурсы и площадки"
           className="w-full h-full object-cover pointer-events-none"
         />
@@ -123,7 +123,7 @@ export const BannersCarousel: React.FC<BannersCarouselProps> = ({
         className="snap-start shrink-0 relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform bg-black shadow-2xs"
       >
         <img
-          src="/figma_assets/exact_banner_if_plus.png"
+          src="/figma_assets/banner_if_plus_v3.png"
           alt="Подписка IF+"
           className="w-full h-full object-cover pointer-events-none"
         />
@@ -138,7 +138,7 @@ export const BannersCarousel: React.FC<BannersCarouselProps> = ({
         className="snap-start shrink-0 relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform bg-white shadow-2xs"
       >
         <img
-          src="/figma_assets/banner_credit_carousels_v2.png"
+          src="/figma_assets/banner_credit_carousels_v3.png"
           alt="Кредитные карусели"
           className="w-full h-full object-cover pointer-events-none"
         />
