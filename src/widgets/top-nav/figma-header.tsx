@@ -75,7 +75,7 @@ export const FigmaHeader: React.FC<FigmaHeaderProps> = ({
 
       {/* 2. Nav_Btns: Frame 390x60 (pad: T8 R12 B12 L12 gap:4) */}
       {showNavTabs && onSelectScreen && (
-        <div style={{ paddingTop: '8px' }} className="w-full max-w-[390px] mx-auto px-3 pb-3">
+        <div style={{ paddingTop: '16px' }} className="w-full max-w-[390px] mx-auto px-3 pb-3">
           <div className="flex gap-1 items-center">
             {/* Tab 1: Поиск по тегам */}
             <button
