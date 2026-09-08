@@ -34,16 +34,30 @@ export const HomePage: React.FC = () => {
         tagsSet.add(t.startsWith('#') ? t : `#${t}`);
       });
     });
-    return Array.from(tagsSet);
+    const tags = Array.from(tagsSet);
+    const PRIORITY_TAG = '#Инвестидея/разборкомпаний';
+    tags.sort((a, b) => {
+      if (a === PRIORITY_TAG) return -1;
+      if (b === PRIORITY_TAG) return 1;
+      return 0;
+    });
+    return tags;
   }, [posts]);
 
   // Filter posts by active selected tag
   const filteredPosts = useMemo(() => {
     if (!selectedTag) return posts;
     const cleanTag = selectedTag.replace(/^#/, '').toLowerCase();
-    return posts.filter((p) => {
+    const matched = posts.filter((p) => {
       return p.tags?.some((t) => t.replace(/^#/, '').toLowerCase() === cleanTag);
     });
+    // Сортируем по свежести: номер поста в Telegram-ссылке растёт со временем,
+    // поэтому больший номер = более новый пост. Новые — сверху.
+    const getPostNumber = (url: string) => {
+      const match = url.match(/\/(\d+)(?:\?|$)/);
+      return match ? parseInt(match[1], 10) : 0;
+    };
+    return [...matched].sort((a, b) => getPostNumber(b.url) - getPostNumber(a.url));
   }, [posts, selectedTag]);
 
   // Filter posts for active pain detail screen

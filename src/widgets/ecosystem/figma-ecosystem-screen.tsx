@@ -55,11 +55,11 @@ export const FigmaEcosystemScreen: React.FC<FigmaEcosystemScreenProps> = ({ onBa
                 }}
                 className="w-full flex items-center gap-3 bg-[#F9F9F9] dark:bg-neutral-800/80 cursor-pointer active:scale-[0.99] transition-transform text-left"
               >
-                <div className="w-11 h-11 rounded-full overflow-hidden shrink-0 bg-[#161616] dark:bg-white flex items-center justify-center p-2.5">
+                <div className="w-11 h-11 rounded-full overflow-hidden shrink-0 bg-[#161616] flex items-center justify-center p-3">
                   <img
                     src={channel.avatar}
                     alt={channel.title}
-                    className="w-full h-full object-contain dark:invert"
+                    className="w-full h-full object-contain"
                   />
                 </div>
 

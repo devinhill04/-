@@ -17,9 +17,9 @@ export const FigmaHeader: React.FC<FigmaHeaderProps> = ({
   showNavTabs = true,
 }) => {
   return (
-    <header className="w-full bg-white dark:bg-[#111111] transition-colors">
+    <header className="w-full bg-white dark:bg-[#111111] transition-colors sticky top-0 z-40">
       {/* 1. Top Header Row: Frame 390x80 (pad: 12 12 12 12) */}
-      <div className="w-full max-w-[390px] mx-auto pl-3 pr-1 py-3 flex items-center justify-between">
+      <div className="w-full max-w-[390px] mx-auto pl-3 pr-1 pt-3 pb-0 flex items-center justify-between">
         {/* Avatar + Title + Subtitle */}
         <div
           onClick={() => {
@@ -110,7 +110,7 @@ export const FigmaHeader: React.FC<FigmaHeaderProps> = ({
                 height: '40px',
                 borderRadius: '8px',
                 fontFamily: "'Manrope', sans-serif",
-                fontWeight: 100,
+                fontWeight: 500,
                 fontSize: '14px',
                 lineHeight: '17.5px',
               }}
