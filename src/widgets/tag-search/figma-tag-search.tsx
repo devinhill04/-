@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { FIGMA_TAGS } from '../../shared/config/figma-data';
 import { triggerHaptic } from '../../lib/telegram';
 
 interface FigmaTagSearchProps {
@@ -16,10 +15,8 @@ export const FigmaTagSearch: React.FC<FigmaTagSearchProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Combine predefined tags with any extra dynamic tags
-  const tagsList = availableTags && availableTags.length > 0 
-    ? Array.from(new Set([...FIGMA_TAGS.map(t => t.name), ...availableTags.map(t => t.startsWith('#') ? t : `#${t}`)]))
-    : FIGMA_TAGS.map(t => t.name);
+  // Только реальные теги из данных постов — без статического демо-списка
+  const tagsList = availableTags ?? [];
 
   // Initial visible items in Figma is about 10-12
   const visibleTags = isExpanded ? tagsList : tagsList.slice(0, 10);
