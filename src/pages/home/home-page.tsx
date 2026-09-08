@@ -35,7 +35,7 @@ export const HomePage: React.FC = () => {
       });
     });
     const tags = Array.from(tagsSet);
-    const PRIORITY_TAG = '#Инвестидея/разборкомпаний';
+    const PRIORITY_TAG = '#Инвестидея';
     tags.sort((a, b) => {
       if (a === PRIORITY_TAG) return -1;
       if (b === PRIORITY_TAG) return 1;

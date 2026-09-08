@@ -936,7 +936,7 @@
     "category": "news",
     "url": "https://t.me/investfuture/15185",
     "tags": [
-      "Инвестидея/разборкомпаний"
+      "Инвестидея"
     ],
     "publishedAt": "2026-08-22",
     "channel": "InvestFuture"
@@ -948,7 +948,7 @@
     "category": "news",
     "url": "https://t.me/investfuture/15171",
     "tags": [
-      "Инвестидея/разборкомпаний"
+      "Инвестидея"
     ],
     "publishedAt": "2026-08-19",
     "channel": "InvestFuture"
@@ -960,7 +960,7 @@
     "category": "news",
     "url": "https://t.me/investfuture/15162",
     "tags": [
-      "Инвестидея/разборкомпаний"
+      "Инвестидея"
     ],
     "publishedAt": "2026-08-16",
     "channel": "InvestFuture"
@@ -972,7 +972,7 @@
     "category": "news",
     "url": "https://t.me/investfuture/15134",
     "tags": [
-      "Инвестидея/разборкомпаний"
+      "Инвестидея"
     ],
     "publishedAt": "2026-08-08",
     "channel": "InvestFuture"
@@ -984,7 +984,7 @@
     "category": "news",
     "url": "https://t.me/investfuture/15108",
     "tags": [
-      "Инвестидея/разборкомпаний"
+      "Инвестидея"
     ],
     "publishedAt": "2026-07-31",
     "channel": "InvestFuture"
@@ -996,7 +996,7 @@
     "category": "news",
     "url": "https://t.me/investfuture/15076",
     "tags": [
-      "Инвестидея/разборкомпаний"
+      "Инвестидея"
     ],
     "publishedAt": "2026-07-25",
     "channel": "InvestFuture"
@@ -1263,6 +1263,30 @@
       "Кредитнаякарта"
     ],
     "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15241",
+    "title": "Костры рябин сгорели. А ставки по вкладам — пока нет",
+    "description": "Костры рябин сгорели. А ставки по вкладам — пока нет",
+    "category": "news",
+    "url": "https://t.me/investfuture/15241",
+    "tags": [
+      "Вклад"
+    ],
+    "publishedAt": "2026-09-04",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15170",
+    "title": "Вы просили — мы сделали",
+    "description": "Вы просили — мы сделали",
+    "category": "news",
+    "url": "https://t.me/investfuture/15170",
+    "tags": [
+      "Счета"
+    ],
+    "publishedAt": "2026-08-18",
     "channel": "InvestFuture"
   }
 ]
