@@ -14,7 +14,7 @@ import { triggerHaptic } from '../../lib/telegram';
 
 export const HomePage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'catalog' | 'solutions'>('catalog');
-  const [selectedTag, setSelectedTag] = useState<string>('#Новости');
+  const [selectedTag, setSelectedTag] = useState<string>('#ИФ_Новости');
   const [activePain, setActivePain] = useState<FigmaPainCard | null>(null);
   const [isEcosystemOpen, setIsEcosystemOpen] = useState(false);
   const [postsLimit, setPostsLimit] = useState(10);
@@ -27,15 +27,24 @@ export const HomePage: React.FC = () => {
   }, [activeTab, activePain, isEcosystemOpen]);
 
   // Extract all unique tags
+  // Все теги приложения должны быть в формате #ИФ_Название.
+  // Эта функция сама добавляет префикс, если его нет — значит новые теги,
+  // добавленные позже в posts.json без префикса, тоже автоматически подхватят формат.
+  const formatTag = (raw: string): string => {
+    const noHash = raw.startsWith('#') ? raw.slice(1) : raw;
+    const withPrefix = noHash.startsWith('ИФ_') ? noHash : `ИФ_${noHash}`;
+    return `#${withPrefix}`;
+  };
+
   const allTags = useMemo(() => {
     const tagsSet = new Set<string>();
     posts.forEach((p) => {
       p.tags?.forEach((t) => {
-        tagsSet.add(t.startsWith('#') ? t : `#${t}`);
+        tagsSet.add(formatTag(t));
       });
     });
     const tags = Array.from(tagsSet);
-    const PRIORITY_TAG = '#Инвестидея';
+    const PRIORITY_TAG = '#ИФ_Инвестидея';
     tags.sort((a, b) => {
       if (a === PRIORITY_TAG) return -1;
       if (b === PRIORITY_TAG) return 1;
@@ -47,7 +56,7 @@ export const HomePage: React.FC = () => {
   // Filter posts by active selected tag
   const filteredPosts = useMemo(() => {
     if (!selectedTag) return posts;
-    const cleanTag = selectedTag.replace(/^#/, '').toLowerCase();
+    const cleanTag = selectedTag.replace(/^#/, '').replace(/^ИФ_/, '').toLowerCase();
     const matched = posts.filter((p) => {
       return p.tags?.some((t) => t.replace(/^#/, '').toLowerCase() === cleanTag);
     });
