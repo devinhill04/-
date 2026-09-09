@@ -83,7 +83,7 @@ export const BannersCarousel: React.FC<BannersCarouselProps> = ({
   const handleOpenIfPlus = () => {
     triggerHaptic('heavy');
     AnalyticsService.trackIfPlusConversion('carousel_if_plus_banner');
-    openPostLink('https://t.me/plus_investfuture', 'Клуб InvestFuture+');
+    openPostLink('http://investfuture.academy/link?to=ma', 'Подписка IF+');
   };
 
   const handleOpenGiftGuide = () => {

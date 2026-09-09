@@ -261,7 +261,7 @@ export const FIGMA_ECOSYSTEM: FigmaEcosystemChannel[] = [
     subtitle: 'Подписка для инвесторов',
     avatar: '/figma_assets/fill_305d2cfdbca815876e5ae2bad6faadb28918fe31.png',
     links: [
-      { label: 'Подписка', url: 'https://t.me/if_lms_bot' },
+      { label: 'Подписка', url: 'http://investfuture.academy/link?to=ma' },
       { label: 'Boosty', url: 'https://boosty.to/investfuture?ysclid=mtit27k4c9162223826' },
       { label: 'Telegram', url: 'https://t.me/plus_investfuture?ysclid=mtisw7tnqu36453424' },
     ],

@@ -65,9 +65,7 @@ export const FigmaPostCard: React.FC<FigmaPostCardProps> = ({ post, onTagClick, 
         {showTags && post.tags && post.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 items-center">
             {post.tags.map((tag, idx) => {
-              const noHash = tag.startsWith('#') ? tag.slice(1) : tag;
-              const withPrefix = noHash.startsWith('ИФ_') ? noHash : `ИФ_${noHash}`;
-              const formattedTag = `#${withPrefix}`;
+              const formattedTag = tag.startsWith('#') ? tag : `#${tag}`;
               return (
                 <span
                   key={idx}
