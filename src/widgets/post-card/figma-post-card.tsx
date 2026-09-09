@@ -8,9 +8,10 @@ interface FigmaPostCardProps {
   post: Post;
   onTagClick?: (tag: string) => void;
   showTags?: boolean;
+  showDate?: boolean;
 }
 
-export const FigmaPostCard: React.FC<FigmaPostCardProps> = ({ post, onTagClick, showTags = true }) => {
+export const FigmaPostCard: React.FC<FigmaPostCardProps> = ({ post, onTagClick, showTags = true, showDate = false } ) => {
   const handleClick = () => {
     triggerHaptic('light');
     openPostLink(post.url, post.title);
@@ -43,7 +44,7 @@ export const FigmaPostCard: React.FC<FigmaPostCardProps> = ({ post, onTagClick, 
           </h4>
 
           {/* Date */}
-          {post.publishedAt && /^\d{4}-\d{2}-\d{2}$/.test(post.publishedAt) && (
+          {showDate && post.publishedAt && /^\d{4}-\d{2}-\d{2}$/.test(post.publishedAt) && (
             <p
               style={{
                 fontFamily: "'Manrope', sans-serif",

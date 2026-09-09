@@ -184,6 +184,7 @@ export const HomePage: React.FC = () => {
                           post={post}
                           onTagClick={handleSelectTag}
                           showTags={false}
+                          showDate
                         />
                       ))
                     )}
