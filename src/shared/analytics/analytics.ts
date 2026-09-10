@@ -133,7 +133,7 @@ class AnalyticsServiceImpl {
 
     // Поддержка Google Analytics / Яндекс Метрики
     if ((window as any).ym) {
-      (window as any).ym(12345678, 'reachGoal', event, payload);
+      (window as any).ym(112456720, 'reachGoal', event, payload);
     }
     if ((window as any).gtag) {
       (window as any).gtag('event', event, payload);
