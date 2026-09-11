@@ -123,7 +123,7 @@ export const BannersCarousel: React.FC<BannersCarouselProps> = ({
         className="snap-start shrink-0 relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform bg-black shadow-2xs"
       >
         <img
-          src="/figma_assets/banner_if_plus_v3.png"
+          src="/figma_assets/banner_if_plus_v4.png"
           alt="Подписка IF+"
           className="w-full h-full object-cover pointer-events-none"
         />

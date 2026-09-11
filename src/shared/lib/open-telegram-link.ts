@@ -11,10 +11,15 @@ export function openPostLink(url: string, title?: string) {
     if (tg) {
       if ((url.startsWith('https://t.me/') || url.startsWith('http://t.me/')) && tg.openTelegramLink) {
         tg.openTelegramLink(url);
+        // Сворачиваем мини-апп сразу после перехода — иначе, если зашли из канала
+        // (не из диалога с ботом), приложение остаётся поверх экрана и выглядит
+        // как будто "зависло", пока пользователь не свернёт его вручную свайпом.
+        tg.close?.();
         return;
       }
       if (tg.openLink) {
         tg.openLink(url);
+        tg.close?.();
         return;
       }
     }
