@@ -256,6 +256,15 @@ export const FIGMA_ECOSYSTEM: FigmaEcosystemChannel[] = [
     ],
   },
   {
+    id: 'if_site',
+    title: 'Сайт InvestFuture',
+    subtitle: 'Новости, разборы, статьи',
+    avatar: '/figma_assets/Site_Icon_New.png',
+    links: [
+      { label: 'Перейти на сайт', url: 'https://investfuture.ru/?ysclid=mtit3sjyy7709985070' },
+    ],
+  },
+  {
     id: 'if_plus',
     title: 'IF+ Инвестиции в плюс',
     subtitle: 'Подписка для инвесторов',
@@ -264,15 +273,6 @@ export const FIGMA_ECOSYSTEM: FigmaEcosystemChannel[] = [
       { label: 'Подписка', url: 'http://investfuture.academy/link?to=ma' },
       { label: 'Boosty', url: 'https://boosty.to/investfuture?ysclid=mtit27k4c9162223826' },
       { label: 'Telegram', url: 'https://t.me/plus_investfuture?ysclid=mtisw7tnqu36453424' },
-    ],
-  },
-  {
-    id: 'if_site',
-    title: 'Сайт InvestFuture',
-    subtitle: 'Новости, разборы, статьи',
-    avatar: '/figma_assets/Site_Icon_New.png',
-    links: [
-      { label: 'Перейти на сайт', url: 'https://investfuture.ru/?ysclid=mtit3sjyy7709985070' },
     ],
   },
 ];

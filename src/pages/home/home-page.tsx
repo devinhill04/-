@@ -14,7 +14,7 @@ import { triggerHaptic } from '../../lib/telegram';
 
 export const HomePage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'catalog' | 'solutions'>('catalog');
-  const [selectedTag, setSelectedTag] = useState<string>('#Новости');
+  const [selectedTag, setSelectedTag] = useState<string>('#Инвестидея');
   const [activePain, setActivePain] = useState<FigmaPainCard | null>(null);
   const [isEcosystemOpen, setIsEcosystemOpen] = useState(false);
   const [postsLimit, setPostsLimit] = useState(10);
