@@ -82,18 +82,21 @@ export const BannersCarousel: React.FC<BannersCarouselProps> = ({
 
   const handleOpenIfPlus = () => {
     triggerHaptic('heavy');
+    AnalyticsService.trackBannerClick({ id: 'if_plus', title: 'Подписка IF+', url: 'http://investfuture.academy/link?to=ma' });
     AnalyticsService.trackIfPlusConversion('carousel_if_plus_banner');
     openPostLink('http://investfuture.academy/link?to=ma', 'Подписка IF+');
   };
 
   const handleOpenGiftGuide = () => {
     triggerHaptic('medium');
+    AnalyticsService.trackBannerClick({ id: 'credit_carousels', title: 'Кредитные карусели', url: 'https://t.me/investfuture/15154' });
     AnalyticsService.track('lead_magnet_open', { source: 'carousel_gift_banner' });
     openPostLink('https://t.me/investfuture/15154', 'Кредитные карусели');
   };
 
   const handleOpenResources = () => {
     triggerHaptic('medium');
+    AnalyticsService.trackBannerClick({ id: 'all_resources', title: 'Все наши ресурсы и площадки', url: '' });
     AnalyticsService.track('resources_sheet_open');
     onOpenResources();
   };
