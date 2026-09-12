@@ -21,6 +21,20 @@ export const HomePage: React.FC = () => {
 
   const { posts, isLoading } = usePosts();
 
+  // Порядок тегов по популярности кликов — подтягивается раз в неделю
+  // отдельным заданием в CI из API Яндекс.Метрики (см. scripts/sync-tag-popularity.mjs)
+  const [tagPopularity, setTagPopularity] = useState<string[]>([]);
+  useEffect(() => {
+    fetch('/data/tag-popularity.json')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.order?.length) setTagPopularity(data.order);
+      })
+      .catch(() => {
+        // файл может отсутствовать до первого запуска синхронизации — это нормально
+      });
+  }, []);
+
   // Scroll to top on tab or screen switch
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -36,13 +50,22 @@ export const HomePage: React.FC = () => {
     });
     const tags = Array.from(tagsSet);
     const PRIORITY_TAG = '#Инвестидея';
+
+    // Индекс тега в списке популярности из Метрики (чем меньше — тем популярнее).
+    // Тег без данных считается наименее приоритетным (в конец, но перед PRIORITY_TAG это не касается).
+    const popularityIndex = (tag: string) => {
+      const clean = tag.replace(/^#/, '');
+      const idx = tagPopularity.indexOf(clean);
+      return idx === -1 ? Infinity : idx;
+    };
+
     tags.sort((a, b) => {
       if (a === PRIORITY_TAG) return -1;
       if (b === PRIORITY_TAG) return 1;
-      return 0;
+      return popularityIndex(a) - popularityIndex(b);
     });
     return tags;
-  }, [posts]);
+  }, [posts, tagPopularity]);
 
   // Filter posts by active selected tag
   const filteredPosts = useMemo(() => {
