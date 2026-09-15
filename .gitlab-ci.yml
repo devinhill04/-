@@ -5,6 +5,7 @@ stages:
 
 variables:
   YCR_PATH: cr.yandex/crpvhgo33ec1f8rrvb74/if-navigation-miniapp
+  TAG: $YCR_PATH:$CI_COMMIT_SHORT_SHA.$CI_ENVIRONMENT_NAME
 
 cache: &global_cache
   paths:
@@ -98,8 +99,8 @@ build-docker:
         --build-arg VITE_APP_TITLE="${VITE_APP_TITLE}" \
         --build-arg VITE_TELEGRAM_BOT_USERNAME="${VITE_TELEGRAM_BOT_USERNAME}" \
         --build-arg VITE_ANALYTICS_WEBHOOK_URL="${VITE_ANALYTICS_WEBHOOK_URL}" \
-        -t "${YCR_PATH}:${CI_COMMIT_SHORT_SHA}" \
+        -t "${TAG}" \
         .
-    - docker push "${YCR_PATH}:${CI_COMMIT_SHORT_SHA}"
+    - docker push "${TAG}"
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
