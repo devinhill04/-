@@ -61,10 +61,12 @@ check-app:
     - npm run build
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_BRANCH
 
 build-docker:
   stage: build
+  needs:
+    - check-app
   image: docker:24-cli
   services:
     - docker:24-dind
@@ -104,3 +106,6 @@ build-docker:
     - docker push "${TAG}"
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_BRANCH
+      when: manual
+      allow_failure: true
