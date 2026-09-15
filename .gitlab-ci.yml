@@ -15,7 +15,7 @@ cache: &global_cache
 .check_base:
   image: node:22-alpine
   tags:
-    - gitlab-lms
+    - site-k8s
   cache:
     <<: *global_cache
     policy: pull
@@ -26,7 +26,7 @@ sync-tag-popularity:
   stage: sync
   image: node:22-alpine
   tags:
-    - gitlab-lms
+    - site-k8s
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
   before_script:
@@ -75,7 +75,7 @@ build-docker:
       variables:
         HEALTHCHECK_TCP_PORT: "2375"
   tags:
-    - gitlab-lms
+    - site-k8s
   environment:
     name: production
     action: prepare
