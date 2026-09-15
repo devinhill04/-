@@ -69,7 +69,11 @@ build-docker:
     - check-app
   image: docker:24-cli
   services:
-    - docker:24-dind
+    - name: docker:24-dind
+      alias: docker
+      command: ["--tls=false"]
+      variables:
+        HEALTHCHECK_TCP_PORT: "2375"
   tags:
     - gitlab-lms
   environment:
@@ -77,11 +81,23 @@ build-docker:
     action: prepare
   variables:
     DOCKER_DRIVER: overlay2
-    DOCKER_HOST: tcp://docker:2376
-    DOCKER_TLS_CERTDIR: "/certs"
-    DOCKER_TLS_VERIFY: "1"
-    DOCKER_CERT_PATH: "$DOCKER_TLS_CERTDIR/client"
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_TLS_VERIFY: ""
+    DOCKER_CERT_PATH: ""
   before_script:
+    - unset DOCKER_TLS_VERIFY DOCKER_CERT_PATH
+    - |
+      dind_wait_attempts=30
+      until docker info >/dev/null 2>&1; do
+        dind_wait_attempts=$((dind_wait_attempts - 1))
+        if [ "$dind_wait_attempts" -le 0 ]; then
+          echo "Docker-in-Docker did not become ready; check the service log and runner privileged mode." >&2
+          exit 1
+        fi
+        echo "Waiting for Docker-in-Docker..."
+        sleep 2
+      done
     - |
       if [ -z "${YCR_JSON_KEY:-}" ]; then
         echo "YCR_JSON_KEY must contain Docker config JSON with push access to cr.yandex."
