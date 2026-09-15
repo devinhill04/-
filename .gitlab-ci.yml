@@ -89,10 +89,11 @@ build-docker:
     - unset DOCKER_TLS_VERIFY DOCKER_CERT_PATH
     - |
       dind_wait_attempts=30
-      until docker info >/dev/null 2>&1; do
+      until docker info >/dev/null 2>/tmp/miniapp-dind-error.log; do
         dind_wait_attempts=$((dind_wait_attempts - 1))
         if [ "$dind_wait_attempts" -le 0 ]; then
-          echo "Docker-in-Docker did not become ready; check the service log and runner privileged mode." >&2
+          echo "Docker-in-Docker did not become ready. Last connection error:" >&2
+          cat /tmp/miniapp-dind-error.log >&2
           exit 1
         fi
         echo "Waiting for Docker-in-Docker..."
