@@ -394,7 +394,7 @@
     "category": "bank_lifehacks",
     "url": "https://t.me/investfuture/14466",
     "tags": [
-      "Вклад"
+      "Депозиты"
     ],
     "publishedAt": "Telegram @investfuture",
     "channel": "InvestFuture"
@@ -416,7 +416,7 @@
     "category": "bank_lifehacks",
     "url": "https://t.me/investfuture/14932",
     "tags": [
-      "Вклад"
+      "Депозиты"
     ],
     "publishedAt": "Telegram @investfuture",
     "channel": "InvestFuture"
@@ -543,7 +543,9 @@
     "description": "С 1 сентября переводы по картам будут контролировать жёстче. Что изменится?",
     "category": "transfers",
     "url": "https://t.me/investfuture/15197",
-    "tags": [],
+    "tags": [
+      "Счета"
+    ],
     "publishedAt": "2026-08-26",
     "channel": "InvestFuture"
   },
@@ -1212,7 +1214,7 @@
     "category": "news",
     "url": "https://t.me/investfuture/15241",
     "tags": [
-      "Вклад"
+      "Депозиты"
     ],
     "publishedAt": "2026-09-04",
     "channel": "InvestFuture"
@@ -1227,6 +1229,400 @@
       "Счета"
     ],
     "publishedAt": "2026-08-18",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15239",
+    "title": "Подборка облигаций: почти 20% к погашению — чем разбавить консервативный портфель",
+    "description": "Подборка облигаций: почти 20% к погашению — чем разбавить консервативный портфель",
+    "category": "news",
+    "url": "https://t.me/investfuture/15239",
+    "tags": [
+      "Инвестидея"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-4132",
+    "title": "5 облигаций с высоким рейтингом для спокойной части портфеля",
+    "description": "5 облигаций с высоким рейтингом для спокойной части портфеля",
+    "category": "news",
+    "url": "https://t.me/if_bonds/4132",
+    "tags": [
+      "Инвестидея"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15230",
+    "title": "5 акций с самой высокой дивдоходностью этой осенью",
+    "description": "5 акций с самой высокой дивдоходностью этой осенью",
+    "category": "news",
+    "url": "https://t.me/investfuture/15230",
+    "tags": [
+      "Инвестидея"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15206",
+    "title": "Валютные облигации — один из лучших выборов для держателей облигаций сегодня",
+    "description": "Валютные облигации — один из лучших выборов для держателей облигаций сегодня",
+    "category": "news",
+    "url": "https://t.me/investfuture/15206",
+    "tags": [
+      "Инвестидея"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15235",
+    "title": "ЦИФРОВОЙ РУБЛЬ. А ОНО НАМ НАДО?",
+    "description": "ЦИФРОВОЙ РУБЛЬ. А ОНО НАМ НАДО?",
+    "category": "news",
+    "url": "https://t.me/investfuture/15235",
+    "tags": [
+      "Общее"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15255",
+    "title": "БАБКА, БОРЩ И ИНФЛЯЦИЯ",
+    "description": "БАБКА, БОРЩ И ИНФЛЯЦИЯ",
+    "category": "news",
+    "url": "https://t.me/investfuture/15255",
+    "tags": [
+      "Общее"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15264",
+    "title": "80 рублей тогда, 25 тыс. сейчас: где пенсионеру жилось легче?",
+    "description": "80 рублей тогда, 25 тыс. сейчас: где пенсионеру жилось легче?",
+    "category": "news",
+    "url": "https://t.me/investfuture/15264",
+    "tags": [
+      "Общее"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15245",
+    "title": "Деньги портят людей? Разбираемся вместе с лауреатами Шнобеля",
+    "description": "Деньги портят людей? Разбираемся вместе с лауреатами Шнобеля",
+    "category": "news",
+    "url": "https://t.me/investfuture/15245",
+    "tags": [
+      "Общее"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15211",
+    "title": "Сколько россияне тратят на ЖКХ?",
+    "description": "Сколько россияне тратят на ЖКХ?",
+    "category": "news",
+    "url": "https://t.me/investfuture/15211",
+    "tags": [
+      "Общее"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15194",
+    "title": "Вы можете не верить новостям — но всё равно терять на них деньги",
+    "description": "Вы можете не верить новостям — но всё равно терять на них деньги",
+    "category": "news",
+    "url": "https://t.me/investfuture/15194",
+    "tags": [
+      "Общее"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15265",
+    "title": "Как дешевле обновить iPHONE?",
+    "description": "Как дешевле обновить iPHONE?",
+    "category": "news",
+    "url": "https://t.me/investfuture/15265",
+    "tags": [
+      "Личныефинансы"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15259",
+    "title": "Кредит стал слишком дорог? Пора его рефинансировать",
+    "description": "Кредит стал слишком дорог? Пора его рефинансировать",
+    "category": "news",
+    "url": "https://t.me/investfuture/15259",
+    "tags": [
+      "Личныефинансы"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15242",
+    "title": "Выходные близко. Может, в кино?",
+    "description": "Выходные близко. Может, в кино?",
+    "category": "news",
+    "url": "https://t.me/investfuture/15242",
+    "tags": [
+      "Личныефинансы"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15205",
+    "title": "Сколько стоят вредные привычки?",
+    "description": "Сколько стоят вредные привычки?",
+    "category": "news",
+    "url": "https://t.me/investfuture/15205",
+    "tags": [
+      "Личныефинансы"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15231",
+    "title": "Сентябрь пришёл. Что с российским рынком?",
+    "description": "Сентябрь пришёл. Что с российским рынком?",
+    "category": "news",
+    "url": "https://t.me/investfuture/15231",
+    "tags": [
+      "ИндексМосбиржи"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15280",
+    "title": "Вклад на ₽1 млн: когда деньги реально росли — и что будет дальше",
+    "description": "Вклад на ₽1 млн: когда деньги реально росли — и что будет дальше",
+    "category": "news",
+    "url": "https://t.me/investfuture/15280",
+    "tags": [
+      "Депозиты"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15236",
+    "title": "Вы можете потерять свой вклад!",
+    "description": "Вы можете потерять свой вклад!",
+    "category": "news",
+    "url": "https://t.me/investfuture/15236",
+    "tags": [
+      "Депозиты"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15260",
+    "title": "Нефть снова по $100. Что происходит?",
+    "description": "Нефть снова по $100. Что происходит?",
+    "category": "news",
+    "url": "https://t.me/investfuture/15260",
+    "tags": [
+      "Макроэкономика"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15283",
+    "title": "«Адские санкции»: что готовят США против России?",
+    "description": "«Адские санкции»: что готовят США против России?",
+    "category": "news",
+    "url": "https://t.me/investfuture/15283",
+    "tags": [
+      "Геополитика"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15281",
+    "title": "ЕС снова тянет лапки к российским резервам. Получится ли?",
+    "description": "ЕС снова тянет лапки к российским резервам. Получится ли?",
+    "category": "news",
+    "url": "https://t.me/investfuture/15281",
+    "tags": [
+      "Геополитика"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15279",
+    "title": "Мировой энергетический кризис",
+    "description": "Мировой энергетический кризис",
+    "category": "news",
+    "url": "https://t.me/investfuture/15279",
+    "tags": [
+      "Геополитика"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15258",
+    "title": "Повернётся ли Европа в сторону России?",
+    "description": "Повернётся ли Европа в сторону России?",
+    "category": "news",
+    "url": "https://t.me/investfuture/15258",
+    "tags": [
+      "Геополитика"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15270",
+    "title": "ЦБ оставил 14%",
+    "description": "ЦБ оставил 14%",
+    "category": "news",
+    "url": "https://t.me/investfuture/15270",
+    "tags": [
+      "Ключеваяставка"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15268",
+    "title": "Что рынок ждёт от ЦБ?",
+    "description": "Что рынок ждёт от ЦБ?",
+    "category": "news",
+    "url": "https://t.me/investfuture/15268",
+    "tags": [
+      "Ключеваяставка"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15253",
+    "title": "ЦБ оставит 14%. Что делать инвестору?",
+    "description": "ЦБ оставит 14%. Что делать инвестору?",
+    "category": "news",
+    "url": "https://t.me/investfuture/15253",
+    "tags": [
+      "Ключеваяставка"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15285",
+    "title": "Самозанятых начнут ограничивать",
+    "description": "Самозанятых начнут ограничивать",
+    "category": "news",
+    "url": "https://t.me/investfuture/15285",
+    "tags": [
+      "Законы"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15254",
+    "title": "Семьи могут лишиться пособия: СФР начнёт смотреть не только на доходы, но и на поступления по счету",
+    "description": "Семьи могут лишиться пособия: СФР начнёт смотреть не только на доходы, но и на поступления по счету",
+    "category": "news",
+    "url": "https://t.me/investfuture/15254",
+    "tags": [
+      "Законы"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15246",
+    "title": "Россиянам бесплатно выдадут землю под ИЖС — Минстрой готовит механизм",
+    "description": "Россиянам бесплатно выдадут землю под ИЖС — Минстрой готовит механизм",
+    "category": "news",
+    "url": "https://t.me/investfuture/15246",
+    "tags": [
+      "Законы"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15237",
+    "title": "«Авито» сдаст вас налоговой. Ну, почти",
+    "description": "«Авито» сдаст вас налоговой. Ну, почти",
+    "category": "news",
+    "url": "https://t.me/investfuture/15237",
+    "tags": [
+      "Законы"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15232",
+    "title": "Медицина: что изменилось с 1 сентября",
+    "description": "Медицина: что изменилось с 1 сентября",
+    "category": "news",
+    "url": "https://t.me/investfuture/15232",
+    "tags": [
+      "Законы"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15269",
+    "title": "Как зарабатывать на Авито с помощью нейросетей?",
+    "description": "Как зарабатывать на Авито с помощью нейросетей?",
+    "category": "news",
+    "url": "https://t.me/investfuture/15269",
+    "tags": [
+      "Нейросети"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-tag-15217",
+    "title": "Домашки на пять, контрольные — на два: виним во всём нейронки?",
+    "description": "Домашки на пять, контрольные — на два: виним во всём нейронки?",
+    "category": "news",
+    "url": "https://t.me/investfuture/15217",
+    "tags": [
+      "Нейросети"
+    ],
+    "publishedAt": "Telegram @investfuture",
+    "channel": "InvestFuture"
+  },
+  {
+    "id": "if-15273",
+    "title": "Как торговать облигацией с амортизацией?",
+    "description": "Как торговать облигацией с амортизацией?",
+    "category": "learning",
+    "url": "https://t.me/investfuture/15273",
+    "tags": [],
+    "publishedAt": "Telegram @investfuture",
     "channel": "InvestFuture"
   }
 ]
