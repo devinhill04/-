@@ -6,6 +6,7 @@ import { FigmaSolutionsGrid } from '../../widgets/solutions-grid/figma-solutions
 import { FigmaPainDetailScreen } from '../../widgets/pain-detail/figma-pain-detail';
 import { FigmaEcosystemScreen } from '../../widgets/ecosystem/figma-ecosystem-screen';
 import { FigmaPostCard } from '../../widgets/post-card/figma-post-card';
+import { MoexHeatmap } from '../../widgets/moex-heatmap/moex-heatmap';
 
 import { usePosts } from '../../entities/post/model/use-posts';
 import { FigmaPainCard } from '../../shared/config/figma-data';
@@ -159,6 +160,11 @@ export const HomePage: React.FC = () => {
             {/* TAB CONTENT: "Поиск по тегам" (Catalog Screen 79:1905) */}
             {activeTab === 'catalog' && (
               <div className="flex flex-col gap-4">
+                {/* ВРЕМЕННО для превью: тепловая карта Мосбиржи — окончательное место в навигации ещё не определено */}
+                <div className="px-3 pt-2">
+                  <MoexHeatmap />
+                </div>
+
                 {/* Tags + Header Section */}
                 <FigmaTagSearch
                   selectedTag={selectedTag}
