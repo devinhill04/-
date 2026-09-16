@@ -35,19 +35,28 @@ function mixColor(a: number[], b: number[], t: number): string {
 }
 
 function useContainerWidth() {
-  const ref = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
+  const observerRef = useRef<ResizeObserver | null>(null);
 
-  useEffect(() => {
-    if (!ref.current) return;
-    const el = ref.current;
-    const observer = new ResizeObserver((entries) => {
-      setWidth(entries[0].contentRect.width);
-    });
-    observer.observe(el);
-    setWidth(el.getBoundingClientRect().width);
-    return () => observer.disconnect();
-  }, []);
+  // callback-ref, а не обычный useRef + useEffect([]) — обычный эффект с пустыми
+  // зависимостями отрабатывает только один раз при первом монтировании компонента,
+  // а тогда элемент с картой ещё не существует в DOM (рендерится блок "Загружаю...").
+  // callback-ref же вызывается заново каждый раз, когда реальный DOM-узел
+  // появляется/исчезает — то есть ровно тогда, когда нужно.
+  const ref = (node: HTMLDivElement | null) => {
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+      observerRef.current = null;
+    }
+    if (node) {
+      setWidth(node.getBoundingClientRect().width);
+      const observer = new ResizeObserver((entries) => {
+        setWidth(entries[0].contentRect.width);
+      });
+      observer.observe(node);
+      observerRef.current = observer;
+    }
+  };
 
   return { ref, width };
 }
