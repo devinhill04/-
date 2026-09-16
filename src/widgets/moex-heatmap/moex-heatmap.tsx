@@ -3,7 +3,7 @@ import { hierarchy, treemap, treemapSquarify } from 'd3-hierarchy';
 import { useMoexHeatmap } from '../../entities/moex/model/use-moex-heatmap';
 import { MoexStock } from '../../entities/moex/model/types';
 
-const MAX_TILES = 40; // берём топ-N по капитализации, иначе карта станет нечитаемой кашей
+const MAX_TILES = 20; // берём топ-N по капитализации, иначе карта станет нечитаемой кашей
 const HEATMAP_HEIGHT = 340;
 const COLOR_SATURATION_CAP = 4; // при изменении ±4% и больше — максимально насыщенный цвет
 
