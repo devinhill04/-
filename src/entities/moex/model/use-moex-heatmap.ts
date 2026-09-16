@@ -55,6 +55,12 @@ export function useMoexHeatmap() {
           value: ['VALTODAY', 'VALTODAY_RUR', 'VOLTODAY'],
         });
 
+        // Диагностика на случай, если реальные имена колонок отличаются от ожидаемых —
+        // смотри в консоли браузера (F12), какие колонки реально пришли от биржи.
+        console.log('[MOEX heatmap] securities columns:', json.securities?.columns);
+        console.log('[MOEX heatmap] marketdata columns:', json.marketdata?.columns);
+        console.log('[MOEX heatmap] marketdata sample row:', json.marketdata?.data?.[0]);
+
         const marketBySecid = new Map(marketdata.map((m) => [m.secid, m]));
 
         const merged: MoexStock[] = securities
@@ -73,11 +79,18 @@ export function useMoexHeatmap() {
 
         if (isMountedRef.current) {
           setStocks(merged);
-          setError(null);
+          if (merged.length === 0) {
+            setError(
+              'Биржа ответила, но данные не распознаны (возможно, изменились названия полей — см. консоль F12 для диагностики).'
+            );
+          } else {
+            setError(null);
+          }
           setLastUpdated(new Date());
           setIsLoading(false);
         }
       } catch (err) {
+        console.error('[MOEX heatmap] Ошибка запроса (возможно, CORS — см. вкладку Network):', err);
         if (isMountedRef.current) {
           setError(err instanceof Error ? err.message : 'Не удалось загрузить котировки');
           setIsLoading(false);
