@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { hierarchy, treemap, treemapSquarify } from 'd3-hierarchy';
 import { useMoexHeatmap } from '../../entities/moex/model/use-moex-heatmap';
-import { squarify } from './squarify';
 import { MoexStock } from '../../entities/moex/model/types';
 
 const MAX_TILES = 40; // берём топ-N по объёму торгов, иначе карта станет нечитаемой кашей
@@ -82,10 +82,27 @@ export const MoexHeatmap: React.FC = () => {
   }, [stocks]);
 
   const rects = useMemo(() => {
-    console.log('[MOEX heatmap] containerWidth =', containerWidth, ', topStocks =', topStocks.length);
     if (containerWidth === 0 || topStocks.length === 0) return [];
-    const items = topStocks.map((s) => ({ id: s.secid, value: s.marketValue, stock: s }));
-    const result = squarify(items, containerWidth, HEATMAP_HEIGHT);
+
+    const root = hierarchy({ children: topStocks })
+      .sum((d: any) => (d.marketValue ? d.marketValue : 0))
+      .sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
+
+    const layout = treemap<{ children: MoexStock[] }>()
+      .tile(treemapSquarify)
+      .size([containerWidth, HEATMAP_HEIGHT])
+      .paddingInner(1);
+
+    layout(root as any);
+
+    const result = (root.leaves() as any[]).map((leaf) => ({
+      item: { stock: leaf.data as MoexStock },
+      x: leaf.x0,
+      y: leaf.y0,
+      width: leaf.x1 - leaf.x0,
+      height: leaf.y1 - leaf.y0,
+    }));
+
     console.log('[MOEX heatmap] rects построено:', result.length);
     return result;
   }, [topStocks, containerWidth]);
