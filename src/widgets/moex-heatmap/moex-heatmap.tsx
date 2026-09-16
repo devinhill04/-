@@ -73,9 +73,12 @@ export const MoexHeatmap: React.FC = () => {
   }, [stocks]);
 
   const rects = useMemo(() => {
+    console.log('[MOEX heatmap] containerWidth =', containerWidth, ', topStocks =', topStocks.length);
     if (containerWidth === 0 || topStocks.length === 0) return [];
     const items = topStocks.map((s) => ({ id: s.secid, value: s.marketValue, stock: s }));
-    return squarify(items, containerWidth, HEATMAP_HEIGHT);
+    const result = squarify(items, containerWidth, HEATMAP_HEIGHT);
+    console.log('[MOEX heatmap] rects построено:', result.length);
+    return result;
   }, [topStocks, containerWidth]);
 
   if (isLoading) {
@@ -99,6 +102,13 @@ export const MoexHeatmap: React.FC = () => {
   return (
     <div className="w-full flex flex-col gap-2">
       <div ref={containerRef} className="relative w-full rounded-[12px] overflow-hidden" style={{ height: HEATMAP_HEIGHT }}>
+        {rects.length === 0 && topStocks.length > 0 && (
+          <div className="absolute inset-0 flex items-center justify-center">
+            <p className="text-[#7D7C82] dark:text-neutral-500 text-xs text-center px-4">
+              Не удалось измерить размер блока (containerWidth). Данные есть ({topStocks.length} бумаг), но отрисовать не получилось — см. консоль.
+            </p>
+          </div>
+        )}
         {rects.map(({ item, x, y, width, height }) => {
           const stock = (item as { stock: MoexStock }).stock;
           const bg = colorForChange(stock.changePercent ?? 0, isDark);
