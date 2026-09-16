@@ -3,8 +3,8 @@ import { hierarchy, treemap, treemapSquarify } from 'd3-hierarchy';
 import { useMoexHeatmap } from '../../entities/moex/model/use-moex-heatmap';
 import { MoexStock } from '../../entities/moex/model/types';
 
-const MAX_TILES = 40; // берём топ-N по объёму торгов, иначе карта станет нечитаемой кашей
-const HEATMAP_HEIGHT = 520;
+const MAX_TILES = 40; // берём топ-N по капитализации, иначе карта станет нечитаемой кашей
+const HEATMAP_HEIGHT = 340;
 const COLOR_SATURATION_CAP = 4; // при изменении ±4% и больше — максимально насыщенный цвет
 
 function colorForChange(changePercent: number, isDark: boolean): string {
@@ -85,7 +85,7 @@ export const MoexHeatmap: React.FC = () => {
     if (containerWidth === 0 || topStocks.length === 0) return [];
 
     const root = hierarchy({ children: topStocks })
-      .sum((d: any) => (d.marketValue ? d.marketValue : 0))
+      .sum((d: any) => (d.marketValue ? Math.sqrt(d.marketValue) : 0))
       .sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
 
     const layout = treemap<{ children: MoexStock[] }>()

@@ -46,6 +46,7 @@ export function useMoexHeatmap() {
         const securities = parseBlock(json.securities, {
           secid: ['SECID'],
           shortname: ['SHORTNAME', 'SECNAME'],
+          issueSize: ['ISSUESIZE'], // количество акций в обращении — нужно для капитализации
         });
 
         const marketdata = parseBlock(json.marketdata, {
@@ -66,15 +67,21 @@ export function useMoexHeatmap() {
         const merged: MoexStock[] = securities
           .map((s) => {
             const m = marketBySecid.get(s.secid);
+            const lastPrice = typeof m?.last === 'number' ? m.last : null;
+            const issueSize = typeof s.issueSize === 'number' ? s.issueSize : null;
+            // Размер плитки — капитализация (кол-во акций × цена), а не объём торгов за день.
+            // Объём торгов слишком "дёрганый": у малоликвидных бумаг случайный всплеск
+            // сделок может визуально "съесть" всю карту, хотя по факту это не крупная компания.
+            const marketCap = issueSize !== null && lastPrice !== null ? issueSize * lastPrice : 0;
             return {
               secid: String(s.secid),
               shortname: String(s.shortname ?? s.secid),
-              lastPrice: typeof m?.last === 'number' ? m.last : null,
+              lastPrice,
               changePercent: typeof m?.changePercent === 'number' ? m.changePercent : null,
-              marketValue: typeof m?.value === 'number' ? m.value : 0,
+              marketValue: marketCap,
             };
           })
-          // убираем бумаги без сделок сегодня и без данных об изменении цены — на карте от них толку нет
+          // убираем бумаги без капитализации и без данных об изменении цены — на карте от них толку нет
           .filter((s) => s.marketValue > 0 && s.changePercent !== null);
 
         if (isMountedRef.current) {
