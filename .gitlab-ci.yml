@@ -15,7 +15,7 @@ cache: &global_cache
 .check_base:
   image: node:22-alpine
   tags:
-    - site-k8s
+    - gitlab-lms
   cache:
     <<: *global_cache
     policy: pull
@@ -26,7 +26,7 @@ sync-tag-popularity:
   stage: sync
   image: node:22-alpine
   tags:
-    - site-k8s
+    - gitlab-lms
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
   before_script:
@@ -71,7 +71,7 @@ build-docker:
     name: ghcr.io/osscontainertools/kaniko:v1.28.2-debug
     entrypoint: [""]
   tags:
-    - site-k8s
+    - gitlab-lms
   environment:
     name: production
     action: prepare
