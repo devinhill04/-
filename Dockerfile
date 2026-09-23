@@ -26,7 +26,7 @@ RUN apk add --no-cache wget curl \
   '  server_name _;' \
   '  root /usr/share/nginx/html;' \
   '  index index.html;' \
-  '  location /healthz { access_log off; return 200 "healthy\n"; add_header Content-Type text/plain; }' \
+  '  location = /healthz { access_log off; try_files /index.html =503; }' \
   '  location /assets/ { add_header Cache-Control "public, max-age=31536000, immutable"; try_files $uri =404; }' \
   '  location /data/ { add_header Cache-Control "no-cache, no-store, must-revalidate"; try_files $uri =404; }' \
   '  location = /index.html { add_header Cache-Control "no-cache, no-store, must-revalidate"; }' \
