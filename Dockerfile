@@ -34,6 +34,7 @@ RUN apk add --no-cache wget curl \
   '}' \
   > /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/dist /usr/share/nginx/html
+RUN chmod -R a+rX /usr/share/nginx/html
 EXPOSE 80
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD wget --quiet --tries=1 --spider http://localhost/healthz || exit 1
