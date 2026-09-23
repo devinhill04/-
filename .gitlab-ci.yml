@@ -67,60 +67,36 @@ build-docker:
   stage: build
   needs:
     - check-app
-  image: docker:24-cli
-  services:
-    - name: docker:24-dind
-      alias: docker
-      command: ["--tls=false"]
-      variables:
-        HEALTHCHECK_TCP_PORT: "2375"
+  image:
+    name: ghcr.io/osscontainertools/kaniko:v1.28.2-debug
+    entrypoint: [""]
   tags:
     - site-k8s
   environment:
     name: production
     action: prepare
-  variables:
-    DOCKER_DRIVER: overlay2
-    DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
-    DOCKER_TLS_VERIFY: ""
-    DOCKER_CERT_PATH: ""
   before_script:
-    - unset DOCKER_TLS_VERIFY DOCKER_CERT_PATH
-    - |
-      dind_wait_attempts=30
-      until docker info >/dev/null 2>/tmp/miniapp-dind-error.log; do
-        dind_wait_attempts=$((dind_wait_attempts - 1))
-        if [ "$dind_wait_attempts" -le 0 ]; then
-          echo "Docker-in-Docker did not become ready. Last connection error:" >&2
-          cat /tmp/miniapp-dind-error.log >&2
-          exit 1
-        fi
-        echo "Waiting for Docker-in-Docker..."
-        sleep 2
-      done
     - |
       if [ -z "${YCR_JSON_KEY:-}" ]; then
         echo "YCR_JSON_KEY must contain Docker config JSON with push access to cr.yandex."
         exit 1
       fi
       umask 077
-      export DOCKER_CONFIG="$(mktemp -d)"
-      trap 'rm -rf "$DOCKER_CONFIG"' EXIT
+      mkdir -p /kaniko/.docker
       if [ -f "$YCR_JSON_KEY" ]; then
-        cat "$YCR_JSON_KEY" > "$DOCKER_CONFIG/config.json"
+        cat "$YCR_JSON_KEY" > /kaniko/.docker/config.json
       else
-        printf '%s' "$YCR_JSON_KEY" > "$DOCKER_CONFIG/config.json"
+        printf '%s' "$YCR_JSON_KEY" > /kaniko/.docker/config.json
       fi
   script:
     - |
-      docker build \
-        --build-arg VITE_APP_TITLE="${VITE_APP_TITLE}" \
-        --build-arg VITE_TELEGRAM_BOT_USERNAME="${VITE_TELEGRAM_BOT_USERNAME}" \
-        --build-arg VITE_ANALYTICS_WEBHOOK_URL="${VITE_ANALYTICS_WEBHOOK_URL}" \
-        -t "${TAG}" \
-        .
-    - docker push "${TAG}"
+      /kaniko/executor \
+        --context "dir://${CI_PROJECT_DIR}" \
+        --dockerfile "${CI_PROJECT_DIR}/Dockerfile" \
+        --destination "${TAG}" \
+        --build-arg "VITE_APP_TITLE=${VITE_APP_TITLE}" \
+        --build-arg "VITE_TELEGRAM_BOT_USERNAME=${VITE_TELEGRAM_BOT_USERNAME}" \
+        --build-arg "VITE_ANALYTICS_WEBHOOK_URL=${VITE_ANALYTICS_WEBHOOK_URL}"
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_COMMIT_BRANCH
