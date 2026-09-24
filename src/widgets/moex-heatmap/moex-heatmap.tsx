@@ -5,7 +5,7 @@ import { MoexStock } from '../../entities/moex/model/types';
 
 const MAX_TILES = 16; // берём топ-N по капитализации, иначе карта станет нечитаемой кашей
 const HEATMAP_HEIGHT = 340;
-const COLOR_SATURATION_CAP = 4; // при изменении ±4% и больше — максимально насыщенный цвет
+const COLOR_SATURATION_CAP = 2.5; // при изменении ±2.5% и больше — максимально насыщенный цвет (больше разброс, как в Т-Банке)
 
 function colorForChange(changePercent: number, isDark: boolean): string {
   const clamped = Math.max(-COLOR_SATURATION_CAP, Math.min(COLOR_SATURATION_CAP, changePercent));
@@ -16,13 +16,13 @@ function colorForChange(changePercent: number, isDark: boolean): string {
   }
 
   if (clamped > 0) {
-    // Зелёный (фирменный акцент IF): от бледного к насыщенному
-    const light = isDark ? [22, 61, 41] : [214, 245, 227];
-    const dark = [22, 163, 74];
+    // Зелёный: от бледного к насыщенному, более яркий диапазон
+    const light = isDark ? [20, 70, 45] : [200, 240, 215];
+    const dark = [0, 200, 83];
     return mixColor(light, dark, intensity);
   } else {
-    const light = isDark ? [69, 26, 26] : [253, 226, 226];
-    const dark = [220, 38, 38];
+    const light = isDark ? [75, 25, 25] : [252, 210, 210];
+    const dark = [255, 23, 68];
     return mixColor(light, dark, intensity);
   }
 }
@@ -77,7 +77,7 @@ export const MoexHeatmap: React.FC = () => {
 
   const topStocks = useMemo(() => {
     return [...stocks]
-      .sort((a, b) => b.marketValue - a.marketValue)
+      .sort((a, b) => b.marketCap - a.marketCap)
       .slice(0, MAX_TILES);
   }, [stocks]);
 
@@ -85,7 +85,7 @@ export const MoexHeatmap: React.FC = () => {
     if (containerWidth === 0 || topStocks.length === 0) return [];
 
     const root = hierarchy({ children: topStocks })
-      .sum((d: any) => (d.marketValue ? Math.sqrt(d.marketValue) : 0))
+      .sum((d: any) => Math.sqrt(d.tradingValue || 1))
       .sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
 
     const layout = treemap<{ children: MoexStock[] }>()
