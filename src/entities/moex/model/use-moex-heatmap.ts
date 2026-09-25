@@ -69,20 +69,20 @@ export function useMoexHeatmap() {
             const m = marketBySecid.get(s.secid);
             const lastPrice = typeof m?.last === 'number' ? m.last : null;
             const issueSize = typeof s.issueSize === 'number' ? s.issueSize : null;
-            // Размер плитки — капитализация (кол-во акций × цена), а не объём торгов за день.
-            // Объём торгов слишком "дёрганый": у малоликвидных бумаг случайный всплеск
-            // сделок может визуально "съесть" всю карту, хотя по факту это не крупная компания.
             const marketCap = issueSize !== null && lastPrice !== null ? issueSize * lastPrice : 0;
+            const tradingValue = typeof m?.value === 'number' ? m.value : 0;
             return {
               secid: String(s.secid),
               shortname: String(s.shortname ?? s.secid),
               lastPrice,
               changePercent: typeof m?.changePercent === 'number' ? m.changePercent : null,
-              marketValue: marketCap,
+              marketCap,
+              tradingValue,
             };
           })
-          // убираем бумаги без капитализации и без данных об изменении цены — на карте от них толку нет
-          .filter((s) => s.marketValue > 0 && s.changePercent !== null);
+          // отбор компаний в список идёт по капитализации (см. ниже, в компоненте) —
+          // здесь просто убираем бумаги без цены изменения, толку от них всё равно нет
+          .filter((s) => s.marketCap > 0 && s.changePercent !== null);
 
         if (isMountedRef.current) {
           setStocks(merged);

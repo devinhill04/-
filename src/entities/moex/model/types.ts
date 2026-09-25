@@ -3,7 +3,8 @@ export interface MoexStock {
   shortname: string; // короткое название, например "Сбербанк"
   lastPrice: number | null;
   changePercent: number | null; // изменение за сегодня, %
-  marketValue: number; // объём торгов сегодня (используем как размер плитки)
+  marketCap: number; // капитализация (кол-во акций × цена) — используется для отбора топ-N компаний
+  tradingValue: number; // объём торгов сегодня — используется для размера плитки
 }
 
 export interface MoexHeatmapState {

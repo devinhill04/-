@@ -9,16 +9,35 @@ import { FigmaPostCard } from '../../widgets/post-card/figma-post-card';
 // import { MoexHeatmap } from '../../widgets/moex-heatmap/moex-heatmap'; // ВРЕМЕННО отключено перед деплоем
 
 import { usePosts } from '../../entities/post/model/use-posts';
-import { FigmaPainCard } from '../../shared/config/figma-data';
+import { FigmaPainCard, FIGMA_PAIN_CARDS } from '../../shared/config/figma-data';
 import { AnalyticsService } from '../../shared/analytics/analytics';
 import { triggerHaptic } from '../../lib/telegram';
+import { loadLastAppState, saveLastAppState } from '../../shared/lib/last-app-state';
 
 export const HomePage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'catalog' | 'solutions'>('catalog');
-  const [selectedTag, setSelectedTag] = useState<string>('#Инвестидея');
-  const [activePain, setActivePain] = useState<FigmaPainCard | null>(null);
-  const [isEcosystemOpen, setIsEcosystemOpen] = useState(false);
+  // Восстанавливаем последнее место, где был пользователь (см. src/shared/lib/last-app-state.ts) —
+  // вычисляем один раз при монтировании компонента, до первого рендера.
+  const [initialState] = useState(() => loadLastAppState());
+
+  const [activeTab, setActiveTab] = useState<'catalog' | 'solutions'>(initialState.activeTab);
+  const [selectedTag, setSelectedTag] = useState<string>(initialState.selectedTag);
+  const [activePain, setActivePain] = useState<FigmaPainCard | null>(
+    initialState.activePainSlug
+      ? FIGMA_PAIN_CARDS.find((p) => p.slug === initialState.activePainSlug) ?? null
+      : null
+  );
+  const [isEcosystemOpen, setIsEcosystemOpen] = useState(initialState.isEcosystemOpen);
   const [postsLimit, setPostsLimit] = useState(10);
+
+  // Сохраняем состояние при любом изменении — на этом устройстве, никуда не отправляется
+  useEffect(() => {
+    saveLastAppState({
+      activeTab,
+      selectedTag,
+      activePainSlug: activePain?.slug ?? null,
+      isEcosystemOpen,
+    });
+  }, [activeTab, selectedTag, activePain, isEcosystemOpen]);
 
   const { posts, isLoading } = usePosts();
 

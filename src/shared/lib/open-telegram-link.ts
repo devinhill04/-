@@ -11,10 +11,17 @@ export function openPostLink(url: string, title?: string) {
     if (tg) {
       if ((url.startsWith('https://t.me/') || url.startsWith('http://t.me/')) && tg.openTelegramLink) {
         tg.openTelegramLink(url);
+        // Сворачиваем мини-апп после перехода. Раньше это ломало возврат "назад в мини-апп",
+        // но мы выяснили: этот возврат и так не работает при реальном пути входа пользователя
+        // (закреп в канале → чат с ботом → мини-апп) — любой вход через ссылку "портит" историю
+        // навигации Telegram независимо от close(). Терять уже нечего, а close() хотя бы чётко
+        // показывает, что клик сработал.
+        setTimeout(() => tg.close?.(), 300);
         return;
       }
       if (tg.openLink) {
         tg.openLink(url);
+        setTimeout(() => tg.close?.(), 300);
         return;
       }
     }
