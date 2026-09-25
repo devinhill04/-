@@ -47,12 +47,12 @@ export function useMoexHeatmap() {
           secid: ['SECID'],
           shortname: ['SHORTNAME', 'SECNAME'],
           issueSize: ['ISSUESIZE'], // количество акций в обращении — нужно для капитализации
+          prevPrice: ['PREVPRICE'], // цена закрытия предыдущего торгового дня — нужна для честного % изменения
         });
 
         const marketdata = parseBlock(json.marketdata, {
           secid: ['SECID'],
           last: ['LAST', 'LCURRENTPRICE'],
-          changePercent: ['LASTTOPREVPRICE', 'LASTCHANGEPRCNT', 'CHANGE'],
           value: ['VALTODAY', 'VALTODAY_RUR', 'VOLTODAY'],
         });
 
@@ -69,13 +69,22 @@ export function useMoexHeatmap() {
             const m = marketBySecid.get(s.secid);
             const lastPrice = typeof m?.last === 'number' ? m.last : null;
             const issueSize = typeof s.issueSize === 'number' ? s.issueSize : null;
+            const prevPrice = typeof s.prevPrice === 'number' ? s.prevPrice : null;
             const marketCap = issueSize !== null && lastPrice !== null ? issueSize * lastPrice : 0;
             const tradingValue = typeof m?.value === 'number' ? m.value : 0;
+            // Честное изменение за день: (текущая цена - цена вчерашнего закрытия) / цена закрытия.
+            // Раньше брали готовое поле от биржи по угаданному имени — оно оказалось "изменение
+            // к прошлой сделке" (тик-в-тик, доли процента), а не "изменение за день" — из-за
+            // этого почти все плитки на карте были серыми (изменение казалось около нуля).
+            const changePercent =
+              lastPrice !== null && prevPrice !== null && prevPrice !== 0
+                ? ((lastPrice - prevPrice) / prevPrice) * 100
+                : null;
             return {
               secid: String(s.secid),
               shortname: String(s.shortname ?? s.secid),
               lastPrice,
-              changePercent: typeof m?.changePercent === 'number' ? m.changePercent : null,
+              changePercent,
               marketCap,
               tradingValue,
             };

@@ -33,25 +33,42 @@ export function useMoexCurrency() {
         if (!res.ok) throw new Error(`MOEX ISS API: ${res.status}`);
         const json = await res.json();
 
-        const block = json.marketdata;
-        if (!block) throw new Error('Нет блока marketdata в ответе');
+        const secBlock = json.securities;
+        const mktBlock = json.marketdata;
+        if (!secBlock || !mktBlock) throw new Error('Нет блоков securities/marketdata в ответе');
 
-        const idxSecId = block.columns.indexOf('SECID');
-        const idxLast = block.columns.findIndex((c: string) => ['LAST', 'LCURRENTPRICE'].includes(c));
-        const idxClose = block.columns.findIndex((c: string) => ['CLOSEPRICE', 'LASTTOPREVPRICE'].includes(c));
+        console.log('[MOEX currency] securities columns:', secBlock.columns);
+        console.log('[MOEX currency] marketdata columns:', mktBlock.columns);
+        console.log(
+          '[MOEX currency] все тикеры в ответе:',
+          secBlock.data.map((row: any[]) => row[secBlock.columns.indexOf('SECID')])
+        );
 
-        console.log('[MOEX currency] columns:', block.columns);
+        const secIdxSecId = secBlock.columns.indexOf('SECID');
+        const secIdxPrev = secBlock.columns.indexOf('PREVPRICE');
+        const mktIdxSecId = mktBlock.columns.indexOf('SECID');
+        const mktIdxLast = mktBlock.columns.findIndex((c: string) => ['LAST', 'LCURRENTPRICE'].includes(c));
 
-        const bySecId = new Map<string, any[]>(block.data.map((row: any[]) => [row[idxSecId], row]));
+        const prevBySecId = new Map<string, number>(
+          secBlock.data.map((row: any[]) => [row[secIdxSecId], row[secIdxPrev]])
+        );
+        const lastBySecId = new Map<string, number>(
+          mktBlock.data.map((row: any[]) => [row[mktIdxSecId], row[mktIdxLast]])
+        );
 
         const result: CurrencyRate[] = TICKERS.map(({ ticker, code, label }) => {
-          const row = bySecId.get(ticker);
-          const last = row && idxLast >= 0 ? row[idxLast] : null;
-          const close = row && idxClose >= 0 ? row[idxClose] : null;
+          const last = lastBySecId.get(ticker) ?? null;
+          const prev = prevBySecId.get(ticker) ?? null;
+
+          if (last === undefined || !lastBySecId.has(ticker)) {
+            console.warn(`[MOEX currency] тикер ${ticker} не найден в marketdata`);
+          }
+
           const changePercent =
-            typeof last === 'number' && typeof close === 'number' && close !== 0
-              ? ((last - close) / close) * 100
+            typeof last === 'number' && typeof prev === 'number' && prev !== 0
+              ? ((last - prev) / prev) * 100
               : null;
+
           return {
             code,
             label,
