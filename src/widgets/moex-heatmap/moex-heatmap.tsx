@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { hierarchy, treemap, treemapSquarify } from 'd3-hierarchy';
-import { useMoexHeatmap } from '../../entities/moex/model/use-moex-heatmap';
-import { MoexStock } from '../../entities/moex/model/types';
+import { MoexStock, MoexHeatmapState } from '../../entities/moex/model/types';
 
 const MAX_TILES = 16; // берём топ-N по капитализации, иначе карта станет нечитаемой кашей
 const HEATMAP_HEIGHT = 340;
@@ -103,12 +102,11 @@ function useContainerWidth() {
   return { ref, width };
 }
 
-interface MoexHeatmapProps {
+interface MoexHeatmapProps extends MoexHeatmapState {
   onSelectStock?: (stock: MoexStock) => void;
 }
 
-export const MoexHeatmap: React.FC<MoexHeatmapProps> = ({ onSelectStock }) => {
-  const { stocks, isLoading, error, lastUpdated } = useMoexHeatmap();
+export const MoexHeatmap: React.FC<MoexHeatmapProps> = ({ stocks, isLoading, error, lastUpdated, onSelectStock }) => {
   const { ref: containerRef, width: containerWidth } = useContainerWidth();
 
   // Тёмная тема определяется тем же способом, что и остальное приложение — классом на html

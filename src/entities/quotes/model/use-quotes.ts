@@ -16,7 +16,9 @@ const MAIN: Quote[] = [
 
 const EXTRA: Quote[] = [
   { id: 'BRENT', title: 'Нефть Brent', ticker: 'BR · фьючерс', badge: 'BR', price: null, changePercent: null, unit: '$', decimals: 2, source: 'Мосбиржа (ближайший фьючерс)' },
-  { id: 'GAS', title: 'Природный газ', ticker: 'NG · фьючерс', badge: 'NG', price: null, changePercent: null, unit: '$', decimals: 3, source: 'Мосбиржа (ближайший фьючерс)' },
+  { id: 'URALS', title: 'Нефть Urals', ticker: 'UR · фьючерс', badge: 'UR', price: null, changePercent: null, unit: '$', decimals: 2, source: 'Мосбиржа (фьючерс UR, малоликвидный — цена может отставать)' },
+  { id: 'GOLD', title: 'Золото', ticker: 'GD · фьючерс, за унцию', badge: 'Au', price: null, changePercent: null, unit: '$', decimals: 1, source: 'Мосбиржа (ближайший фьючерс)' },
+  { id: 'SILVER', title: 'Серебро', ticker: 'SV · фьючерс, за унцию', badge: 'Ag', price: null, changePercent: null, unit: '$', decimals: 2, source: 'Мосбиржа (ближайший фьючерс)' },
   { id: 'BTC', title: 'Биткоин', ticker: 'BTC/USD', badge: '₿', price: null, changePercent: null, unit: '$', decimals: 0, source: 'CoinGecko' },
   { id: 'ETH', title: 'Эфир', ticker: 'ETH/USD', badge: 'Ξ', price: null, changePercent: null, unit: '$', decimals: 0, source: 'CoinGecko' },
 ];
@@ -103,7 +105,7 @@ async function fetchIndex(): Promise<Values> {
 }
 
 // Нефть и газ: ищем ближайший (не истёкший) фьючерс по коду базового актива
-async function fetchFutures(): Promise<Values> {
+export async function fetchFutures(): Promise<Values> {
   const json = await getJson(`${ISS}/engines/futures/markets/forts/securities.json?iss.meta=off&iss.only=securities,marketdata`);
   const sec: Block = json.securities;
   const mkt: Block = json.marketdata;
@@ -120,10 +122,10 @@ async function fetchFutures(): Promise<Values> {
   const today = new Date().toISOString().slice(0, 10);
   const marketBySecid = new Map<string, unknown[]>((mkt?.data ?? []).map((r) => [String(r[mSec]), r]));
 
-  const pick = (code: string, re: RegExp) => {
+  const pick = (codes: string[], re: RegExp) => {
     const cands = (sec?.data ?? []).filter((r) => {
       const secid = String(r[sSec]);
-      const assetOk = sAsset >= 0 ? String(r[sAsset]) === code : false;
+      const assetOk = sAsset >= 0 ? codes.includes(String(r[sAsset])) : false;
       const expOk = sExp >= 0 ? String(r[sExp]) >= today : true;
       return (assetOk || re.test(secid)) && expOk;
     });
@@ -132,10 +134,18 @@ async function fetchFutures(): Promise<Values> {
   };
 
   const out: Values = {};
-  ([['BRENT', 'BR', /^BR[A-Z]\d$/], ['GAS', 'NG', /^NG[A-Z]\d$/]] as [string, string, RegExp][]).forEach(([id, code, re]) => {
-    const s = pick(code, re);
-    if (!s) { console.warn(`[quotes/futures] не нашёл контракт для ${code}`); return; }
+  // [id котировки, возможные коды базового актива на бирже, шаблон тикера контракта: код + буква месяца + цифра года]
+  const targets: [string, string[], RegExp][] = [
+    ['BRENT', ['BR'], /^BR[A-Z]\d$/],
+    ['URALS', ['UR'], /^UR[A-Z]\d$/],
+    ['GOLD', ['GOLD', 'GD'], /^GD[A-Z]\d$/],
+    ['SILVER', ['SILV', 'SV'], /^SV[A-Z]\d$/],
+  ];
+  targets.forEach(([id, codes, re]) => {
+    const s = pick(codes, re);
+    if (!s) { console.warn(`[quotes/futures] не нашёл контракт для ${id} (${codes.join('/')})`); return; }
     const m = marketBySecid.get(String(s[sSec]));
+    // у малоликвидных контрактов (Urals) сделок может не быть — тогда берём расчётную цену
     const last = m ? num(m[mLast]) ?? (mSettle >= 0 ? num(m[mSettle]) : null) : null;
     out[id] = { price: last, changePercent: pct(last, sPrev >= 0 ? num(s[sPrev]) : null) };
     console.log(`[quotes/futures] ${id} → контракт ${String(s[sSec])}`);
