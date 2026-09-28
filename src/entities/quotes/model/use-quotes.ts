@@ -17,8 +17,8 @@ const MAIN: Quote[] = [
 const EXTRA: Quote[] = [
   { id: 'BRENT', title: 'Нефть Brent', ticker: 'BR · фьючерс', badge: 'BR', price: null, changePercent: null, unit: '$', decimals: 2, source: 'Мосбиржа (ближайший фьючерс)' },
   { id: 'URALS', title: 'Нефть Urals', ticker: 'UR · фьючерс', badge: 'UR', price: null, changePercent: null, unit: '$', decimals: 2, source: 'Мосбиржа (фьючерс UR, малоликвидный — цена может отставать)' },
-  { id: 'GOLD', title: 'Золото', ticker: 'GD · фьючерс, за унцию', badge: 'Au', price: null, changePercent: null, unit: '$', decimals: 1, source: 'Мосбиржа (ближайший фьючерс)' },
-  { id: 'SILVER', title: 'Серебро', ticker: 'SV · фьючерс, за унцию', badge: 'Ag', price: null, changePercent: null, unit: '$', decimals: 2, source: 'Мосбиржа (ближайший фьючерс)' },
+  { id: 'GOLD', title: 'Золото', ticker: 'GLDRUB · за грамм', badge: 'Au', price: null, changePercent: null, unit: '₽', decimals: 1, source: 'Мосбиржа (спот, ₽ за грамм)' },
+  { id: 'SILVER', title: 'Серебро', ticker: 'SLVRUB · за грамм', badge: 'Ag', price: null, changePercent: null, unit: '₽', decimals: 2, source: 'Мосбиржа (спот, ₽ за грамм)' },
   { id: 'BTC', title: 'Биткоин', ticker: 'BTC/USD', badge: '₿', price: null, changePercent: null, unit: '$', decimals: 0, source: 'CoinGecko' },
   { id: 'ETH', title: 'Эфир', ticker: 'ETH/USD', badge: 'Ξ', price: null, changePercent: null, unit: '$', decimals: 0, source: 'CoinGecko' },
 ];
@@ -104,7 +104,8 @@ async function fetchIndex(): Promise<Values> {
   return { IMOEX: { price: iVal >= 0 ? num(row[iVal]) : null, changePercent: iChg >= 0 ? num(row[iChg]) : null } };
 }
 
-// Нефть и газ: ищем ближайший (не истёкший) фьючерс по коду базового актива
+// Нефть: ближайший не истёкший фьючерс Мосбиржи. Контракт ищем тремя способами (код базового актива,
+// шаблон тикера, шаблон названия), потому что точные имена у биржи могут отличаться от ожидаемых.
 export async function fetchFutures(): Promise<Values> {
   const json = await getJson(`${ISS}/engines/futures/markets/forts/securities.json?iss.meta=off&iss.only=securities,marketdata`);
   const sec: Block = json.securities;
@@ -112,6 +113,7 @@ export async function fetchFutures(): Promise<Values> {
   console.log('[quotes/futures] securities cols:', sec?.columns, '| marketdata cols:', mkt?.columns);
 
   const sSec = col(sec, ['SECID']);
+  const sName = col(sec, ['SHORTNAME']);
   const sAsset = col(sec, ['ASSETCODE']);
   const sExp = col(sec, ['LASTTRADEDATE']);
   const sPrev = col(sec, ['PREVSETTLEPRICE', 'PREVPRICE']);
@@ -122,33 +124,85 @@ export async function fetchFutures(): Promise<Values> {
   const today = new Date().toISOString().slice(0, 10);
   const marketBySecid = new Map<string, unknown[]>((mkt?.data ?? []).map((r) => [String(r[mSec]), r]));
 
-  const pick = (codes: string[], re: RegExp) => {
-    const cands = (sec?.data ?? []).filter((r) => {
-      const secid = String(r[sSec]);
-      const assetOk = sAsset >= 0 ? codes.includes(String(r[sAsset])) : false;
-      const expOk = sExp >= 0 ? String(r[sExp]) >= today : true;
-      return (assetOk || re.test(secid)) && expOk;
-    });
-    cands.sort((a, b) => (sExp >= 0 ? String(a[sExp]).localeCompare(String(b[sExp])) : 0));
-    return cands[0];
-  };
+  const targets = [
+    { id: 'BRENT', code: 'BR', secidRe: /^BR[A-Z]\d$/, nameRe: /^BR-/i },
+    { id: 'URALS', code: 'UR', secidRe: /^UR[A-Z]\d$/, nameRe: /^UR(ALS)?-/i },
+  ];
 
   const out: Values = {};
-  // [id котировки, возможные коды базового актива на бирже, шаблон тикера контракта: код + буква месяца + цифра года]
-  const targets: [string, string[], RegExp][] = [
-    ['BRENT', ['BR'], /^BR[A-Z]\d$/],
-    ['URALS', ['UR'], /^UR[A-Z]\d$/],
-    ['GOLD', ['GOLD', 'GD'], /^GD[A-Z]\d$/],
-    ['SILVER', ['SILV', 'SV'], /^SV[A-Z]\d$/],
-  ];
-  targets.forEach(([id, codes, re]) => {
-    const s = pick(codes, re);
-    if (!s) { console.warn(`[quotes/futures] не нашёл контракт для ${id} (${codes.join('/')})`); return; }
-    const m = marketBySecid.get(String(s[sSec]));
-    // у малоликвидных контрактов (Urals) сделок может не быть — тогда берём расчётную цену
-    const last = m ? num(m[mLast]) ?? (mSettle >= 0 ? num(m[mSettle]) : null) : null;
-    out[id] = { price: last, changePercent: pct(last, sPrev >= 0 ? num(s[sPrev]) : null) };
-    console.log(`[quotes/futures] ${id} → контракт ${String(s[sSec])}`);
+  targets.forEach(({ id, code, secidRe, nameRe }) => {
+    const cands = (sec?.data ?? []).filter((r) => {
+      const matches =
+        (sAsset >= 0 && String(r[sAsset]) === code) || secidRe.test(String(r[sSec])) || (sName >= 0 && nameRe.test(String(r[sName])));
+      const alive = sExp >= 0 ? String(r[sExp]) >= today : true;
+      return matches && alive;
+    });
+    cands.sort((a, b) => (sExp >= 0 ? String(a[sExp]).localeCompare(String(b[sExp])) : 0));
+    const s = cands[0];
+
+    if (!s) {
+      const like = (sec?.data ?? [])
+        .filter((r) => [r[sSec], sName >= 0 ? r[sName] : '', sAsset >= 0 ? r[sAsset] : ''].some((v) => String(v).toUpperCase().includes(code)))
+        .map((r) => String(r[sSec]))
+        .slice(0, 15);
+      console.warn(`[quotes/futures] ${id}: живой контракт не найден. Похожие тикеры в списке биржи:`, like);
+      out[id] = { price: null, changePercent: null, source: `Мосбиржа: фьючерс ${code} не найден в списке торгуемых контрактов` };
+      return;
+    }
+
+    const secid = String(s[sSec]);
+    const m = marketBySecid.get(secid);
+    const prev = sPrev >= 0 ? num(s[sPrev]) : null;
+    const traded = m ? num(m[mLast]) : null;
+    const settle = m && mSettle >= 0 ? num(m[mSettle]) : null;
+    console.log(`[quotes/futures] ${id} → контракт ${secid}: сделка=${traded}, расчётная=${settle}, вчерашняя расчётная=${prev}`);
+
+    if (traded !== null) out[id] = { price: traded, changePercent: pct(traded, prev) };
+    else if (settle !== null) out[id] = { price: settle, changePercent: pct(settle, prev), source: `Мосбиржа: расчётная цена контракта ${secid} (сделок сегодня не было)` };
+    else if (prev !== null) out[id] = { price: prev, changePercent: null, source: `Мосбиржа: вчерашняя расчётная цена контракта ${secid} (сегодня торгов нет)` };
+    else out[id] = { price: null, changePercent: null, source: `Мосбиржа: у контракта ${secid} нет ни сделок, ни расчётной цены` };
+  });
+  return out;
+}
+
+// Золото и серебро — спот Мосбиржи в рублях за грамм (GLDRUB_TOM / SLVRUB_TOM).
+// Запрашиваем на уровне рынка, а не конкретной площадки: в ответе берём строку, где есть цена.
+export async function fetchMetals(): Promise<Values> {
+  const ids: Record<string, string> = { GLDRUB_TOM: 'GOLD', SLVRUB_TOM: 'SILVER' };
+  const json = await getJson(
+    `${ISS}/engines/currency/markets/selt/securities.json?iss.meta=off&iss.only=securities,marketdata&securities=${Object.keys(ids).join(',')}`
+  );
+  const sec: Block = json.securities;
+  const mkt: Block = json.marketdata;
+  console.log('[quotes/metals] marketdata cols:', mkt?.columns, '| rows:', mkt?.data);
+
+  const sSec = col(sec, ['SECID']);
+  const sBoard = col(sec, ['BOARDID']);
+  const sPrev = col(sec, ['PREVPRICE', 'PREVLEGALCLOSEPRICE']);
+  const mSec = col(mkt, ['SECID']);
+  const mBoard = col(mkt, ['BOARDID']);
+  const mLast = col(mkt, ['LAST', 'LCURRENTPRICE']);
+  const mClose = col(mkt, ['CLOSEPRICE']);
+
+  const prevByKey = new Map<string, number | null>();
+  (sec?.data ?? []).forEach((r) =>
+    prevByKey.set(`${r[sSec]}|${sBoard >= 0 ? r[sBoard] : ''}`, sPrev >= 0 ? num(r[sPrev]) : null)
+  );
+
+  const out: Values = {};
+  (mkt?.data ?? []).forEach((r) => {
+    const id = ids[String(r[mSec])];
+    if (!id) return;
+    const last = mLast >= 0 ? num(r[mLast]) : null;
+    const prev = prevByKey.get(`${r[mSec]}|${mBoard >= 0 ? r[mBoard] : ''}`) ?? (mClose >= 0 ? num(r[mClose]) : null);
+    if (last !== null && out[id]?.price == null) out[id] = { price: last, changePercent: pct(last, prev) };
+    else if (!out[id]) out[id] = { price: null, changePercent: null };
+  });
+  Object.entries(ids).forEach(([secid, id]) => {
+    if (!out[id]) {
+      console.warn(`[quotes/metals] ${secid} не найден в ответе биржи`);
+      out[id] = { price: null, changePercent: null, source: `Мосбиржа: инструмент ${secid} не найден` };
+    }
   });
   return out;
 }
@@ -173,7 +227,7 @@ export function useQuotes() {
     mounted.current = true;
     async function refresh() {
       // ЦБ первым: биржевые значения ниже перекрывают его, если у них есть цена
-      const sources = [fetchCbr, fetchFx, fetchIndex, fetchFutures, fetchCrypto];
+      const sources = [fetchCbr, fetchFx, fetchMetals, fetchIndex, fetchFutures, fetchCrypto];
       const results = await Promise.allSettled(sources.map((f) => f()));
       results.forEach((r, i) => { if (r.status === 'rejected') console.error(`[quotes] источник ${sources[i].name} упал:`, r.reason); });
       if (!mounted.current) return;

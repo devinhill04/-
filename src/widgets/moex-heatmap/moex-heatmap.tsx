@@ -2,9 +2,9 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { hierarchy, treemap, treemapSquarify } from 'd3-hierarchy';
 import { MoexStock, MoexHeatmapState } from '../../entities/moex/model/types';
 
-const MAX_TILES = 16; // берём топ-N по капитализации, иначе карта станет нечитаемой кашей
-const HEATMAP_HEIGHT = 340;
-const MIN_TILE_WEIGHT = 0.25; // доля от самой крупной плитки — чтобы ни одна не превращалась в полоску без подписи
+const MAX_TILES = 32; // топ-N по капитализации. Как в Т-Инвестициях: мелкие плитки тоже подписаны и нажимаются
+const HEATMAP_HEIGHT = 400; // при 32 плитках 340px не хватало: у трети плиток сторона была бы < 36px
+const MIN_TILE_WEIGHT = 0.35; // доля от самой крупной плитки — чтобы ни одна не превращалась в полоску, на которую не нажать
 
 type RGB = [number, number, number];
 type Anchor = [number, RGB]; // [|изменение, %|, цвет]
@@ -12,6 +12,7 @@ type Anchor = [number, RGB]; // [|изменение, %|, цвет]
 // Палитра как на Смартлабе: ЗНАК изменения задаёт цвет (рост — зелёный, падение — красный),
 // ВЕЛИЧИНА — насыщенность (от светлого к тёмному). Слабые движения не "серые", а сразу цветные.
 // Опорные точки измерены по пикселям скриншота smart-lab.ru/q/map1, между ними — линейно.
+// Чем сильнее движение, тем темнее: до ±5% — яркие/средние оттенки, ±10–15% — тёмные, ±18% и больше — почти чёрные.
 const GREEN_ANCHORS: Anchor[] = [
   [0, [93, 248, 93]],
   [0.06, [89, 244, 89]],
@@ -19,7 +20,7 @@ const GREEN_ANCHORS: Anchor[] = [
   [0.49, [69, 224, 69]],
   [1.58, [44, 199, 44]],
   [4.24, [8, 163, 8]],
-  [6, [0, 125, 0]], // дальше не темнеем — иначе плитка станет почти чёрной
+  [18.5, [0, 63, 0]], // измерено на Смартлабе (EUTR +18,5%): на экстремальных движениях плитка почти чёрная
 ];
 const RED_ANCHORS: Anchor[] = [
   [0, [248, 93, 93]],
@@ -29,6 +30,7 @@ const RED_ANCHORS: Anchor[] = [
   [0.97, [211, 56, 56]],
   [2.77, [181, 26, 26]],
   [5.51, [150, 0, 0]],
+  [18.5, [63, 0, 0]], // за пределами измерений: по симметрии с зелёным
 ];
 // Ровно 0.00% — нейтральный серый
 const ZERO_LIGHT: RGB = [205, 208, 215];
@@ -102,6 +104,42 @@ function useContainerWidth() {
   return { ref, width };
 }
 
+export interface TileRect {
+  stock: MoexStock;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+// Раскладка плиток (treemap). Площадь ~ sqrt(оборот торгов), но не меньше minWeight от самой крупной —
+// чтобы малоторгуемая бумага не превращалась в полоску, на которую нельзя ни нажать, ни подписать.
+export function layoutTiles(
+  stocks: MoexStock[],
+  width: number,
+  height: number,
+  minWeight = MIN_TILE_WEIGHT
+): TileRect[] {
+  if (width <= 0 || stocks.length === 0) return [];
+
+  const weight = (d: any) => Math.sqrt(d.tradingValue || 1);
+  const floor = Math.max(...stocks.map(weight)) * minWeight;
+
+  const root = hierarchy({ children: stocks })
+    .sum((d: any) => (d.secid ? Math.max(weight(d), floor) : 0))
+    .sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
+
+  treemap<{ children: MoexStock[] }>().tile(treemapSquarify).size([width, height]).paddingInner(1)(root as any);
+
+  return (root.leaves() as any[]).map((leaf) => ({
+    stock: leaf.data as MoexStock,
+    x: leaf.x0,
+    y: leaf.y0,
+    width: leaf.x1 - leaf.x0,
+    height: leaf.y1 - leaf.y0,
+  }));
+}
+
 interface MoexHeatmapProps extends MoexHeatmapState {
   onSelectStock?: (stock: MoexStock) => void;
 }
@@ -125,34 +163,7 @@ export const MoexHeatmap: React.FC<MoexHeatmapProps> = ({ stocks, isLoading, err
       .slice(0, MAX_TILES);
   }, [stocks]);
 
-  const rects = useMemo(() => {
-    if (containerWidth === 0 || topStocks.length === 0) return [];
-
-    const weight = (d: any) => Math.sqrt(d.tradingValue || 1);
-    const floor = Math.max(...topStocks.map(weight)) * MIN_TILE_WEIGHT;
-
-    const root = hierarchy({ children: topStocks })
-      .sum((d: any) => (d.secid ? Math.max(weight(d), floor) : 0))
-      .sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
-
-    const layout = treemap<{ children: MoexStock[] }>()
-      .tile(treemapSquarify)
-      .size([containerWidth, HEATMAP_HEIGHT])
-      .paddingInner(1);
-
-    layout(root as any);
-
-    const result = (root.leaves() as any[]).map((leaf) => ({
-      item: { stock: leaf.data as MoexStock },
-      x: leaf.x0,
-      y: leaf.y0,
-      width: leaf.x1 - leaf.x0,
-      height: leaf.y1 - leaf.y0,
-    }));
-
-    console.log('[MOEX heatmap] rects построено:', result.length);
-    return result;
-  }, [topStocks, containerWidth]);
+  const rects = useMemo(() => layoutTiles(topStocks, containerWidth, HEATMAP_HEIGHT), [topStocks, containerWidth]);
 
   if (isLoading) {
     return (
@@ -182,8 +193,7 @@ export const MoexHeatmap: React.FC<MoexHeatmapProps> = ({ stocks, isLoading, err
             </p>
           </div>
         )}
-        {rects.map(({ item, x, y, width, height }) => {
-          const stock = (item as { stock: MoexStock }).stock;
+        {rects.map(({ stock, x, y, width, height }) => {
           const { bg, fg } = tileColors(stock.changePercent ?? 0, isDark);
           // Подпись есть на КАЖДОЙ плитке, меняется только размер шрифта
           const size = width >= 70 && height >= 44 ? 'lg' : width >= 46 && height >= 32 ? 'md' : 'sm';
