@@ -49,12 +49,11 @@ export const QuotePopup: React.FC<{ data: PopupData; onClose: () => void }> = ({
   }
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center" onClick={onClose}>
-      <div className="absolute inset-0 bg-black/40" />
+    <div className="fixed inset-0 z-[60] flex items-center justify-center px-5" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/50" />
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-[430px] bg-white dark:bg-[#1a1a1a] rounded-t-[20px] px-4 pt-4 pb-6"
-        style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}
+        className="relative w-full max-w-[350px] bg-white dark:bg-[#1a1a1a] rounded-[20px] p-5 shadow-2xl"
       >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">

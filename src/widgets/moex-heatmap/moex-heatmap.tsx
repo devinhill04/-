@@ -5,33 +5,44 @@ import { MoexStock } from '../../entities/moex/model/types';
 
 const MAX_TILES = 16; // берём топ-N по капитализации, иначе карта станет нечитаемой кашей
 const HEATMAP_HEIGHT = 340;
+const MIN_TILE_WEIGHT = 0.25; // доля от самой крупной плитки — чтобы ни одна не превращалась в полоску без подписи
 const COLOR_SATURATION_CAP = 2.5; // при изменении ±2.5% и больше — максимально насыщенный цвет (больше разброс, как в Т-Банке)
 
-function colorForChange(changePercent: number, isDark: boolean): string {
-  const clamped = Math.max(-COLOR_SATURATION_CAP, Math.min(COLOR_SATURATION_CAP, changePercent));
-  const intensity = Math.abs(clamped) / COLOR_SATURATION_CAP; // 0..1
+type RGB = [number, number, number];
 
-  if (Math.abs(changePercent) < 0.05) {
-    return isDark ? '#3a3a3a' : '#E5E5E5';
-  }
+// Палитра одинаково читается в обеих темах и нигде не уходит в чёрный:
+// нейтральный серый → насыщенный красный/зелёный, промежуточные оттенки — смесь, а не "затемнение".
+const NEUTRAL_LIGHT: RGB = [222, 224, 229];
+const NEUTRAL_DARK: RGB = [104, 109, 118]; // средне-серый, не чёрный
+const RED: RGB = [229, 72, 77];
+const GREEN: RGB = [47, 180, 99];
 
-  if (clamped > 0) {
-    // Зелёный: от бледного к насыщенному, более яркий диапазон
-    const light = isDark ? [20, 70, 45] : [200, 240, 215];
-    const dark = [0, 200, 83];
-    return mixColor(light, dark, intensity);
-  } else {
-    const light = isDark ? [75, 25, 25] : [252, 210, 210];
-    const dark = [255, 23, 68];
-    return mixColor(light, dark, intensity);
-  }
+function mixRgb(a: RGB, b: RGB, t: number): RGB {
+  return [
+    Math.round(a[0] + (b[0] - a[0]) * t),
+    Math.round(a[1] + (b[1] - a[1]) * t),
+    Math.round(a[2] + (b[2] - a[2]) * t),
+  ];
 }
 
-function mixColor(a: number[], b: number[], t: number): string {
-  const r = Math.round(a[0] + (b[0] - a[0]) * t);
-  const g = Math.round(a[1] + (b[1] - a[1]) * t);
-  const bl = Math.round(a[2] + (b[2] - a[2]) * t);
-  return `rgb(${r}, ${g}, ${bl})`;
+// Относительная яркость (WCAG) — чтобы выбрать читаемый цвет текста под плиткой
+function luminance([r, g, b]: RGB): number {
+  const f = (v: number) => {
+    const c = v / 255;
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  };
+  return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+}
+
+function tileColors(changePercent: number, isDark: boolean): { bg: string; fg: string } {
+  const neutral = isDark ? NEUTRAL_DARK : NEUTRAL_LIGHT;
+  const clamped = Math.max(-COLOR_SATURATION_CAP, Math.min(COLOR_SATURATION_CAP, changePercent));
+  const t = Math.abs(clamped) < 0.05 ? 0 : Math.pow(Math.abs(clamped) / COLOR_SATURATION_CAP, 0.8);
+  const rgb = mixRgb(neutral, clamped >= 0 ? GREEN : RED, t);
+  return {
+    bg: `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`,
+    fg: luminance(rgb) > 0.2 ? '#161616' : '#FFFFFF', // 0.2 — точка, где контраст чёрного и белого текста равен (~4.2:1)
+  };
 }
 
 function useContainerWidth() {
@@ -88,8 +99,11 @@ export const MoexHeatmap: React.FC<MoexHeatmapProps> = ({ onSelectStock }) => {
   const rects = useMemo(() => {
     if (containerWidth === 0 || topStocks.length === 0) return [];
 
+    const weight = (d: any) => Math.sqrt(d.tradingValue || 1);
+    const floor = Math.max(...topStocks.map(weight)) * MIN_TILE_WEIGHT;
+
     const root = hierarchy({ children: topStocks })
-      .sum((d: any) => Math.sqrt(d.tradingValue || 1))
+      .sum((d: any) => (d.secid ? Math.max(weight(d), floor) : 0))
       .sort((a, b) => (b.value ?? 0) - (a.value ?? 0));
 
     const layout = treemap<{ children: MoexStock[] }>()
@@ -141,8 +155,11 @@ export const MoexHeatmap: React.FC<MoexHeatmapProps> = ({ onSelectStock }) => {
         )}
         {rects.map(({ item, x, y, width, height }) => {
           const stock = (item as { stock: MoexStock }).stock;
-          const bg = colorForChange(stock.changePercent ?? 0, isDark);
-          const isSmall = width < 55 || height < 40;
+          const { bg, fg } = tileColors(stock.changePercent ?? 0, isDark);
+          // Подпись есть на КАЖДОЙ плитке, меняется только размер шрифта
+          const size = width >= 70 && height >= 44 ? 'lg' : width >= 46 && height >= 32 ? 'md' : 'sm';
+          const tickerPx = size === 'lg' ? 12 : size === 'md' ? 10 : width < 34 ? 8 : 9;
+          const percentPx = size === 'lg' ? 10 : 9;
           return (
             <div
               key={stock.secid}
@@ -154,20 +171,19 @@ export const MoexHeatmap: React.FC<MoexHeatmapProps> = ({ onSelectStock }) => {
                 width: width - 1,
                 height: height - 1,
                 background: bg,
+                color: fg,
               }}
-              className="flex flex-col items-center justify-center border border-white/40 dark:border-black/30 transition-colors duration-500 cursor-pointer active:opacity-80"
+              className="flex flex-col items-center justify-center overflow-hidden px-0.5 text-center border border-white/40 dark:border-black/30 transition-colors duration-500 cursor-pointer active:opacity-80"
             >
-              {!isSmall && (
-                <>
-                  <span className="font-semibold text-[12px] text-[#161616] dark:text-white leading-tight">
-                    {stock.secid}
-                  </span>
-                  <span className="font-medium text-[10px] text-[#161616]/80 dark:text-white/80 leading-tight">
-                    {stock.changePercent !== null
-                      ? `${stock.changePercent > 0 ? '+' : ''}${stock.changePercent.toFixed(2)}%`
-                      : '—'}
-                  </span>
-                </>
+              <span className="font-semibold leading-tight max-w-full truncate" style={{ fontSize: tickerPx }}>
+                {stock.secid}
+              </span>
+              {size !== 'sm' && (
+                <span className="font-medium leading-tight opacity-85" style={{ fontSize: percentPx }}>
+                  {stock.changePercent !== null
+                    ? `${stock.changePercent > 0 ? '+' : ''}${stock.changePercent.toFixed(2)}%`
+                    : '—'}
+                </span>
               )}
             </div>
           );

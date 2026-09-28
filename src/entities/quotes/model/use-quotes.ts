@@ -34,7 +34,8 @@ async function getJson(url: string) {
 
 // Валюты: основная площадка CETS, только три нужных тикера
 async function fetchFx(): Promise<Values> {
-  const ids: Record<string, string> = { USD000UTSTOM: 'USD', EURRUB_TOM: 'EUR', CNYRUB_TOM: 'CNY' };
+  // у евро на бирже основной тикер EUR_RUB__TOM (два подчёркивания); EURRUB_TOM оставлен запасным вариантом
+  const ids: Record<string, string> = { USD000UTSTOM: 'USD', EUR_RUB__TOM: 'EUR', EURRUB_TOM: 'EUR', CNYRUB_TOM: 'CNY' };
   const json = await getJson(
     `${ISS}/engines/currency/markets/selt/boards/CETS/securities.json?iss.meta=off&iss.only=securities,marketdata&securities=${Object.keys(ids).join(',')}`
   );
@@ -58,6 +59,7 @@ async function fetchFx(): Promise<Values> {
     if (!id) return;
     const last = mLast >= 0 ? num(r[mLast]) : null;
     const prev = prevBySecid.get(String(r[mSec])) ?? (mClose >= 0 ? num(r[mClose]) : null);
+    if (out[id]?.price != null && last === null) return; // не затираем уже найденное значение пустым дублем
     out[id] = { price: last, changePercent: pct(last, prev) ?? (mChg >= 0 ? num(r[mChg]) : null) };
   });
   Object.values(ids).forEach((id) => { if (!out[id]) console.warn(`[quotes/fx] ${id} не найден в ответе биржи`); });
