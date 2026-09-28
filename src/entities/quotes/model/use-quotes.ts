@@ -5,7 +5,7 @@ const ISS = 'https://iss.moex.com/iss';
 const REFRESH_MS = 60_000;
 
 type Block = { columns: string[]; data: unknown[][] } | undefined;
-type Values = Record<string, { price: number | null; changePercent: number | null }>;
+type Values = Record<string, { price: number | null; changePercent: number | null; source?: string }>;
 
 const MAIN: Quote[] = [
   { id: 'USD', title: 'Доллар США', ticker: 'USD/RUB', badge: '$', price: null, changePercent: null, unit: '₽', decimals: 2, source: 'Мосбиржа' },
@@ -62,7 +62,29 @@ async function fetchFx(): Promise<Values> {
     if (out[id]?.price != null && last === null) return; // не затираем уже найденное значение пустым дублем
     out[id] = { price: last, changePercent: pct(last, prev) ?? (mChg >= 0 ? num(r[mChg]) : null) };
   });
-  Object.values(ids).forEach((id) => { if (!out[id]) console.warn(`[quotes/fx] ${id} не найден в ответе биржи`); });
+  Object.values(ids).forEach((id) => {
+    if (!out[id]) console.warn(`[quotes/fx] ${id} не найден в ответе биржи`);
+    else if (out[id].price === null) console.info(`[quotes/fx] ${id}: строка есть, но цены нет (торги приостановлены) — берём курс ЦБ`);
+  });
+  return out;
+}
+
+// Официальные курсы ЦБ — запасной источник. Торги долларом и евро на Мосбирже приостановлены
+// с 13.06.2024, поэтому живой биржевой цены у евро нет. Обновляется раз в день.
+async function fetchCbr(): Promise<Values> {
+  const json = await getJson('https://www.cbr-xml-daily.ru/daily_json.js');
+  const out: Values = {};
+  (['USD', 'EUR', 'CNY'] as const).forEach((code) => {
+    const v = json?.Valute?.[code];
+    const nominal = num(v?.Nominal) ?? 1;
+    const value = num(v?.Value);
+    if (value === null) { console.warn(`[quotes/cbr] нет курса ${code}`); return; }
+    out[code] = {
+      price: value / nominal,
+      changePercent: pct(value, num(v?.Previous)),
+      source: 'ЦБ РФ (официальный курс, раз в день)',
+    };
+  });
   return out;
 }
 
@@ -140,13 +162,22 @@ export function useQuotes() {
   useEffect(() => {
     mounted.current = true;
     async function refresh() {
-      const sources = [fetchFx, fetchIndex, fetchFutures, fetchCrypto];
+      // ЦБ первым: биржевые значения ниже перекрывают его, если у них есть цена
+      const sources = [fetchCbr, fetchFx, fetchIndex, fetchFutures, fetchCrypto];
       const results = await Promise.allSettled(sources.map((f) => f()));
       results.forEach((r, i) => { if (r.status === 'rejected') console.error(`[quotes] источник ${sources[i].name} упал:`, r.reason); });
       if (!mounted.current) return;
       setValues((prev) => {
+        // 1) собираем свежие значения этого опроса: более поздний источник перекрывает ранний,
+        //    но только если у него реально есть цена
+        const fresh: Values = {};
+        results.forEach((r) => {
+          if (r.status !== 'fulfilled') return;
+          Object.entries(r.value).forEach(([id, v]) => { if (v.price !== null || !fresh[id]) fresh[id] = v; });
+        });
+        // 2) если источник в этот раз ничего не дал — оставляем прошлое значение, а не затираем прочерком
         const next = { ...prev };
-        results.forEach((r) => { if (r.status === 'fulfilled') Object.assign(next, r.value); });
+        Object.entries(fresh).forEach(([id, v]) => { if (v.price !== null || !next[id]) next[id] = v; });
         return next;
       });
       setIsLoading(false);

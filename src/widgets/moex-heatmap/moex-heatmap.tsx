@@ -6,16 +6,34 @@ import { MoexStock } from '../../entities/moex/model/types';
 const MAX_TILES = 16; // берём топ-N по капитализации, иначе карта станет нечитаемой кашей
 const HEATMAP_HEIGHT = 340;
 const MIN_TILE_WEIGHT = 0.25; // доля от самой крупной плитки — чтобы ни одна не превращалась в полоску без подписи
-const COLOR_SATURATION_CAP = 2.5; // при изменении ±2.5% и больше — максимально насыщенный цвет (больше разброс, как в Т-Банке)
 
 type RGB = [number, number, number];
+type Anchor = [number, RGB]; // [|изменение, %|, цвет]
 
-// Палитра одинаково читается в обеих темах и нигде не уходит в чёрный:
-// нейтральный серый → насыщенный красный/зелёный, промежуточные оттенки — смесь, а не "затемнение".
-const NEUTRAL_LIGHT: RGB = [222, 224, 229];
-const NEUTRAL_DARK: RGB = [104, 109, 118]; // средне-серый, не чёрный
-const RED: RGB = [229, 72, 77];
-const GREEN: RGB = [47, 180, 99];
+// Палитра как на Смартлабе: ЗНАК изменения задаёт цвет (рост — зелёный, падение — красный),
+// ВЕЛИЧИНА — насыщенность (от светлого к тёмному). Слабые движения не "серые", а сразу цветные.
+// Опорные точки измерены по пикселям скриншота smart-lab.ru/q/map1, между ними — линейно.
+const GREEN_ANCHORS: Anchor[] = [
+  [0, [93, 248, 93]],
+  [0.06, [89, 244, 89]],
+  [0.21, [80, 235, 80]],
+  [0.49, [69, 224, 69]],
+  [1.58, [44, 199, 44]],
+  [4.24, [8, 163, 8]],
+  [6, [0, 125, 0]], // дальше не темнеем — иначе плитка станет почти чёрной
+];
+const RED_ANCHORS: Anchor[] = [
+  [0, [248, 93, 93]],
+  [0.06, [244, 89, 89]],
+  [0.28, [231, 76, 76]],
+  [0.61, [220, 65, 65]],
+  [0.97, [211, 56, 56]],
+  [2.77, [181, 26, 26]],
+  [5.51, [150, 0, 0]],
+];
+// Ровно 0.00% — нейтральный серый
+const ZERO_LIGHT: RGB = [205, 208, 215];
+const ZERO_DARK: RGB = [110, 115, 125];
 
 function mixRgb(a: RGB, b: RGB, t: number): RGB {
   return [
@@ -23,6 +41,18 @@ function mixRgb(a: RGB, b: RGB, t: number): RGB {
     Math.round(a[1] + (b[1] - a[1]) * t),
     Math.round(a[2] + (b[2] - a[2]) * t),
   ];
+}
+
+function rampColor(anchors: Anchor[], v: number): RGB {
+  if (v <= anchors[0][0]) return anchors[0][1];
+  for (let i = 1; i < anchors.length; i++) {
+    if (v <= anchors[i][0]) {
+      const [x0, c0] = anchors[i - 1];
+      const [x1, c1] = anchors[i];
+      return mixRgb(c0, c1, (v - x0) / (x1 - x0));
+    }
+  }
+  return anchors[anchors.length - 1][1];
 }
 
 // Относительная яркость (WCAG) — чтобы выбрать читаемый цвет текста под плиткой
@@ -34,11 +64,12 @@ function luminance([r, g, b]: RGB): number {
   return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
 }
 
-function tileColors(changePercent: number, isDark: boolean): { bg: string; fg: string } {
-  const neutral = isDark ? NEUTRAL_DARK : NEUTRAL_LIGHT;
-  const clamped = Math.max(-COLOR_SATURATION_CAP, Math.min(COLOR_SATURATION_CAP, changePercent));
-  const t = Math.abs(clamped) < 0.05 ? 0 : Math.pow(Math.abs(clamped) / COLOR_SATURATION_CAP, 0.8);
-  const rgb = mixRgb(neutral, clamped >= 0 ? GREEN : RED, t);
+export function tileColors(changePercent: number, isDark: boolean): { bg: string; fg: string } {
+  const abs = Math.abs(changePercent);
+  const rgb: RGB =
+    abs < 0.005
+      ? isDark ? ZERO_DARK : ZERO_LIGHT
+      : rampColor(changePercent > 0 ? GREEN_ANCHORS : RED_ANCHORS, abs);
   return {
     bg: `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`,
     fg: luminance(rgb) > 0.2 ? '#161616' : '#FFFFFF', // 0.2 — точка, где контраст чёрного и белого текста равен (~4.2:1)
