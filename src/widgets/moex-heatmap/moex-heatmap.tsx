@@ -61,7 +61,11 @@ function useContainerWidth() {
   return { ref, width };
 }
 
-export const MoexHeatmap: React.FC = () => {
+interface MoexHeatmapProps {
+  onSelectStock?: (stock: MoexStock) => void;
+}
+
+export const MoexHeatmap: React.FC<MoexHeatmapProps> = ({ onSelectStock }) => {
   const { stocks, isLoading, error, lastUpdated } = useMoexHeatmap();
   const { ref: containerRef, width: containerWidth } = useContainerWidth();
 
@@ -142,6 +146,7 @@ export const MoexHeatmap: React.FC = () => {
           return (
             <div
               key={stock.secid}
+              onClick={() => onSelectStock?.(stock)}
               style={{
                 position: 'absolute',
                 left: x,
@@ -150,7 +155,7 @@ export const MoexHeatmap: React.FC = () => {
                 height: height - 1,
                 background: bg,
               }}
-              className="flex flex-col items-center justify-center border border-white/40 dark:border-black/30 transition-colors duration-500"
+              className="flex flex-col items-center justify-center border border-white/40 dark:border-black/30 transition-colors duration-500 cursor-pointer active:opacity-80"
             >
               {!isSmall && (
                 <>

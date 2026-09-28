@@ -27,6 +27,19 @@ RUN apk add --no-cache wget curl \
   '  root /usr/share/nginx/html;' \
   '  index index.html;' \
   '  location /healthz { access_log off; return 200 "healthy\n"; add_header Content-Type text/plain; }' \
+  '  location = /api/news {' \
+  '    resolver 1.1.1.1 8.8.8.8 valid=300s ipv6=off;' \
+  '    set $news_upstream "https://t.me/s/if_market_news";' \
+  '    proxy_pass $news_upstream;' \
+  '    proxy_ssl_server_name on;' \
+  '    proxy_set_header Host t.me;' \
+  '    proxy_set_header User-Agent "Mozilla/5.0 (compatible; IFMiniApp)";' \
+  '    proxy_connect_timeout 5s;' \
+  '    proxy_read_timeout 10s;' \
+  '    proxy_hide_header Set-Cookie;' \
+  '    proxy_hide_header Cache-Control;' \
+  '    add_header Cache-Control "public, max-age=1500";' \
+  '  }' \
   '  location /assets/ { add_header Cache-Control "public, max-age=31536000, immutable"; try_files $uri =404; }' \
   '  location /data/ { add_header Cache-Control "no-cache, no-store, must-revalidate"; try_files $uri =404; }' \
   '  location = /index.html { add_header Cache-Control "no-cache, no-store, must-revalidate"; }' \

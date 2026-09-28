@@ -1,0 +1,80 @@
+import React from 'react';
+import { X } from 'lucide-react';
+import { Quote } from '../../entities/quotes/model/types';
+import { MoexStock } from '../../entities/moex/model/types';
+import { formatBigRub, formatNumber, formatPercent } from '../../shared/lib/format';
+
+export type PopupData =
+  | { kind: 'quote'; quote: Quote }
+  | { kind: 'stock'; stock: MoexStock }
+  | null;
+
+const changeColor = (p: number | null) =>
+  p === null || p === 0 ? 'text-[#7D7C82] dark:text-neutral-400' : p > 0 ? 'text-[#00C853]' : 'text-[#FF1744]';
+
+const Row: React.FC<{ label: string; value: string }> = ({ label, value }) => (
+  <div className="flex items-center justify-between py-2.5">
+    <span className="text-[#7D7C82] dark:text-neutral-400 text-[13px]">{label}</span>
+    <span className="text-[#161616] dark:text-white text-[13px] font-medium">{value}</span>
+  </div>
+);
+
+export const QuotePopup: React.FC<{ data: PopupData; onClose: () => void }> = ({ data, onClose }) => {
+  if (!data) return null;
+
+  let title = '';
+  let subtitle = '';
+  let price = '—';
+  let change: number | null = null;
+  let rows: { label: string; value: string }[] = [];
+
+  if (data.kind === 'quote') {
+    const q = data.quote;
+    title = q.title;
+    subtitle = q.ticker;
+    price = q.price !== null ? `${formatNumber(q.price, q.decimals)} ${q.unit}` : '—';
+    change = q.changePercent;
+    rows = [{ label: 'Источник', value: q.source }];
+  } else {
+    const s = data.stock;
+    title = s.shortname;
+    subtitle = s.secid;
+    price = s.lastPrice !== null ? `${formatNumber(s.lastPrice, 2)} ₽` : '—';
+    change = s.changePercent;
+    rows = [
+      { label: 'Капитализация', value: formatBigRub(s.marketCap) },
+      { label: 'Оборот за день', value: formatBigRub(s.tradingValue) },
+      { label: 'Источник', value: 'Мосбиржа' },
+    ];
+  }
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-end justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/40" />
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-[430px] bg-white dark:bg-[#1a1a1a] rounded-t-[20px] px-4 pt-4 pb-6"
+        style={{ paddingBottom: 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' }}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[#161616] dark:text-white text-[18px] font-bold leading-tight truncate">{title}</p>
+            <p className="text-[#7D7C82] dark:text-neutral-400 text-[13px] mt-0.5">{subtitle}</p>
+          </div>
+          <button onClick={onClose} aria-label="Закрыть" className="p-1 -mr-1 text-[#161616] dark:text-white active:opacity-60">
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <div className="mt-4 flex items-baseline gap-2">
+          <span className="text-[#161616] dark:text-white text-[26px] font-bold leading-none">{price}</span>
+          {change !== null && <span className={`text-[14px] font-semibold ${changeColor(change)}`}>{formatPercent(change)}</span>}
+        </div>
+
+        <div className="mt-3 divide-y divide-black/5 dark:divide-white/10">
+          {rows.map((r) => <Row key={r.label} label={r.label} value={r.value} />)}
+        </div>
+      </div>
+    </div>
+  );
+};

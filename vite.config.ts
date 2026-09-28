@@ -18,6 +18,15 @@ export default defineConfig(() => {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
       hmr: process.env.DISABLE_HMR !== 'true',
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
+      // Локально /api/news проксируется на публичное превью канала IF News
+      // (в проде то же самое делает nginx, см. Dockerfile)
+      proxy: {
+        '/api/news': {
+          target: 'https://t.me',
+          changeOrigin: true,
+          rewrite: () => '/s/if_market_news',
+        },
+      },
     },
   };
 });
