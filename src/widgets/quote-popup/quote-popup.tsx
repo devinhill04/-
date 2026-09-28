@@ -12,12 +12,18 @@ export type PopupData =
 const changeColor = (p: number | null) =>
   p === null || p === 0 ? 'text-[#7D7C82] dark:text-neutral-400' : p > 0 ? 'text-[#00C853]' : 'text-[#FF1744]';
 
-const Row: React.FC<{ label: string; value: string }> = ({ label, value }) => (
-  <div className="flex items-center justify-between py-2.5">
-    <span className="text-[#7D7C82] dark:text-neutral-400 text-[13px]">{label}</span>
-    <span className="text-[#161616] dark:text-white text-[13px] font-medium">{value}</span>
-  </div>
-);
+const Row: React.FC<{ label: string; value: string }> = ({ label, value }) =>
+  value.length > 45 ? (
+    <div className="py-2.5">
+      <p className="text-[#7D7C82] dark:text-neutral-400 text-[13px]">{label}</p>
+      <p className="text-[#161616] dark:text-white text-[13px] font-medium leading-snug mt-1">{value}</p>
+    </div>
+  ) : (
+    <div className="flex items-center justify-between py-2.5">
+      <span className="text-[#7D7C82] dark:text-neutral-400 text-[13px]">{label}</span>
+      <span className="text-[#161616] dark:text-white text-[13px] font-medium">{value}</span>
+    </div>
+  );
 
 export const QuotePopup: React.FC<{ data: PopupData; onClose: () => void }> = ({ data, onClose }) => {
   if (!data) return null;

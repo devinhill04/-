@@ -5,7 +5,7 @@ const ISS = 'https://iss.moex.com/iss';
 const REFRESH_MS = 60_000;
 
 type Block = { columns: string[]; data: unknown[][] } | undefined;
-type Values = Record<string, { price: number | null; changePercent: number | null; source?: string; unavailable?: boolean }>;
+type Values = Record<string, { price: number | null; changePercent: number | null; source?: string; estimate?: boolean }>;
 
 const MAIN: Quote[] = [
   { id: 'USD', title: 'Доллар США', ticker: 'USD/RUB', badge: '$', price: null, changePercent: null, unit: '₽', decimals: 2, source: 'Мосбиржа' },
@@ -16,7 +16,7 @@ const MAIN: Quote[] = [
 
 const EXTRA: Quote[] = [
   { id: 'BRENT', title: 'Нефть Brent', ticker: 'BR · фьючерс', badge: 'BR', price: null, changePercent: null, unit: '$', decimals: 2, source: 'Мосбиржа (ближайший фьючерс)' },
-  { id: 'URALS', title: 'Нефть Urals', ticker: 'UR · фьючерс', badge: 'UR', price: null, changePercent: null, unit: '$', decimals: 2, source: 'Мосбиржа (фьючерс UR, малоликвидный — цена может отставать)' },
+  { id: 'URALS', title: 'Нефть Urals', ticker: 'Urals · оценка', badge: 'UR', price: null, changePercent: null, unit: '$', decimals: 2, source: 'Оценка: Brent минус дисконт Urals' },
   { id: 'GOLD', title: 'Золото', ticker: 'GLDRUB · за грамм', badge: 'Au', price: null, changePercent: null, unit: '₽', decimals: 1, source: 'Мосбиржа (спот, ₽ за грамм)' },
   { id: 'SILVER', title: 'Серебро', ticker: 'SLVRUB · за грамм', badge: 'Ag', price: null, changePercent: null, unit: '₽', decimals: 2, source: 'Мосбиржа (спот, ₽ за грамм)' },
   { id: 'BTC', title: 'Биткоин', ticker: 'BTC/USD', badge: '₿', price: null, changePercent: null, unit: '$', decimals: 0, source: 'CoinGecko' },
@@ -126,12 +126,11 @@ export async function fetchFutures(): Promise<Values> {
 
   const targets = [
     { id: 'BRENT', code: 'BR', secidRe: /^BR[A-Z]\d$/, nameRe: /^BR-/i },
-    // У Urals живого контракта на Мосбирже сейчас нет (старые UR торговались до 2012 г.) — строку прячем, пока он не появится
-    { id: 'URALS', code: 'UR', secidRe: /^UR[A-Z]\d$/, nameRe: /^UR(ALS)?-/i, hideIfMissing: true },
+    { id: 'URALS', code: 'UR', secidRe: /^UR[A-Z]\d$/, nameRe: /^UR(ALS)?-/i },
   ];
 
   const out: Values = {};
-  targets.forEach(({ id, code, secidRe, nameRe, hideIfMissing }) => {
+  targets.forEach(({ id, code, secidRe, nameRe }) => {
     const cands = (sec?.data ?? []).filter((r) => {
       const matches =
         (sAsset >= 0 && String(r[sAsset]) === code) || secidRe.test(String(r[sSec])) || (sName >= 0 && nameRe.test(String(r[sName])));
@@ -151,7 +150,6 @@ export async function fetchFutures(): Promise<Values> {
         price: null,
         changePercent: null,
         source: `Мосбиржа: фьючерс ${code} не найден в списке торгуемых контрактов`,
-        ...(hideIfMissing ? { unavailable: true } : {}),
       };
       return;
     }
@@ -224,37 +222,103 @@ async function fetchCrypto(): Promise<Values> {
   };
 }
 
-// Накладывает полученные значения на шаблон; скрытые (unavailable) строки убирает
+// ---------- Нефть Urals: оценка ----------
+// Живой котировки Urals на Мосбирже нет (старые фьючерсы UR торговались до 2012 г.), поэтому показываем ОЦЕНКУ:
+// живой Brent (фьючерс Мосбиржи) минус дисконт Urals к Brent. Дисконт раз в месяц публикуют Argus/Интерфакс;
+// он лежит в public/data/urals-discount.json и обновляется правкой этого файла, без изменения кода.
+// Если у Мосбиржи когда-нибудь появится настоящий контракт с ценой — он автоматически вытеснит оценку.
+export interface UralsDiscount {
+  discountUsd: number; // $ за баррель
+  basis: string; // к чему дисконт: «Urals FOB Приморск к Dated Brent»
+  period: string; // «август 2026»
+  asOf: string; // дата публикации, ГГГГ-ММ-ДД — по ней считаем, не протухли ли данные
+  source: string;
+}
+
+const DISCOUNT_STALE_DAYS = 45;
+
+export function estimateUrals(
+  brent: Values[string] | undefined,
+  d: UralsDiscount | null,
+  now: Date = new Date()
+): Values[string] | null {
+  if (!d || !brent || brent.price === null) return null;
+  const price = brent.price - d.discountUsd;
+
+  // Изменение за день: дисконт считаем постоянным, поэтому доллары движутся как у Brent, а проценты — от меньшей базы
+  let change: number | null = null;
+  if (brent.changePercent !== null && 1 + brent.changePercent / 100 !== 0) {
+    const prevBrent = brent.price / (1 + brent.changePercent / 100);
+    change = pct(price, prevBrent - d.discountUsd);
+  }
+
+  const ageDays = (now.getTime() - new Date(d.asOf).getTime()) / 864e5;
+  const stale = Number.isFinite(ageDays) && ageDays > DISCOUNT_STALE_DAYS;
+  const disc = d.discountUsd.toLocaleString('ru-RU', { maximumFractionDigits: 2 });
+  return {
+    price,
+    changePercent: change,
+    estimate: true,
+    source:
+      `Оценка, не биржевая котировка: Brent (фьючерс Мосбиржи) минус дисконт ${d.basis} ${disc} $/барр. (${d.source}, ${d.period})` +
+      (stale ? `. ВНИМАНИЕ: дисконт не обновлялся более ${DISCOUNT_STALE_DAYS} дней, цифра может быть неточной` : ''),
+  };
+}
+
+async function fetchUralsDiscount(): Promise<UralsDiscount | null> {
+  try {
+    const res = await fetch('/data/urals-discount.json', { cache: 'no-store' });
+    if (!res.ok) return null;
+    const j = await res.json();
+    return typeof j?.discountUsd === 'number' && Number.isFinite(j.discountUsd) ? (j as UralsDiscount) : null;
+  } catch (e) {
+    console.warn('[quotes/urals] не удалось прочитать urals-discount.json:', e);
+    return null;
+  }
+}
+
+// Склеивает результаты источников с прошлыми значениями; чистая функция (тестируется отдельно)
+export function combineValues(prev: Values, results: PromiseSettledResult<Values>[], discount: UralsDiscount | null): Values {
+  // 1) свежие значения этого опроса: более поздний источник перекрывает ранний, но только если у него есть цена
+  const fresh: Values = {};
+  results.forEach((r) => {
+    if (r.status !== 'fulfilled') return;
+    Object.entries(r.value).forEach(([id, v]) => { if (v.price !== null || !fresh[id]) fresh[id] = v; });
+  });
+  // 2) если источник в этот раз ничего не дал — оставляем прошлое значение, а не затираем прочерком
+  const next = { ...prev };
+  Object.entries(fresh).forEach(([id, v]) => { if (v.price !== null || !next[id]) next[id] = v; });
+  // 3) Urals: настоящего контракта с ценой нет — считаем оценку от Brent
+  const urals = next.URALS;
+  if (!urals || urals.price === null || urals.estimate) {
+    const est = estimateUrals(next.BRENT, discount);
+    if (est) next.URALS = est;
+  }
+  return next;
+}
+
+// Накладывает полученные значения на шаблон
 export function mergeQuotes(template: Quote[], values: Values): Quote[] {
-  return template.map((q) => ({ ...q, ...(values[q.id] ?? {}) })).filter((q) => !q.unavailable);
+  return template.map((q) => ({ ...q, ...(values[q.id] ?? {}) }));
 }
 
 export function useQuotes() {
   const [values, setValues] = useState<Values>({});
   const [isLoading, setIsLoading] = useState(true);
   const mounted = useRef(true);
+  const discountRef = useRef<UralsDiscount | null>(null);
 
   useEffect(() => {
     mounted.current = true;
     async function refresh() {
       // ЦБ первым: биржевые значения ниже перекрывают его, если у них есть цена
       const sources = [fetchCbr, fetchFx, fetchMetals, fetchIndex, fetchFutures, fetchCrypto];
+      const discountPromise = discountRef.current ? Promise.resolve(discountRef.current) : fetchUralsDiscount();
       const results = await Promise.allSettled(sources.map((f) => f()));
+      discountRef.current = await discountPromise;
       results.forEach((r, i) => { if (r.status === 'rejected') console.error(`[quotes] источник ${sources[i].name} упал:`, r.reason); });
       if (!mounted.current) return;
-      setValues((prev) => {
-        // 1) собираем свежие значения этого опроса: более поздний источник перекрывает ранний,
-        //    но только если у него реально есть цена
-        const fresh: Values = {};
-        results.forEach((r) => {
-          if (r.status !== 'fulfilled') return;
-          Object.entries(r.value).forEach(([id, v]) => { if (v.price !== null || !fresh[id]) fresh[id] = v; });
-        });
-        // 2) если источник в этот раз ничего не дал — оставляем прошлое значение, а не затираем прочерком
-        const next = { ...prev };
-        Object.entries(fresh).forEach(([id, v]) => { if (v.price !== null || !next[id]) next[id] = v; });
-        return next;
-      });
+      setValues((prev) => combineValues(prev, results, discountRef.current));
       setIsLoading(false);
     }
     refresh();
