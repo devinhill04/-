@@ -8,4 +8,5 @@ export interface Quote {
   unit: string; // ₽ | $ | пт.
   decimals: number;
   source: string;
+  unavailable?: boolean; // биржа этим инструментом не торгует — строку не показываем (появится сама, если контракт вернётся)
 }

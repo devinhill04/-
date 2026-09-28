@@ -5,7 +5,7 @@ const ISS = 'https://iss.moex.com/iss';
 const REFRESH_MS = 60_000;
 
 type Block = { columns: string[]; data: unknown[][] } | undefined;
-type Values = Record<string, { price: number | null; changePercent: number | null; source?: string }>;
+type Values = Record<string, { price: number | null; changePercent: number | null; source?: string; unavailable?: boolean }>;
 
 const MAIN: Quote[] = [
   { id: 'USD', title: 'Доллар США', ticker: 'USD/RUB', badge: '$', price: null, changePercent: null, unit: '₽', decimals: 2, source: 'Мосбиржа' },
@@ -126,11 +126,12 @@ export async function fetchFutures(): Promise<Values> {
 
   const targets = [
     { id: 'BRENT', code: 'BR', secidRe: /^BR[A-Z]\d$/, nameRe: /^BR-/i },
-    { id: 'URALS', code: 'UR', secidRe: /^UR[A-Z]\d$/, nameRe: /^UR(ALS)?-/i },
+    // У Urals живого контракта на Мосбирже сейчас нет (старые UR торговались до 2012 г.) — строку прячем, пока он не появится
+    { id: 'URALS', code: 'UR', secidRe: /^UR[A-Z]\d$/, nameRe: /^UR(ALS)?-/i, hideIfMissing: true },
   ];
 
   const out: Values = {};
-  targets.forEach(({ id, code, secidRe, nameRe }) => {
+  targets.forEach(({ id, code, secidRe, nameRe, hideIfMissing }) => {
     const cands = (sec?.data ?? []).filter((r) => {
       const matches =
         (sAsset >= 0 && String(r[sAsset]) === code) || secidRe.test(String(r[sSec])) || (sName >= 0 && nameRe.test(String(r[sName])));
@@ -146,7 +147,12 @@ export async function fetchFutures(): Promise<Values> {
         .map((r) => String(r[sSec]))
         .slice(0, 15);
       console.warn(`[quotes/futures] ${id}: живой контракт не найден. Похожие тикеры в списке биржи:`, like);
-      out[id] = { price: null, changePercent: null, source: `Мосбиржа: фьючерс ${code} не найден в списке торгуемых контрактов` };
+      out[id] = {
+        price: null,
+        changePercent: null,
+        source: `Мосбиржа: фьючерс ${code} не найден в списке торгуемых контрактов`,
+        ...(hideIfMissing ? { unavailable: true } : {}),
+      };
       return;
     }
 
@@ -218,6 +224,11 @@ async function fetchCrypto(): Promise<Values> {
   };
 }
 
+// Накладывает полученные значения на шаблон; скрытые (unavailable) строки убирает
+export function mergeQuotes(template: Quote[], values: Values): Quote[] {
+  return template.map((q) => ({ ...q, ...(values[q.id] ?? {}) })).filter((q) => !q.unavailable);
+}
+
 export function useQuotes() {
   const [values, setValues] = useState<Values>({});
   const [isLoading, setIsLoading] = useState(true);
@@ -251,6 +262,5 @@ export function useQuotes() {
     return () => { mounted.current = false; clearInterval(t); };
   }, []);
 
-  const merge = (list: Quote[]) => list.map((q) => ({ ...q, ...(values[q.id] ?? {}) }));
-  return { main: merge(MAIN), extra: merge(EXTRA), isLoading };
+  return { main: mergeQuotes(MAIN, values), extra: mergeQuotes(EXTRA, values), isLoading };
 }
