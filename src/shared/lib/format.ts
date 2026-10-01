@@ -25,3 +25,9 @@ export function formatNewsDate(iso: string | null): string {
     ? `Сегодня, ${time}`
     : `${d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })}, ${time}`;
 }
+
+// Абсолютное изменение цены, если известны только текущая цена и % изменения
+// (у части источников нет готового значения в валюте, только проценты)
+export function deriveAbsoluteChange(price: number, changePercent: number): number {
+  return (price * changePercent) / (100 + changePercent);
+}

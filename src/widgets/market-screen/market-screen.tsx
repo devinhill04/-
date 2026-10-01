@@ -36,7 +36,7 @@ export const MarketScreen: React.FC = () => {
       </section>
 
       <section>
-        <Title>Карта рынка</Title>
+        <Title>Тепловая карта</Title>
         <MoexHeatmap {...heat} onSelectStock={openStock} />
       </section>
 

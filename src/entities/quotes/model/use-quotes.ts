@@ -8,19 +8,19 @@ type Block = { columns: string[]; data: unknown[][] } | undefined;
 type Values = Record<string, { price: number | null; changePercent: number | null; source?: string; estimate?: boolean }>;
 
 const MAIN: Quote[] = [
-  { id: 'USD', title: 'Доллар США', ticker: 'USD/RUB', badge: '$', price: null, changePercent: null, unit: '₽', decimals: 2, source: 'Мосбиржа' },
-  { id: 'EUR', title: 'Евро', ticker: 'EUR/RUB', badge: '€', price: null, changePercent: null, unit: '₽', decimals: 2, source: 'Мосбиржа' },
-  { id: 'CNY', title: 'Юань', ticker: 'CNY/RUB', badge: '¥', price: null, changePercent: null, unit: '₽', decimals: 2, source: 'Мосбиржа' },
-  { id: 'IMOEX', title: 'Индекс Мосбиржи', ticker: 'IMOEX', badge: 'M', price: null, changePercent: null, unit: 'пт.', decimals: 2, source: 'Мосбиржа' },
+  { id: 'USD', title: 'Доллар США', ticker: 'USD/RUB', badge: '$', iconSrc: '/figma_assets/quotes/USD.png', price: null, changePercent: null, unit: '₽', decimals: 2, source: 'Мосбиржа' },
+  { id: 'EUR', title: 'Евро', ticker: 'EUR/RUB', badge: '€', iconSrc: '/figma_assets/quotes/EUR.png', price: null, changePercent: null, unit: '₽', decimals: 2, source: 'Мосбиржа' },
+  { id: 'CNY', title: 'Юань', ticker: 'CNY/RUB', badge: '¥', iconSrc: '/figma_assets/quotes/CNY.png', price: null, changePercent: null, unit: '₽', decimals: 2, source: 'Мосбиржа' },
+  { id: 'IMOEX', title: 'Индекс Мосбиржи', ticker: 'IMOEX', badge: 'M', iconSrc: '/figma_assets/quotes/IMOEX.png', price: null, changePercent: null, unit: 'пт.', decimals: 2, source: 'Мосбиржа' },
 ];
 
 const EXTRA: Quote[] = [
-  { id: 'BRENT', title: 'Нефть Brent', ticker: 'BR · фьючерс', badge: 'BR', price: null, changePercent: null, unit: '$', decimals: 2, source: 'Мосбиржа (ближайший фьючерс)' },
-  { id: 'URALS', title: 'Нефть Urals', ticker: 'Urals · оценка', badge: 'UR', price: null, changePercent: null, unit: '$', decimals: 2, source: 'Оценка: Brent минус дисконт Urals' },
-  { id: 'GOLD', title: 'Золото', ticker: 'GLDRUB · за грамм', badge: 'Au', price: null, changePercent: null, unit: '₽', decimals: 1, source: 'Мосбиржа (спот, ₽ за грамм)' },
-  { id: 'SILVER', title: 'Серебро', ticker: 'SLVRUB · за грамм', badge: 'Ag', price: null, changePercent: null, unit: '₽', decimals: 2, source: 'Мосбиржа (спот, ₽ за грамм)' },
-  { id: 'BTC', title: 'Биткоин', ticker: 'BTC/USD', badge: '₿', price: null, changePercent: null, unit: '$', decimals: 0, source: 'CoinGecko' },
-  { id: 'ETH', title: 'Эфир', ticker: 'ETH/USD', badge: 'Ξ', price: null, changePercent: null, unit: '$', decimals: 0, source: 'CoinGecko' },
+  { id: 'BRENT', title: 'Нефть Brent', ticker: 'BR · фьючерс', badge: 'BR', iconSrc: '/figma_assets/quotes/BRENT.png', price: null, changePercent: null, unit: '$', decimals: 2, source: 'Мосбиржа (ближайший фьючерс)' },
+  { id: 'URALS', title: 'Нефть Urals', ticker: 'Urals · оценка', badge: 'UR', iconSrc: '/figma_assets/quotes/URALS.png', price: null, changePercent: null, unit: '$', decimals: 2, source: 'Оценка: Brent минус дисконт Urals' },
+  { id: 'GOLD', title: 'Золото', ticker: 'GLDRUB · за грамм', badge: 'Au', iconSrc: '/figma_assets/quotes/GOLD.png', price: null, changePercent: null, unit: '₽', decimals: 1, source: 'Мосбиржа (спот, ₽ за грамм)' },
+  { id: 'SILVER', title: 'Серебро', ticker: 'SLVRUB · за грамм', badge: 'Ag', iconSrc: '/figma_assets/quotes/SILVER.png', price: null, changePercent: null, unit: '₽', decimals: 2, source: 'Мосбиржа (спот, ₽ за грамм)' },
+  { id: 'BTC', title: 'Биткоин', ticker: 'BTC/USD', badge: '₿', iconSrc: '/figma_assets/quotes/BTC.png', price: null, changePercent: null, unit: '$', decimals: 0, source: 'CoinGecko' },
+  { id: 'ETH', title: 'Эфир', ticker: 'ETH/USD', badge: 'Ξ', iconSrc: '/figma_assets/quotes/ETH.png', price: null, changePercent: null, unit: '$', decimals: 0, source: 'CoinGecko' },
 ];
 
 const col = (b: Block, names: string[]) => (b ? b.columns.findIndex((c) => names.includes(c)) : -1);
