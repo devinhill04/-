@@ -81,45 +81,22 @@ interface ListProps {
   onSelect: (s: MoexStock) => void;
 }
 
-// ---------- Топ акций по обороту: 5 строк, по кнопке — 10 ----------
+// ---------- Единый блок под картой: вкладки «Рост / Падение / По обороту» ----------
 
-export const TopTurnoverList: React.FC<ListProps> = ({ stocks, onSelect }) => {
-  const [expanded, setExpanded] = useState(false);
-  const top = useMemo(() => pickTopByTurnover(stocks, 10), [stocks]);
-  const shown = expanded ? top : top.slice(0, 5);
+type Tab = 'up' | 'down' | 'turnover';
 
-  return (
-    <div className="w-full flex flex-col">
-      <Card>
-        {shown.map((s) => (
-          <StockRow key={s.secid} stock={s} subtitle={`${s.secid} · оборот ${formatBigRub(s.tradingValue)}`} onSelect={onSelect} />
-        ))}
-      </Card>
-      {top.length > 5 && (
-        <button
-          onClick={() => { triggerHaptic('light'); setExpanded((v) => !v); }}
-          className="w-full h-10 mt-1 flex items-center justify-center gap-1 text-[#161616] dark:text-neutral-200 text-[14px] font-medium active:opacity-70"
-        >
-          {expanded ? 'Скрыть' : `Показать ещё ${top.length - 5}`}
-          {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-        </button>
-      )}
-    </div>
-  );
-};
+export const StocksTabs: React.FC<ListProps> = ({ stocks, onSelect }) => {
+  const [tab, setTab] = useState<Tab>('up');
+  const [turnoverExpanded, setTurnoverExpanded] = useState(false);
 
-// ---------- Лидеры роста и падения: переключатель «Рост / Падение», по 5 строк ----------
-
-export const MoversList: React.FC<ListProps> = ({ stocks, onSelect }) => {
-  const [tab, setTab] = useState<'up' | 'down'>('up');
   const { gainers, losers } = useMemo(() => pickMovers(stocks), [stocks]);
-  const shown = tab === 'up' ? gainers : losers;
+  const turnoverTop = useMemo(() => pickTopByTurnover(stocks, 10), [stocks]);
 
-  const tabBtn = (id: 'up' | 'down', label: string) => (
+  const tabBtn = (id: Tab, label: string) => (
     <button
       onClick={() => { triggerHaptic('light'); setTab(id); }}
       style={{ borderRadius: '8px', height: '36px' }}
-      className={`flex-1 text-[14px] font-medium transition-colors ${
+      className={`flex-1 text-[13px] font-medium transition-colors ${
         tab === id ? 'bg-[#161616] text-white dark:bg-white dark:text-[#161616]' : 'text-[#161616] dark:text-neutral-300'
       }`}
     >
@@ -127,20 +104,42 @@ export const MoversList: React.FC<ListProps> = ({ stocks, onSelect }) => {
     </button>
   );
 
+  let rows: MoexStock[];
+  let getSubtitle: (s: MoexStock) => string;
+  if (tab === 'turnover') {
+    rows = turnoverExpanded ? turnoverTop : turnoverTop.slice(0, 5);
+    getSubtitle = (s) => `${s.secid} · оборот ${formatBigRub(s.tradingValue)}`;
+  } else {
+    rows = tab === 'up' ? gainers : losers;
+    getSubtitle = (s) => s.secid;
+  }
+
   return (
     <div className="w-full flex flex-col gap-2">
       <div className="flex gap-1">
         {tabBtn('up', 'Рост')}
         {tabBtn('down', 'Падение')}
+        {tabBtn('turnover', 'По обороту')}
       </div>
-      {shown.length === 0 ? (
+
+      {rows.length === 0 ? (
         <p className="text-[#7D7C82] dark:text-neutral-400 text-sm py-4 text-center">Пока нет данных</p>
       ) : (
         <Card>
-          {shown.map((s) => (
-            <StockRow key={s.secid} stock={s} subtitle={s.secid} onSelect={onSelect} />
+          {rows.map((s) => (
+            <StockRow key={s.secid} stock={s} subtitle={getSubtitle(s)} onSelect={onSelect} />
           ))}
         </Card>
+      )}
+
+      {tab === 'turnover' && turnoverTop.length > 5 && (
+        <button
+          onClick={() => { triggerHaptic('light'); setTurnoverExpanded((v) => !v); }}
+          className="w-full h-10 flex items-center justify-center gap-1 text-[#161616] dark:text-neutral-200 text-[14px] font-medium active:opacity-70"
+        >
+          {turnoverExpanded ? 'Скрыть' : `Показать ещё ${turnoverTop.length - 5}`}
+          {turnoverExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        </button>
       )}
     </div>
   );

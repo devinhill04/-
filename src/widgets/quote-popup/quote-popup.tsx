@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
+import { TradingViewMiniChart } from '../tradingview-mini-chart/tradingview-mini-chart';
+import { tvSymbolForQuote, tvSymbolForStock } from '../../entities/quotes/model/tradingview-symbols';
 import { Quote } from '../../entities/quotes/model/types';
 import { MoexStock } from '../../entities/moex/model/types';
 import { formatBigRub, formatNumber, formatPercent } from '../../shared/lib/format';
@@ -26,6 +28,16 @@ const Row: React.FC<{ label: string; value: string }> = ({ label, value }) =>
   );
 
 export const QuotePopup: React.FC<{ data: PopupData; onClose: () => void }> = ({ data, onClose }) => {
+  // Та же тема, что у остального приложения (определяется классом на html, см. moex-heatmap.tsx)
+  const [isDark, setIsDark] = useState(false);
+  useEffect(() => {
+    const check = () => setIsDark(document.documentElement.classList.contains('dark'));
+    check();
+    const observer = new MutationObserver(check);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
   if (!data) return null;
 
   let title = '';
@@ -33,6 +45,8 @@ export const QuotePopup: React.FC<{ data: PopupData; onClose: () => void }> = ({
   let price = '—';
   let change: number | null = null;
   let rows: { label: string; value: string }[] = [];
+  let tvSymbol: string | null = null;
+  let chartLabel = '';
 
   if (data.kind === 'quote') {
     const q = data.quote;
@@ -41,6 +55,8 @@ export const QuotePopup: React.FC<{ data: PopupData; onClose: () => void }> = ({
     price = q.price !== null ? `${formatNumber(q.price, q.decimals)} ${q.unit}` : '—';
     change = q.changePercent;
     rows = [{ label: 'Источник', value: q.source }];
+    tvSymbol = tvSymbolForQuote(q.id);
+    chartLabel = q.title;
   } else {
     const s = data.stock;
     title = s.shortname;
@@ -52,6 +68,8 @@ export const QuotePopup: React.FC<{ data: PopupData; onClose: () => void }> = ({
       { label: 'Оборот за день', value: formatBigRub(s.tradingValue) },
       { label: 'Источник', value: 'Мосбиржа' },
     ];
+    tvSymbol = tvSymbolForStock(s.secid);
+    chartLabel = s.shortname;
   }
 
   return (
@@ -76,7 +94,11 @@ export const QuotePopup: React.FC<{ data: PopupData; onClose: () => void }> = ({
           {change !== null && <span className={`text-[14px] font-semibold ${changeColor(change)}`}>{formatPercent(change)}</span>}
         </div>
 
-        <div className="mt-3 divide-y divide-black/5 dark:divide-white/10">
+        <div className="mt-4">
+          <TradingViewMiniChart key={tvSymbol ?? chartLabel} symbol={tvSymbol} label={chartLabel} isDark={isDark} />
+        </div>
+
+        <div className="mt-1 divide-y divide-black/5 dark:divide-white/10">
           {rows.map((r) => <Row key={r.label} label={r.label} value={r.value} />)}
         </div>
       </div>
