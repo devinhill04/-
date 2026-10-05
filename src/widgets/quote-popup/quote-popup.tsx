@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { TradingViewMiniChart } from '../tradingview-mini-chart/tradingview-mini-chart';
-import { tvSymbolForQuote, tvSymbolForStock } from '../../entities/quotes/model/tradingview-symbols';
+import {
+  tvSymbolForQuote,
+  tvSymbolForStock,
+  investfutureUrlForQuote,
+  investfutureUrlForStock,
+} from '../../entities/quotes/model/tradingview-symbols';
 import { Quote } from '../../entities/quotes/model/types';
 import { MoexStock } from '../../entities/moex/model/types';
 import { formatBigRub, formatNumber, formatPercent } from '../../shared/lib/format';
@@ -47,6 +52,7 @@ export const QuotePopup: React.FC<{ data: PopupData; onClose: () => void }> = ({
   let rows: { label: string; value: string }[] = [];
   let tvSymbol: string | null = null;
   let chartLabel = '';
+  let fallbackUrl = '';
 
   if (data.kind === 'quote') {
     const q = data.quote;
@@ -57,6 +63,7 @@ export const QuotePopup: React.FC<{ data: PopupData; onClose: () => void }> = ({
     rows = [{ label: 'Источник', value: q.source }];
     tvSymbol = tvSymbolForQuote(q.id);
     chartLabel = q.title;
+    fallbackUrl = investfutureUrlForQuote(q.id, q.title);
   } else {
     const s = data.stock;
     title = s.shortname;
@@ -70,6 +77,7 @@ export const QuotePopup: React.FC<{ data: PopupData; onClose: () => void }> = ({
     ];
     tvSymbol = tvSymbolForStock(s.secid);
     chartLabel = s.shortname;
+    fallbackUrl = investfutureUrlForStock(s.secid, s.shortname);
   }
 
   return (
@@ -89,13 +97,17 @@ export const QuotePopup: React.FC<{ data: PopupData; onClose: () => void }> = ({
           </button>
         </div>
 
-        <div className="mt-4 flex items-baseline gap-2">
-          <span className="text-[#161616] dark:text-white text-[26px] font-bold leading-none">{price}</span>
-          {change !== null && <span className={`text-[14px] font-semibold ${changeColor(change)}`}>{formatPercent(change)}</span>}
-        </div>
+        {/* Цена и так видна на графике TradingView, поэтому сверху её не дублируем.
+            Исключение — инструмент без графика (Urals): иначе в окне не было бы ни одной цифры. */}
+        {tvSymbol === null && (
+          <div className="mt-4 flex items-baseline gap-2">
+            <span className="text-[#161616] dark:text-white text-[26px] font-bold leading-none">{price}</span>
+            {change !== null && <span className={`text-[14px] font-semibold ${changeColor(change)}`}>{formatPercent(change)}</span>}
+          </div>
+        )}
 
         <div className="mt-4">
-          <TradingViewMiniChart key={tvSymbol ?? chartLabel} symbol={tvSymbol} label={chartLabel} isDark={isDark} />
+          <TradingViewMiniChart key={tvSymbol ?? chartLabel} symbol={tvSymbol} label={chartLabel} fallbackUrl={fallbackUrl} isDark={isDark} />
         </div>
 
         <div className="mt-1 divide-y divide-black/5 dark:divide-white/10">

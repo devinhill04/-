@@ -1,19 +1,19 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ExternalLink } from 'lucide-react';
-import { investfutureFallbackUrl } from '../../entities/quotes/model/tradingview-symbols';
 import { openPostLink } from '../../shared/lib/open-telegram-link';
 import { triggerHaptic } from '../../lib/telegram';
 
 interface Props {
   symbol: string | null; // null — символа для этого инструмента нет вообще, график не пытаемся встроить
-  label: string; // для запасной ссылки и подписи
+  label: string; // для подписи
+  fallbackUrl: string; // ссылка на график на сайте InvestFuture
   isDark: boolean;
 }
 
 // Мини-график TradingView встраивается не как обычный React-компонент, а через их собственный
 // скрипт: он сам создаёт iframe внутри переданного контейнера. React этим iframe не управляет,
 // поэтому при смене символа/темы контейнер нужно очищать и пересоздавать скрипt заново.
-export const TradingViewMiniChart: React.FC<Props> = ({ symbol, label, isDark }) => {
+export const TradingViewMiniChart: React.FC<Props> = ({ symbol, label, fallbackUrl, isDark }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [failed, setFailed] = useState(false);
 
@@ -51,7 +51,7 @@ export const TradingViewMiniChart: React.FC<Props> = ({ symbol, label, isDark })
 
   const fallbackLink = (
     <button
-      onClick={() => { triggerHaptic('light'); openPostLink(investfutureFallbackUrl(label), label); }}
+      onClick={() => { triggerHaptic('light'); openPostLink(fallbackUrl, label); }}
       className="w-full flex items-center justify-center gap-1.5 py-2 text-[#5737FA] text-[13px] font-medium active:opacity-70"
     >
       График на investfuture.ru

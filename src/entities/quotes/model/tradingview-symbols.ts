@@ -24,8 +24,43 @@ export function tvSymbolForStock(secid: string): string {
   return `MOEX:${secid}`;
 }
 
-// Ссылка-заглушка на InvestFuture — без доступа к сайту я не знаю точный шаблон страницы
-// конкретного инструмента, подставьте реальный при наличии (например, через параметр ?ticker=).
-export function investfutureFallbackUrl(label: string): string {
-  return `https://investfuture.ru/?utm_source=miniapp&utm_content=${encodeURIComponent(label)}`;
+// ---------- Ссылки на графики на сайте InvestFuture ----------
+// Заполняются по мере получения: пока для инструмента ссылки нет, ведём на главную сайта.
+// id котировок: USD, EUR, CNY, IMOEX, BRENT, URALS, GOLD, SILVER, BTC, ETH.
+export const INVESTFUTURE_QUOTE_URLS: Record<string, string> = {
+  USD: '',
+  EUR: '',
+  CNY: '',
+  IMOEX: '',
+  BRENT: '',
+  URALS: '',
+  GOLD: '',
+  SILVER: '',
+  BTC: '',
+  ETH: '',
+};
+
+// Шаблон ссылки для акций, {ticker} заменится на тикер Мосбиржи (SBER, GAZP...).
+// null — пока шаблона нет. Пример: 'https://investfuture.ru/quotes/{ticker}'
+export const INVESTFUTURE_STOCK_URL_TEMPLATE: string | null = null;
+
+const INVESTFUTURE_HOME = 'https://investfuture.ru/';
+
+const generalUrl = (label: string) =>
+  `${INVESTFUTURE_HOME}?utm_source=miniapp&utm_content=${encodeURIComponent(label)}`;
+
+export function investfutureUrlForQuote(
+  id: string,
+  label: string,
+  map: Record<string, string> = INVESTFUTURE_QUOTE_URLS
+): string {
+  return map[id] || generalUrl(label);
+}
+
+export function investfutureUrlForStock(
+  secid: string,
+  label: string,
+  template: string | null = INVESTFUTURE_STOCK_URL_TEMPLATE
+): string {
+  return template ? template.split('{ticker}').join(encodeURIComponent(secid)) : generalUrl(label);
 }
