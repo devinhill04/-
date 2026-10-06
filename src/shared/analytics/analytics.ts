@@ -36,7 +36,10 @@ export type AnalyticsEventType =
   | 'pain_solution_dismiss'
   | 'search_clear'
   | 'search_input'
-  | 'search_empty_results';
+  | 'search_empty_results'
+  // Переключатель мини-аппов в шапке
+  | 'app_switcher_open'
+  | 'app_switcher_select';
 
 export interface AnalyticsPayload {
   [key: string]: any;

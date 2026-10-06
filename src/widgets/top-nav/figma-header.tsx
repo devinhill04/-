@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ThemeToggle } from '../../shared/ui/theme-toggle';
-import { triggerHaptic } from '../../lib/telegram';
+import { triggerHaptic, openTelegramLink } from '../../lib/telegram';
+import { AppSwitcherMenu } from '../app-switcher/app-switcher-menu';
+import { MINI_APPS, DEMO_MINI_APPS, MiniApp, visibleMiniApps } from '../../shared/config/mini-apps';
+import { AnalyticsService } from '../../shared/analytics/analytics';
 
 interface FigmaHeaderProps {
   activeScreen?: 'catalog' | 'solutions' | 'ecosystem' | 'pain_detail';
@@ -16,16 +19,37 @@ export const FigmaHeader: React.FC<FigmaHeaderProps> = ({
   onLogoClick,
   showNavTabs = true,
 }) => {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const apps = visibleMiniApps(MINI_APPS, DEMO_MINI_APPS, import.meta.env.DEV);
+  // Меню нужно, только если есть из чего выбирать; иначе клик по логотипу работает как раньше
+  const hasSwitcher = apps.length > 1;
+
+  const handleLogoClick = () => {
+    triggerHaptic('light');
+    if (!hasSwitcher) {
+      onLogoClick?.();
+      return;
+    }
+    if (!menuOpen) AnalyticsService.track('app_switcher_open');
+    setMenuOpen((v) => !v);
+  };
+
+  const handleSelect = (app: MiniApp) => {
+    setMenuOpen(false);
+    if (app.current) return; // уже здесь
+    AnalyticsService.track('app_switcher_select', { appId: app.id });
+    if (app.url) openTelegramLink(app.url);
+  };
+
   return (
     <header className="w-full bg-white dark:bg-[#111111] transition-colors sticky top-0 z-40">
       {/* 1. Top Header Row: Frame 390x80 (pad: 12 12 12 12) */}
-      <div style={{ paddingBottom: '0px' }} className="w-full max-w-[390px] mx-auto pl-3 pr-1 pt-3 flex items-center justify-between">
+      <div style={{ paddingBottom: '0px' }} className="relative w-full max-w-[390px] mx-auto pl-3 pr-1 pt-3 flex items-center justify-between">
         {/* Avatar + Title + Subtitle */}
         <div
-          onClick={() => {
-            triggerHaptic('light');
-            onLogoClick?.();
-          }}
+          onClick={handleLogoClick}
+          role="button"
+          aria-expanded={hasSwitcher ? menuOpen : undefined}
           className="flex items-center gap-3 cursor-pointer group active:opacity-80 transition-opacity"
         >
           {/* Avatar (56x56, cornerRadius: 12) */}
@@ -66,6 +90,8 @@ export const FigmaHeader: React.FC<FigmaHeaderProps> = ({
             </p>
           </div>
         </div>
+
+        {menuOpen && hasSwitcher && <AppSwitcherMenu apps={apps} onSelect={handleSelect} onClose={() => setMenuOpen(false)} />}
 
         {/* Mode Switch (40x40, r: 8, pad: 8) */}
         <div className="shrink-0">
