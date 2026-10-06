@@ -6,7 +6,7 @@ import { triggerHaptic } from '../../lib/telegram';
 interface Props {
   symbol: string | null; // null — символа для этого инструмента нет вообще, график не пытаемся встроить
   label: string; // для подписи
-  fallbackUrl: string; // ссылка на график на сайте InvestFuture
+  fallbackUrl: string | null; // ссылка на график на сайте InvestFuture; null — на сайте такой страницы нет
   isDark: boolean;
 }
 
@@ -49,7 +49,7 @@ export const TradingViewMiniChart: React.FC<Props> = ({ symbol, label, fallbackU
     return () => { el.innerHTML = ''; };
   }, [symbol, isDark]);
 
-  const fallbackLink = (
+  const fallbackLink = fallbackUrl && (
     <button
       onClick={() => { triggerHaptic('light'); openPostLink(fallbackUrl, label); }}
       className="w-full flex items-center justify-center gap-1.5 py-2 text-[#5737FA] text-[13px] font-medium active:opacity-70"
@@ -59,7 +59,7 @@ export const TradingViewMiniChart: React.FC<Props> = ({ symbol, label, fallbackU
     </button>
   );
 
-  if (!symbol) return fallbackLink; // для этого инструмента символа нет в принципе (см. комментарий в tradingview-symbols.ts)
+  if (!symbol) return fallbackLink || null; // символа нет в принципе (Urals); нет и ссылки — блок графика не показываем
 
   return (
     <div className="w-full">

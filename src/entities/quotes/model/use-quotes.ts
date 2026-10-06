@@ -5,22 +5,25 @@ const ISS = 'https://iss.moex.com/iss';
 const REFRESH_MS = 60_000;
 
 type Block = { columns: string[]; data: unknown[][] } | undefined;
-type Values = Record<string, { price: number | null; changePercent: number | null; source?: string; estimate?: boolean }>;
+type Values = Record<string, { price: number | null; changePercent: number | null; source?: string; estimate?: boolean; decimals?: number }>;
 
-const MAIN: Quote[] = [
-  { id: 'USD', title: 'Доллар США', ticker: 'USD/RUB', badge: '$', iconSrc: '/figma_assets/quotes/USD.png', price: null, changePercent: null, unit: '₽', decimals: 2, source: 'Мосбиржа' },
-  { id: 'EUR', title: 'Евро', ticker: 'EUR/RUB', badge: '€', iconSrc: '/figma_assets/quotes/EUR.png', price: null, changePercent: null, unit: '₽', decimals: 2, source: 'Мосбиржа' },
-  { id: 'CNY', title: 'Юань', ticker: 'CNY/RUB', badge: '¥', iconSrc: '/figma_assets/quotes/CNY.png', price: null, changePercent: null, unit: '₽', decimals: 2, source: 'Мосбиржа' },
-  { id: 'IMOEX', title: 'Индекс Мосбиржи', ticker: 'IMOEX', badge: 'M', iconSrc: '/figma_assets/quotes/IMOEX.png', price: null, changePercent: null, unit: 'пт.', decimals: 2, source: 'Мосбиржа' },
+// decimals = максимум знаков после запятой (лишние нули не показываем, как в макете)
+// iconBox/iconCover — как картинка лежит в круге: размеры замерены по макету дизайнера
+export const MAIN: Quote[] = [
+  { id: 'USD', title: 'Доллар США', ticker: 'USD/RUB', badge: '$', iconSrc: '/figma_assets/quotes/USD.png', iconBox: 28, price: null, changePercent: null, unit: '₽', decimals: 4, source: 'Мосбиржа' },
+  { id: 'EUR', title: 'Евро', ticker: 'EUR/RUB', badge: '€', iconSrc: '/figma_assets/quotes/EUR.png', iconBox: 28, price: null, changePercent: null, unit: '₽', decimals: 4, source: 'Мосбиржа' },
+  { id: 'CNY', title: 'Китайский юань', ticker: 'CNY/RUB', badge: '¥', iconSrc: '/figma_assets/quotes/CNY.png', iconBox: 28, price: null, changePercent: null, unit: '₽', decimals: 4, source: 'Мосбиржа' },
+  { id: 'IMOEX', title: 'Индекс Мосбиржи', ticker: 'IMOEX', badge: 'M', iconSrc: '/figma_assets/quotes/IMOEX.png', iconCover: true, price: null, changePercent: null, unit: 'пт.', decimals: 2, source: 'Мосбиржа' },
 ];
 
-const EXTRA: Quote[] = [
-  { id: 'BRENT', title: 'Нефть Brent', ticker: 'BR · фьючерс', badge: 'BR', iconSrc: '/figma_assets/quotes/BRENT.png', price: null, changePercent: null, unit: '$', decimals: 2, source: 'Мосбиржа (ближайший фьючерс)' },
-  { id: 'URALS', title: 'Нефть Urals', ticker: 'Urals · оценка', badge: 'UR', iconSrc: '/figma_assets/quotes/URALS.png', price: null, changePercent: null, unit: '$', decimals: 2, source: 'Оценка: Brent минус дисконт Urals' },
-  { id: 'GOLD', title: 'Золото', ticker: 'GLDRUB · за грамм', badge: 'Au', iconSrc: '/figma_assets/quotes/GOLD.png', price: null, changePercent: null, unit: '₽', decimals: 1, source: 'Мосбиржа (спот, ₽ за грамм)' },
-  { id: 'SILVER', title: 'Серебро', ticker: 'SLVRUB · за грамм', badge: 'Ag', iconSrc: '/figma_assets/quotes/SILVER.png', price: null, changePercent: null, unit: '₽', decimals: 2, source: 'Мосбиржа (спот, ₽ за грамм)' },
-  { id: 'BTC', title: 'Биткоин', ticker: 'BTC/USD', badge: '₿', iconSrc: '/figma_assets/quotes/BTC.png', price: null, changePercent: null, unit: '$', decimals: 0, source: 'CoinGecko' },
-  { id: 'ETH', title: 'Эфир', ticker: 'ETH/USD', badge: 'Ξ', iconSrc: '/figma_assets/quotes/ETH.png', price: null, changePercent: null, unit: '$', decimals: 0, source: 'CoinGecko' },
+export const EXTRA: Quote[] = [
+  { id: 'BRENT', title: 'Нефть Brent', ticker: 'BR · фьючерс', badge: 'BR', iconSrc: '/figma_assets/quotes/BRENT.png', iconBox: 37, price: null, changePercent: null, unit: '$', decimals: 2, source: 'Мосбиржа (ближайший фьючерс)' },
+  { id: 'URALS', title: 'Нефть Urals', ticker: 'Urals · оценка', badge: 'UR', iconSrc: '/figma_assets/quotes/URALS.png', iconBox: 37, price: null, changePercent: null, unit: '$', decimals: 2, source: 'Оценка: Brent минус дисконт Urals' },
+  { id: 'GOLD', title: 'Золото', ticker: 'GLDRUB · за грамм', badge: 'Au', iconSrc: '/figma_assets/quotes/GOLD.png', iconBox: 36, price: null, changePercent: null, unit: '₽', decimals: 2, source: 'Мосбиржа (спот, ₽ за грамм)' },
+  // иконки серебра в макете пока нет: когда появится файл, добавить iconSrc: '/figma_assets/quotes/SILVER.png'
+  { id: 'SILVER', title: 'Серебро', ticker: 'SLVRUB · за грамм', badge: 'Ag', price: null, changePercent: null, unit: '₽', decimals: 2, source: 'Мосбиржа (спот, ₽ за грамм)' },
+  { id: 'BTC', title: 'Bitcoin', ticker: 'BTC/USD', badge: '₿', iconSrc: '/figma_assets/quotes/BTC.png', iconBox: 28, price: null, changePercent: null, unit: '$', decimals: 2, source: 'CoinGecko' },
+  { id: 'ETH', title: 'Ethereum', ticker: 'ETH/USD', badge: 'Ξ', iconSrc: '/figma_assets/quotes/ETH.png', iconBox: 40, price: null, changePercent: null, unit: '$', decimals: 2, source: 'CoinGecko' },
 ];
 
 const col = (b: Block, names: string[]) => (b ? b.columns.findIndex((c) => names.includes(c)) : -1);
@@ -211,6 +214,89 @@ export async function fetchMetals(): Promise<Values> {
   return out;
 }
 
+// ---------- Данные с сайта InvestFuture ----------
+// Цены шести котировок (USD, EUR, CNY — курс ЦБ; IMOEX; BTC; ETH) берём с самого сайта, чтобы цифры в мини-аппе
+// совпадали с сайтом. На каждой странице котировок внизу есть блок «Популярные» с ценами всех шести,
+// поэтому хватает одного запроса. Запрос идёт через наш сервер (/api/if-quotes): у сайта нет заголовков CORS.
+// Если вёрстка блока изменится и разобрать его не получится — остаются прежние источники (биржа, ЦБ, CoinGecko).
+export const IF_SLUGS: Record<string, string> = {
+  'currency-cb-usd': 'USD',
+  'currency-cb-eur': 'EUR',
+  'currency-cb-cny': 'CNY',
+  'indices-moex-imoex': 'IMOEX',
+  'crypto-btcusd': 'BTC',
+  'crypto-ethusd': 'ETH',
+};
+
+export interface IfItem {
+  id: string;
+  price: number;
+  changePercent: number;
+  decimals: number;
+  stamp: string;
+}
+
+const toNumber = (str: string): number | null => {
+  const n = Number(str.replace(/[\s\u00a0\u202f\u2009]/g, '').replace(/[\u2212\u2013]/g, '-').replace(',', '.'));
+  return Number.isFinite(n) ? n : null;
+};
+
+export function parseIfStrip(html: string): IfItem[] {
+  const out: IfItem[] = [];
+  const seen = new Set<string>();
+  const re = /<a\b([^>]*)>([\s\S]*?)<\/a>/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html))) {
+    const href = /href="([^"]*)"/i.exec(m[1])?.[1] ?? '';
+    const slug = /\/quotes\/([a-z0-9-]+)\/?(?:[?#].*)?$/i.exec(href)?.[1];
+    const id = slug ? IF_SLUGS[slug] : undefined;
+    if (!id || seen.has(id)) continue;
+    // Теги заменяем на пробел, чтобы цена и процент не слиплись: «2 326,990.23» нельзя разобрать однозначно
+    const text = m[2]
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&nbsp;|&#160;|&#xa0;/gi, ' ')
+      .replace(/&amp;/gi, '&')
+      .replace(/\s+/g, ' ')
+      .trim();
+    const mm = /(\d[\d\s]*(?:[.,]\d+)?)\s*(?:₽|\$|руб\.?)?\s*([-\u2212\u2013+]?\d+(?:[.,]\d+)?)\s*%/.exec(text);
+    if (!mm) continue; // ссылка на ту же котировку без цифр (меню, «Другие курсы») — пропускаем
+    const price = toNumber(mm[1]);
+    const change = toNumber(mm[2]);
+    if (price === null || change === null) continue;
+    const stamp = (/title="([^"]*)"/i.exec(m[1])?.[1] ?? '').trim();
+    out.push({ id, price, changePercent: change, decimals: (mm[1].split(/[.,]/)[1] ?? '').length, stamp });
+    seen.add(id);
+  }
+  return out;
+}
+
+function ifSourceLabel(id: string, stamp: string): string {
+  const cb = id === 'USD' || id === 'EUR' || id === 'CNY';
+  const date = /(\d{2}\.\d{2}\.\d{4})/.exec(stamp)?.[1];
+  if (cb) return `InvestFuture: официальный курс ЦБ РФ${date ? ` на ${date}` : ''}`;
+  return `InvestFuture${stamp ? `: данные на ${stamp}` : ''}`;
+}
+
+export async function fetchInvestfuture(): Promise<Values> {
+  const res = await fetch('/api/if-quotes');
+  if (!res.ok) throw new Error(`/api/if-quotes: ${res.status}`);
+  const items = parseIfStrip(await res.text());
+  console.log('[quotes/if] разобрано с сайта:', items);
+  if (items.length === 0) throw new Error('блок «Популярные» не найден на странице — возможно, изменилась вёрстка сайта');
+  const out: Values = {};
+  items.forEach((it) => {
+    out[it.id] = {
+      price: it.price,
+      changePercent: it.changePercent,
+      decimals: Math.min(Math.max(it.decimals, 2), 4),
+      source: ifSourceLabel(it.id, it.stamp),
+    };
+  });
+  const missing = Object.values(IF_SLUGS).filter((id) => !out[id]);
+  if (missing.length) console.warn('[quotes/if] на странице не нашлись:', missing, '— для них остаются прежние источники');
+  return out;
+}
+
 // Биткоин и эфир
 async function fetchCrypto(): Promise<Values> {
   const json = await getJson(
@@ -312,7 +398,8 @@ export function useQuotes() {
     mounted.current = true;
     async function refresh() {
       // ЦБ первым: биржевые значения ниже перекрывают его, если у них есть цена
-      const sources = [fetchCbr, fetchFx, fetchMetals, fetchIndex, fetchFutures, fetchCrypto];
+      // Сайт InvestFuture последним: его значения перекрывают остальные, если у них есть цена
+      const sources = [fetchCbr, fetchFx, fetchMetals, fetchIndex, fetchFutures, fetchCrypto, fetchInvestfuture];
       const discountPromise = discountRef.current ? Promise.resolve(discountRef.current) : fetchUralsDiscount();
       const results = await Promise.allSettled(sources.map((f) => f()));
       discountRef.current = await discountPromise;

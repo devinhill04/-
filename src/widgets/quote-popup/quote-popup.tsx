@@ -52,7 +52,7 @@ export const QuotePopup: React.FC<{ data: PopupData; onClose: () => void }> = ({
   let rows: { label: string; value: string }[] = [];
   let tvSymbol: string | null = null;
   let chartLabel = '';
-  let fallbackUrl = '';
+  let fallbackUrl: string | null = null;
 
   if (data.kind === 'quote') {
     const q = data.quote;
@@ -63,7 +63,7 @@ export const QuotePopup: React.FC<{ data: PopupData; onClose: () => void }> = ({
     rows = [{ label: 'Источник', value: q.source }];
     tvSymbol = tvSymbolForQuote(q.id);
     chartLabel = q.title;
-    fallbackUrl = investfutureUrlForQuote(q.id, q.title);
+    fallbackUrl = investfutureUrlForQuote(q.id);
   } else {
     const s = data.stock;
     title = s.shortname;
@@ -77,7 +77,7 @@ export const QuotePopup: React.FC<{ data: PopupData; onClose: () => void }> = ({
     ];
     tvSymbol = tvSymbolForStock(s.secid);
     chartLabel = s.shortname;
-    fallbackUrl = investfutureUrlForStock(s.secid, s.shortname);
+    fallbackUrl = investfutureUrlForStock(s.secid);
   }
 
   return (

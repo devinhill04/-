@@ -25,42 +25,29 @@ export function tvSymbolForStock(secid: string): string {
 }
 
 // ---------- Ссылки на графики на сайте InvestFuture ----------
-// Заполняются по мере получения: пока для инструмента ссылки нет, ведём на главную сайта.
 // id котировок: USD, EUR, CNY, IMOEX, BRENT, URALS, GOLD, SILVER, BTC, ETH.
+// Пустая строка = на сайте такой страницы нет; ссылку тогда не показываем (общую главную вместо неё не ставим).
 export const INVESTFUTURE_QUOTE_URLS: Record<string, string> = {
-  USD: '',
-  EUR: '',
-  CNY: '',
-  IMOEX: '',
+  USD: 'https://investfuture.ru/quotes/currency-cb-usd',
+  EUR: 'https://investfuture.ru/quotes/currency-cb-eur',
+  CNY: 'https://investfuture.ru/quotes/currency-cb-cny',
+  IMOEX: 'https://investfuture.ru/quotes/indices-moex-imoex',
   BRENT: '',
   URALS: '',
   GOLD: '',
   SILVER: '',
-  BTC: '',
-  ETH: '',
+  BTC: 'https://investfuture.ru/quotes/crypto-btcusd',
+  ETH: 'https://investfuture.ru/quotes/crypto-ethusd',
 };
 
 // Шаблон ссылки для акций, {ticker} заменится на тикер Мосбиржи (SBER, GAZP...).
-// null — пока шаблона нет. Пример: 'https://investfuture.ru/quotes/{ticker}'
+// null — пока шаблона нет, и ссылку для акций не показываем. Пример: 'https://investfuture.ru/quotes/stocks-{ticker}'
 export const INVESTFUTURE_STOCK_URL_TEMPLATE: string | null = null;
 
-const INVESTFUTURE_HOME = 'https://investfuture.ru/';
-
-const generalUrl = (label: string) =>
-  `${INVESTFUTURE_HOME}?utm_source=miniapp&utm_content=${encodeURIComponent(label)}`;
-
-export function investfutureUrlForQuote(
-  id: string,
-  label: string,
-  map: Record<string, string> = INVESTFUTURE_QUOTE_URLS
-): string {
-  return map[id] || generalUrl(label);
+export function investfutureUrlForQuote(id: string, map: Record<string, string> = INVESTFUTURE_QUOTE_URLS): string | null {
+  return map[id] || null;
 }
 
-export function investfutureUrlForStock(
-  secid: string,
-  label: string,
-  template: string | null = INVESTFUTURE_STOCK_URL_TEMPLATE
-): string {
-  return template ? template.split('{ticker}').join(encodeURIComponent(secid)) : generalUrl(label);
+export function investfutureUrlForStock(secid: string, template: string | null = INVESTFUTURE_STOCK_URL_TEMPLATE): string | null {
+  return template ? template.split('{ticker}').join(encodeURIComponent(secid)) : null;
 }

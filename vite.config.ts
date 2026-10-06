@@ -21,6 +21,12 @@ export default defineConfig(() => {
       // Локально /api/news проксируется на публичное превью канала IF News
       // (в проде то же самое делает nginx, см. Dockerfile)
       proxy: {
+        // Страница котировок InvestFuture: в блоке «Популярные» внизу — цены всех шести котировок
+        '/api/if-quotes': {
+          target: 'https://investfuture.ru',
+          changeOrigin: true,
+          rewrite: () => '/quotes/currency-cb-usd',
+        },
         '/api/news': {
           target: 'https://t.me',
           changeOrigin: true,

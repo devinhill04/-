@@ -31,3 +31,15 @@ export function formatNewsDate(iso: string | null): string {
 export function deriveAbsoluteChange(price: number, changePercent: number): number {
   return (price * changePercent) / (100 + changePercent);
 }
+
+// Как в макете: 83,9 (а не 83,90), 12,5925, 0. Знаков после запятой — не больше maxDecimals, хвостовые нули убираются.
+export function formatTrimmed(n: number, maxDecimals: number): string {
+  return n.toLocaleString('ru-RU', { minimumFractionDigits: 0, maximumFractionDigits: maxDecimals });
+}
+
+// Абсолютное изменение. У нас есть только цена и % (с точностью до сотых), поэтому показывать больше
+// двух знаков было бы ложной точностью — кроме случая, когда при двух знаках получился бы ноль, а % не нулевой.
+export function formatAbsChange(abs: number, maxDecimals: number): string {
+  const s = formatTrimmed(abs, Math.min(maxDecimals, 2));
+  return Number(s.replace(/\s/g, '').replace(',', '.')) === 0 && abs !== 0 ? formatTrimmed(abs, maxDecimals) : s;
+}
