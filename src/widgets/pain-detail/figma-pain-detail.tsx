@@ -5,7 +5,8 @@ import { Post } from '../../entities/post/model/types';
 import { triggerHaptic } from '../../lib/telegram';
 
 interface FigmaPainDetailScreenProps {
-  pain: FigmaPainCard;
+  pain: Pick<FigmaPainCard, 'title' | 'detailTitle'>;
+  intro?: string; // цитата-«боль» под заголовком (есть у приложений из Excel)
   posts: Post[];
   onBack: () => void;
   onSelectTag?: (tag: string) => void;
@@ -15,6 +16,7 @@ const PAGE_SIZE = 10;
 
 export const FigmaPainDetailScreen: React.FC<FigmaPainDetailScreenProps> = ({
   pain,
+  intro,
   posts,
   onBack,
   onSelectTag,
@@ -54,6 +56,15 @@ export const FigmaPainDetailScreen: React.FC<FigmaPainDetailScreenProps> = ({
           {pain.detailTitle || pain.title}
         </h2>
       </div>
+
+      {intro && (
+        <p
+          style={{ fontFamily: "'Manrope', sans-serif" }}
+          className="border-l-2 border-[var(--accent)] pl-3 text-[#161616]/80 dark:text-neutral-300 text-[14px] leading-[19px]"
+        >
+          {intro}
+        </p>
+      )}
 
       {/* Posts List */}
       <div className="flex flex-col gap-2 pt-2">

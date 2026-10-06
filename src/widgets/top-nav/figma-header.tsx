@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { ThemeToggle } from '../../shared/ui/theme-toggle';
-import { triggerHaptic, openTelegramLink } from '../../lib/telegram';
+import { triggerHaptic } from '../../lib/telegram';
 import { AppSwitcherMenu } from '../app-switcher/app-switcher-menu';
-import { MINI_APPS, DEMO_MINI_APPS, MiniApp, visibleMiniApps } from '../../shared/config/mini-apps';
+import { useMiniApps } from '../../shared/lib/mini-app-context';
 import { AnalyticsService } from '../../shared/analytics/analytics';
 
 interface FigmaHeaderProps {
@@ -20,7 +20,7 @@ export const FigmaHeader: React.FC<FigmaHeaderProps> = ({
   showNavTabs = true,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const apps = visibleMiniApps(MINI_APPS, DEMO_MINI_APPS, import.meta.env.DEV);
+  const { apps, currentApp, selectApp } = useMiniApps();
   // Меню нужно, только если есть из чего выбирать; иначе клик по логотипу работает как раньше
   const hasSwitcher = apps.length > 1;
 
@@ -34,11 +34,11 @@ export const FigmaHeader: React.FC<FigmaHeaderProps> = ({
     setMenuOpen((v) => !v);
   };
 
-  const handleSelect = (app: MiniApp) => {
+  const handleSelect = (id: string) => {
     setMenuOpen(false);
-    if (app.current) return; // уже здесь
-    AnalyticsService.track('app_switcher_select', { appId: app.id });
-    if (app.url) openTelegramLink(app.url);
+    if (id === currentApp.id) return; // уже здесь
+    AnalyticsService.track('app_switcher_select', { appId: id });
+    selectApp(id);
   };
 
   return (
@@ -58,8 +58,8 @@ export const FigmaHeader: React.FC<FigmaHeaderProps> = ({
             className="overflow-hidden shrink-0 bg-[#F5F5F5]"
           >
             <img
-              src="/figma_assets/fill_ad6b082b617a802b8358b6de4c2b025b81969cdc.png"
-              alt="InvestFuture"
+              src={currentApp.iconSrc}
+              alt={currentApp.title}
               className="w-full h-full object-cover"
             />
           </div>
@@ -75,7 +75,7 @@ export const FigmaHeader: React.FC<FigmaHeaderProps> = ({
               }}
               className="text-[#161616] dark:text-white"
             >
-              InvestFuture
+              {currentApp.title}
             </h1>
             <p
               style={{
@@ -86,12 +86,12 @@ export const FigmaHeader: React.FC<FigmaHeaderProps> = ({
               }}
               className="text-[#7D7C82] dark:text-neutral-400 relative top-[2px]"
             >
-              Каталог полезных материалов
+              {currentApp.subtitle}
             </p>
           </div>
         </div>
 
-        {menuOpen && hasSwitcher && <AppSwitcherMenu apps={apps} onSelect={handleSelect} onClose={() => setMenuOpen(false)} />}
+        {menuOpen && hasSwitcher && <AppSwitcherMenu apps={apps} currentId={currentApp.id} onSelect={(a) => handleSelect(a.id)} onClose={() => setMenuOpen(false)} />}
 
         {/* Mode Switch (40x40, r: 8, pad: 8) */}
         <div className="shrink-0">

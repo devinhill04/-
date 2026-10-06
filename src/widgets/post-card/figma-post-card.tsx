@@ -38,7 +38,7 @@ export const FigmaPostCard: React.FC<FigmaPostCardProps> = ({ post, onTagClick, 
               fontSize: '14px',
               lineHeight: '17.5px',
             }}
-            className="text-[#161616] dark:text-neutral-100 group-hover:text-[#5737FA] transition-colors"
+            className="text-[#161616] dark:text-neutral-100 group-hover:text-[var(--accent)] transition-colors"
           >
             {post.title}
           </h4>
@@ -95,7 +95,7 @@ export const FigmaPostCard: React.FC<FigmaPostCardProps> = ({ post, onTagClick, 
       </div>
 
       {/* External Link Icon (15x15) */}
-      <div className="shrink-0 pt-0.5 text-[#161616] dark:text-neutral-400 group-hover:text-[#5737FA] transition-colors">
+      <div className="shrink-0 pt-0.5 text-[#161616] dark:text-neutral-400 group-hover:text-[var(--accent)] transition-colors">
         <img src="/figma_assets/External_Link.png" alt="" className="w-[24px] h-[24px] -mt-1 dark:invert" />
       </div>
     </div>

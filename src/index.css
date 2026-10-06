@@ -5,6 +5,19 @@
 @layer base {
   :root {
     color-scheme: light;
+    /* Акцентный цвет приложения. У основного — фиолетовый, у «Работа не рабство» — красный (см. data-app в app.tsx) */
+    --accent: #5737FA;
+    --accent-soft: #EFEBFF;
+  }
+
+  [data-app='jobs'] {
+    --accent: #B71312; /* красный из аватарки канала */
+    --accent-soft: #FBE9E9;
+  }
+
+  html.dark [data-app='jobs'] {
+    --accent: #E5484D; /* на тёмном фоне красный чуть светлее, иначе тонет */
+    --accent-soft: #3A1B1C;
   }
 
   html.dark {

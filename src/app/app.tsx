@@ -4,16 +4,39 @@ import { HomePage } from '../pages/home/home-page';
 import { MarketScreen } from '../widgets/market-screen/market-screen';
 import { initTelegramTheme } from '../shared/theme/init-telegram';
 import { triggerHaptic } from '../lib/telegram';
+import { CatalogApp } from '../widgets/catalog-app/catalog-app';
+import { MiniAppsProvider } from '../shared/lib/mini-app-context';
+import { MINI_APPS, loadCurrentAppId, saveCurrentAppId } from '../shared/config/mini-apps';
 
 export const App: React.FC = () => {
   const [activeSection, setActiveSection] = useState<'feed' | 'market'>('feed');
+  const [appId, setAppId] = useState(() => loadCurrentAppId());
+  const currentApp = MINI_APPS.find((a) => a.id === appId) ?? MINI_APPS[0];
+
+  const selectApp = (id: string) => {
+    saveCurrentAppId(id);
+    setAppId(id);
+    window.scrollTo(0, 0);
+  };
 
   useEffect(() => {
     initTelegramTheme();
   }, []);
 
+  // Отдельное приложение из каталога (например «Работа не рабство») — без нижней навигации и вкладки «Рынок»
+  if (currentApp.kind === 'catalog') {
+    return (
+      <MiniAppsProvider value={{ apps: MINI_APPS, currentApp, selectApp }}>
+        <div data-app={currentApp.id}>
+          <CatalogApp key={currentApp.id} app={currentApp} />
+        </div>
+      </MiniAppsProvider>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-[#111111]">
+    <MiniAppsProvider value={{ apps: MINI_APPS, currentApp, selectApp }}>
+    <div data-app={currentApp.id} className="min-h-screen flex flex-col bg-white dark:bg-[#111111]">
       <div className="flex-1 pb-16">
         {activeSection === 'feed' ? <HomePage /> : <MarketScreen />}
       </div>
@@ -33,12 +56,12 @@ export const App: React.FC = () => {
           >
             <LayoutGrid
               className={`w-5 h-5 ${
-                activeSection === 'feed' ? 'text-[#5737FA]' : 'text-[#7D7C82] dark:text-neutral-500'
+                activeSection === 'feed' ? 'text-[var(--accent)]' : 'text-[#7D7C82] dark:text-neutral-500'
               }`}
             />
             <span
               className={`text-[11px] font-medium ${
-                activeSection === 'feed' ? 'text-[#5737FA]' : 'text-[#7D7C82] dark:text-neutral-500'
+                activeSection === 'feed' ? 'text-[var(--accent)]' : 'text-[#7D7C82] dark:text-neutral-500'
               }`}
             >
               Материалы
@@ -54,12 +77,12 @@ export const App: React.FC = () => {
           >
             <TrendingUp
               className={`w-5 h-5 ${
-                activeSection === 'market' ? 'text-[#5737FA]' : 'text-[#7D7C82] dark:text-neutral-500'
+                activeSection === 'market' ? 'text-[var(--accent)]' : 'text-[#7D7C82] dark:text-neutral-500'
               }`}
             />
             <span
               className={`text-[11px] font-medium ${
-                activeSection === 'market' ? 'text-[#5737FA]' : 'text-[#7D7C82] dark:text-neutral-500'
+                activeSection === 'market' ? 'text-[var(--accent)]' : 'text-[#7D7C82] dark:text-neutral-500'
               }`}
             >
               Рынок
@@ -68,5 +91,6 @@ export const App: React.FC = () => {
         </div>
       </div>
     </div>
+    </MiniAppsProvider>
   );
 };
