@@ -39,7 +39,15 @@ export type AnalyticsEventType =
   | 'search_empty_results'
   // Переключатель мини-аппов в шапке
   | 'app_switcher_open'
-  | 'app_switcher_select';
+  | 'app_switcher_select'
+  // Вкладка «Рынок»
+  | 'market_open'
+  | 'market_quote_click'
+  | 'market_quotes_expand'
+  | 'market_stocks_tab'
+  | 'market_chart_link'
+  | 'market_news_click'
+  | 'market_news_all';
 
 export interface AnalyticsPayload {
   [key: string]: any;

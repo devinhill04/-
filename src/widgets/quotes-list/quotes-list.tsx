@@ -3,6 +3,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Quote } from '../../entities/quotes/model/types';
 import { deriveAbsoluteChange, formatAbsChange, formatTrimmed } from '../../shared/lib/format';
 import { triggerHaptic } from '../../lib/telegram';
+import { AnalyticsService } from '../../shared/analytics/analytics';
 
 interface QuotesListProps {
   main: Quote[];
@@ -88,7 +89,11 @@ export const QuotesList: React.FC<QuotesListProps> = ({ main, extra, onSelect })
       ))}
 
       <button
-        onClick={() => { triggerHaptic('light'); setExpanded((v) => !v); }}
+        onClick={() => {
+          triggerHaptic('light');
+          if (!expanded) AnalyticsService.track('market_quotes_expand');
+          setExpanded((v) => !v);
+        }}
         className="w-full h-10 flex items-center justify-center gap-1 text-[#161616] dark:text-neutral-200 text-[14px] font-medium active:opacity-70"
       >
         {expanded ? 'Скрыть' : `Показать ещё ${extra.length}`}

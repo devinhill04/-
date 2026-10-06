@@ -18,7 +18,7 @@ export const MAIN: Quote[] = [
 
 export const EXTRA: Quote[] = [
   { id: 'BRENT', title: 'Нефть Brent', ticker: 'BR · фьючерс', badge: 'BR', iconSrc: '/figma_assets/quotes/BRENT.png', iconBox: 37, price: null, changePercent: null, unit: '$', decimals: 2, source: 'Мосбиржа (ближайший фьючерс)' },
-  { id: 'URALS', title: 'Нефть Urals', ticker: 'Urals · оценка', badge: 'UR', iconSrc: '/figma_assets/quotes/URALS.png', iconBox: 37, price: null, changePercent: null, unit: '$', decimals: 2, source: 'Оценка: Brent минус дисконт Urals' },
+  { id: 'URALS', title: 'Нефть Urals', ticker: 'Urals · средняя за месяц', badge: 'UR', iconSrc: '/figma_assets/quotes/URALS.png', iconBox: 37, price: null, changePercent: null, unit: '$', decimals: 2, source: 'Минэкономразвития РФ: средняя цена за месяц' },
   { id: 'GOLD', title: 'Золото', ticker: 'GLDRUB · за грамм', badge: 'Au', iconSrc: '/figma_assets/quotes/GOLD.png', iconBox: 36, price: null, changePercent: null, unit: '₽', decimals: 2, source: 'Мосбиржа (спот, ₽ за грамм)' },
   // иконки серебра в макете пока нет: когда появится файл, добавить iconSrc: '/figma_assets/quotes/SILVER.png'
   { id: 'SILVER', title: 'Серебро', ticker: 'SLVRUB · за грамм', badge: 'Ag', price: null, changePercent: null, unit: '₽', decimals: 2, source: 'Мосбиржа (спот, ₽ за грамм)' },
@@ -129,7 +129,6 @@ export async function fetchFutures(): Promise<Values> {
 
   const targets = [
     { id: 'BRENT', code: 'BR', secidRe: /^BR[A-Z]\d$/, nameRe: /^BR-/i },
-    { id: 'URALS', code: 'UR', secidRe: /^UR[A-Z]\d$/, nameRe: /^UR(ALS)?-/i },
   ];
 
   const out: Values = {};
@@ -308,63 +307,49 @@ async function fetchCrypto(): Promise<Values> {
   };
 }
 
-// ---------- Нефть Urals: оценка ----------
-// Живой котировки Urals на Мосбирже нет (старые фьючерсы UR торговались до 2012 г.), поэтому показываем ОЦЕНКУ:
-// живой Brent (фьючерс Мосбиржи) минус дисконт Urals к Brent. Дисконт раз в месяц публикуют Argus/Интерфакс;
-// он лежит в public/data/urals-discount.json и обновляется правкой этого файла, без изменения кода.
-// Если у Мосбиржи когда-нибудь появится настоящий контракт с ценой — он автоматически вытеснит оценку.
-export interface UralsDiscount {
-  discountUsd: number; // $ за баррель
-  basis: string; // к чему дисконт: «Urals FOB Приморск к Dated Brent»
-  period: string; // «август 2026»
-  asOf: string; // дата публикации, ГГГГ-ММ-ДД — по ней считаем, не протухли ли данные
+// ---------- Нефть Urals: средняя цена за месяц ----------
+// У Urals нет биржевой котировки (старые фьючерсы UR торговались до 2012 г.). Официальную среднюю цену за истекший месяц
+// публикует Минэкономразвития РФ в начале следующего (она нужна для расчёта НДПИ), СМИ повторяют её сразу.
+// Число лежит в public/data/urals-monthly.json и обновляется правкой этого файла раз в месяц, без изменения кода.
+export interface UralsMonthly {
+  price: number; // $ за баррель
+  previousPrice?: number; // за предыдущий месяц — для расчёта изменения
+  period: string; // «сентябрь 2026»
+  previousPeriod?: string; // «август 2026»
+  publishedAt: string; // дата публикации ГГГГ-ММ-ДД — по ней считаем, не протухли ли данные
   source: string;
 }
 
-const DISCOUNT_STALE_DAYS = 45;
+const MONTHLY_STALE_DAYS = 40; // публикация приходит в начале месяца, 10 дней запаса на обновление файла
 
-export function estimateUrals(
-  brent: Values[string] | undefined,
-  d: UralsDiscount | null,
-  now: Date = new Date()
-): Values[string] | null {
-  if (!d || !brent || brent.price === null) return null;
-  const price = brent.price - d.discountUsd;
+const ruDate = (iso: string) => {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+  return m ? `${m[3]}.${m[2]}.${m[1]}` : iso;
+};
 
-  // Изменение за день: дисконт считаем постоянным, поэтому доллары движутся как у Brent, а проценты — от меньшей базы
-  let change: number | null = null;
-  if (brent.changePercent !== null && 1 + brent.changePercent / 100 !== 0) {
-    const prevBrent = brent.price / (1 + brent.changePercent / 100);
-    change = pct(price, prevBrent - d.discountUsd);
-  }
-
-  const ageDays = (now.getTime() - new Date(d.asOf).getTime()) / 864e5;
-  const stale = Number.isFinite(ageDays) && ageDays > DISCOUNT_STALE_DAYS;
-  const disc = d.discountUsd.toLocaleString('ru-RU', { maximumFractionDigits: 2 });
-  return {
-    price,
-    changePercent: change,
-    estimate: true,
-    source:
-      `Оценка, не биржевая котировка: Brent (фьючерс Мосбиржи) минус дисконт ${d.basis} ${disc} $/барр. (${d.source}, ${d.period})` +
-      (stale ? `. ВНИМАНИЕ: дисконт не обновлялся более ${DISCOUNT_STALE_DAYS} дней, цифра может быть неточной` : ''),
-  };
+export function uralsFromMonthly(m: UralsMonthly | null, now: Date = new Date()): Values[string] | null {
+  if (!m || typeof m.price !== 'number' || !Number.isFinite(m.price)) return null;
+  const change = typeof m.previousPrice === 'number' && m.previousPrice > 0 ? pct(m.price, m.previousPrice) : null;
+  const ageDays = (now.getTime() - new Date(m.publishedAt).getTime()) / 864e5;
+  const stale = Number.isFinite(ageDays) && ageDays > MONTHLY_STALE_DAYS;
+  const source =
+    `Средняя цена за ${m.period} — ${m.source}` +
+    (change !== null && m.previousPeriod ? `. Изменение — к ${m.previousPeriod}` : '') +
+    `. Публикуется раз в месяц (последняя — ${ruDate(m.publishedAt)}), это не котировка в реальном времени` +
+    (stale ? `. ВНИМАНИЕ: данные не обновлялись более ${MONTHLY_STALE_DAYS} дней, новая цена уже должна быть опубликована` : '');
+  return { price: m.price, changePercent: change, decimals: 2, source };
 }
 
-async function fetchUralsDiscount(): Promise<UralsDiscount | null> {
-  try {
-    const res = await fetch('/data/urals-discount.json', { cache: 'no-store' });
-    if (!res.ok) return null;
-    const j = await res.json();
-    return typeof j?.discountUsd === 'number' && Number.isFinite(j.discountUsd) ? (j as UralsDiscount) : null;
-  } catch (e) {
-    console.warn('[quotes/urals] не удалось прочитать urals-discount.json:', e);
-    return null;
-  }
+async function fetchUralsMonthly(): Promise<Values> {
+  const res = await fetch('/data/urals-monthly.json', { cache: 'no-store' });
+  if (!res.ok) throw new Error(`/data/urals-monthly.json: ${res.status}`);
+  const v = uralsFromMonthly(await res.json());
+  if (!v) throw new Error('urals-monthly.json: неверный формат (нужно число price)');
+  return { URALS: v };
 }
 
 // Склеивает результаты источников с прошлыми значениями; чистая функция (тестируется отдельно)
-export function combineValues(prev: Values, results: PromiseSettledResult<Values>[], discount: UralsDiscount | null): Values {
+export function combineValues(prev: Values, results: PromiseSettledResult<Values>[]): Values {
   // 1) свежие значения этого опроса: более поздний источник перекрывает ранний, но только если у него есть цена
   const fresh: Values = {};
   results.forEach((r) => {
@@ -374,12 +359,6 @@ export function combineValues(prev: Values, results: PromiseSettledResult<Values
   // 2) если источник в этот раз ничего не дал — оставляем прошлое значение, а не затираем прочерком
   const next = { ...prev };
   Object.entries(fresh).forEach(([id, v]) => { if (v.price !== null || !next[id]) next[id] = v; });
-  // 3) Urals: настоящего контракта с ценой нет — считаем оценку от Brent
-  const urals = next.URALS;
-  if (!urals || urals.price === null || urals.estimate) {
-    const est = estimateUrals(next.BRENT, discount);
-    if (est) next.URALS = est;
-  }
   return next;
 }
 
@@ -392,20 +371,16 @@ export function useQuotes() {
   const [values, setValues] = useState<Values>({});
   const [isLoading, setIsLoading] = useState(true);
   const mounted = useRef(true);
-  const discountRef = useRef<UralsDiscount | null>(null);
 
   useEffect(() => {
     mounted.current = true;
     async function refresh() {
-      // ЦБ первым: биржевые значения ниже перекрывают его, если у них есть цена
-      // Сайт InvestFuture последним: его значения перекрывают остальные, если у них есть цена
-      const sources = [fetchCbr, fetchFx, fetchMetals, fetchIndex, fetchFutures, fetchCrypto, fetchInvestfuture];
-      const discountPromise = discountRef.current ? Promise.resolve(discountRef.current) : fetchUralsDiscount();
+      // ЦБ первым: биржевые значения ниже перекрывают его; сайт InvestFuture последним: его цены перекрывают остальные
+      const sources = [fetchCbr, fetchFx, fetchMetals, fetchIndex, fetchFutures, fetchCrypto, fetchUralsMonthly, fetchInvestfuture];
       const results = await Promise.allSettled(sources.map((f) => f()));
-      discountRef.current = await discountPromise;
       results.forEach((r, i) => { if (r.status === 'rejected') console.error(`[quotes] источник ${sources[i].name} упал:`, r.reason); });
       if (!mounted.current) return;
-      setValues((prev) => combineValues(prev, results, discountRef.current));
+      setValues((prev) => combineValues(prev, results));
       setIsLoading(false);
     }
     refresh();

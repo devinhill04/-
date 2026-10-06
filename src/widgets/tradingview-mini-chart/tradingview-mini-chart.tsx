@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { openPostLink } from '../../shared/lib/open-telegram-link';
 import { triggerHaptic } from '../../lib/telegram';
+import { AnalyticsService } from '../../shared/analytics/analytics';
 
 interface Props {
   symbol: string | null; // null — символа для этого инструмента нет вообще, график не пытаемся встроить
@@ -51,7 +52,11 @@ export const TradingViewMiniChart: React.FC<Props> = ({ symbol, label, fallbackU
 
   const fallbackLink = fallbackUrl && (
     <button
-      onClick={() => { triggerHaptic('light'); openPostLink(fallbackUrl, label); }}
+      onClick={() => {
+        triggerHaptic('light');
+        AnalyticsService.track('market_chart_link', { label, url: fallbackUrl });
+        openPostLink(fallbackUrl, label, { silent: true });
+      }}
       className="w-full flex items-center justify-center gap-1.5 py-2 text-[#5737FA] text-[13px] font-medium active:opacity-70"
     >
       График на investfuture.ru

@@ -7,6 +7,8 @@ import { StocksTabs } from '../stocks-lists/stocks-lists';
 import { useQuotes } from '../../entities/quotes/model/use-quotes';
 import { useMoexHeatmap } from '../../entities/moex/model/use-moex-heatmap';
 import { MoexStock } from '../../entities/moex/model/types';
+import { Quote } from '../../entities/quotes/model/types';
+import { AnalyticsService } from '../../shared/analytics/analytics';
 
 const Title: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <h2
@@ -26,18 +28,26 @@ export const MarketScreen: React.FC = () => {
   // Данные акций грузим один раз на всю вкладку: карта и список под ней используют один и тот же ответ биржи
   const heat = useMoexHeatmap();
   const [popup, setPopup] = useState<PopupData>(null);
-  const openStock = (stock: MoexStock) => setPopup({ kind: 'stock', stock });
+  // Один и тот же результат («открыли карточку инструмента») с разных мест: source показывает, откуда нажали
+  const openQuote = (quote: Quote) => {
+    AnalyticsService.track('market_quote_click', { kind: 'quote', id: quote.id, source: 'quotes_list' });
+    setPopup({ kind: 'quote', quote });
+  };
+  const openStock = (stock: MoexStock, source: 'heatmap' | 'stocks_list') => {
+    AnalyticsService.track('market_quote_click', { kind: 'stock', id: stock.secid, source });
+    setPopup({ kind: 'stock', stock });
+  };
 
   return (
     <div className="w-full max-w-[390px] mx-auto flex flex-col gap-5 px-3 pt-3 pb-6">
       <section>
         <Title>Котировки</Title>
-        <QuotesList main={main} extra={extra} onSelect={(quote) => setPopup({ kind: 'quote', quote })} />
+        <QuotesList main={main} extra={extra} onSelect={openQuote} />
       </section>
 
       <section>
         <Title>Тепловая карта</Title>
-        <MoexHeatmap {...heat} onSelectStock={openStock} />
+        <MoexHeatmap {...heat} onSelectStock={(s) => openStock(s, 'heatmap')} />
       </section>
 
       <section>
@@ -46,7 +56,7 @@ export const MarketScreen: React.FC = () => {
         ) : heat.error || heat.stocks.length === 0 ? (
           <Note>Не удалось загрузить котировки акций</Note>
         ) : (
-          <StocksTabs stocks={heat.stocks} onSelect={openStock} />
+          <StocksTabs stocks={heat.stocks} onSelect={(s) => openStock(s, 'stocks_list')} />
         )}
       </section>
 

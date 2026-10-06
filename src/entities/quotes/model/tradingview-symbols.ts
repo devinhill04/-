@@ -12,7 +12,7 @@ export const QUOTE_TV_SYMBOLS: Record<string, string> = {
   SILVER: 'MOEX:SLVRUB_TOM',
   BTC: 'BINANCE:BTCUSDT',
   ETH: 'BINANCE:ETHUSDT',
-  // URALS сознательно не указан — его физически нет ни на одной бирже (см. urals-discount.json),
+  // URALS сознательно не указан — его физически нет ни на одной бирже (цену берём из public/data/urals-monthly.json),
   // значит и у TradingView символа для него нет. Виджет туда не встраиваем — сразу уходим на запасную ссылку.
 };
 

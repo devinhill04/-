@@ -1,9 +1,11 @@
 import { triggerHaptic, getTelegramWebApp, isTelegramEnvironment } from '../../lib/telegram';
 import { track } from './analytics';
 
-export function openPostLink(url: string, title?: string) {
+// silent: true — не считать переход как открытие поста. Для новостей и графиков на вкладке «Рынок» у нас свои события,
+// иначе они попадали бы в post_open и искажали воронки «тег → пост».
+export function openPostLink(url: string, title?: string, opts?: { silent?: boolean }) {
   triggerHaptic('medium');
-  track('post_open', { url, title });
+  if (!opts?.silent) track('post_open', { url, title });
 
   // 1. Inside Telegram Mini App client
   if (isTelegramEnvironment()) {

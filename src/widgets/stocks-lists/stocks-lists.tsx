@@ -3,6 +3,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { MoexStock } from '../../entities/moex/model/types';
 import { formatBigRub, formatNumber, formatPercent } from '../../shared/lib/format';
 import { triggerHaptic } from '../../lib/telegram';
+import { AnalyticsService } from '../../shared/analytics/analytics';
 
 // ---------- Отбор данных (чистые функции) ----------
 
@@ -94,7 +95,11 @@ export const StocksTabs: React.FC<ListProps> = ({ stocks, onSelect }) => {
 
   const tabBtn = (id: Tab, label: string) => (
     <button
-      onClick={() => { triggerHaptic('light'); setTab(id); }}
+      onClick={() => {
+        triggerHaptic('light');
+        if (id !== tab) AnalyticsService.track('market_stocks_tab', { tab: id });
+        setTab(id);
+      }}
       style={{ borderRadius: '8px', height: '36px' }}
       className={`flex-1 text-[13px] font-medium transition-colors ${
         tab === id ? 'bg-[#161616] text-white dark:bg-white dark:text-[#161616]' : 'text-[#161616] dark:text-neutral-300'

@@ -3,6 +3,7 @@ import { useNews } from '../../entities/news/model/use-news';
 import { formatNewsDate } from '../../shared/lib/format';
 import { openPostLink } from '../../shared/lib/open-telegram-link';
 import { triggerHaptic } from '../../lib/telegram';
+import { AnalyticsService } from '../../shared/analytics/analytics';
 
 const NEWS_CHANNEL_URL = 'https://t.me/if_market_news';
 
@@ -21,7 +22,11 @@ export const NewsBlock: React.FC = () => {
       {items.map((n) => (
         <button
           key={n.id}
-          onClick={() => { triggerHaptic('light'); openPostLink(n.url, 'IF News'); }}
+          onClick={() => {
+            triggerHaptic('light');
+            AnalyticsService.track('market_news_click', { url: n.url });
+            openPostLink(n.url, 'IF News', { silent: true });
+          }}
           style={{ borderRadius: '12px' }}
           className="w-full text-left p-3 bg-[#F9F9F9] dark:bg-neutral-800/80 active:opacity-70 transition-opacity"
         >
@@ -31,7 +36,11 @@ export const NewsBlock: React.FC = () => {
       ))}
 
       <button
-        onClick={() => { triggerHaptic('light'); openPostLink(NEWS_CHANNEL_URL, 'IF News'); }}
+        onClick={() => {
+          triggerHaptic('light');
+          AnalyticsService.track('market_news_all');
+          openPostLink(NEWS_CHANNEL_URL, 'IF News', { silent: true });
+        }}
         style={{ borderRadius: '8px' }}
         className="w-full h-10 flex items-center justify-center text-[14px] font-medium bg-[#161616] text-white dark:bg-white dark:text-[#161616] active:opacity-80 transition-opacity"
       >

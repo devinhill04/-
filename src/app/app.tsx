@@ -4,6 +4,7 @@ import { HomePage } from '../pages/home/home-page';
 import { MarketScreen } from '../widgets/market-screen/market-screen';
 import { initTelegramTheme } from '../shared/theme/init-telegram';
 import { triggerHaptic } from '../lib/telegram';
+import { AnalyticsService } from '../shared/analytics/analytics';
 import { CatalogApp } from '../widgets/catalog-app/catalog-app';
 import { MiniAppsProvider } from '../shared/lib/mini-app-context';
 import { MINI_APPS, loadCurrentAppId, saveCurrentAppId } from '../shared/config/mini-apps';
@@ -71,6 +72,7 @@ export const App: React.FC = () => {
           <button
             onClick={() => {
               triggerHaptic('light');
+              if (activeSection !== 'market') AnalyticsService.track('market_open');
               setActiveSection('market');
             }}
             className="flex-1 flex flex-col items-center justify-center gap-1 py-2.5"
