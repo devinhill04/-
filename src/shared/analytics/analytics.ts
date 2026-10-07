@@ -106,7 +106,8 @@ class AnalyticsServiceImpl {
   public initSession() {
     this.sessionStart = Date.now();
     this.track('app_init');
-    this.track('session_start', { timestamp: this.sessionStart });
+    // Время старта у события уже есть (record.timestamp), а как параметр в Метрике оно создавало новую ветку на каждый визит
+    this.track('session_start');
   }
 
   public track(
