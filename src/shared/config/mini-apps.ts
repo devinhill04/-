@@ -9,6 +9,8 @@ export interface MiniApp {
   // 'catalog' — карточки «Готовых решений» из JSON (contentUrl)
   kind: 'main' | 'catalog';
   contentUrl?: string;
+  // С какой вкладки открывается приложение. У «Работа не рабство» теги пока пусты, поэтому открываем сразу «Готовые решения»
+  defaultTab?: 'catalog' | 'solutions';
   gridTitle?: string; // заголовок над карточками, по умолчанию «Навигатор по вашим задачам»
   gridSubtitle?: string;
 }
@@ -30,6 +32,7 @@ export const MINI_APPS: MiniApp[] = [
     iconSrc: '/figma_assets/fill_57395bbcb316c014e24a2ed38a60c9d5f8ebe118.png',
     kind: 'catalog',
     contentUrl: '/data/apps/jobs.json',
+    defaultTab: 'solutions',
   },
 ];
 

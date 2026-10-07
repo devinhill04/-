@@ -128,7 +128,7 @@ export const HomePage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#111111] text-[#161616] dark:text-neutral-100 flex flex-col font-['Manrope',sans-serif] selection:bg-[#5737FA] selection:text-white transition-colors duration-200">
+    <div className="min-h-screen bg-white dark:bg-[#111111] text-[#161616] dark:text-neutral-100 flex flex-col font-['Manrope',sans-serif] selection:bg-[var(--accent)] selection:text-white transition-colors duration-200">
       
       {/* 1. Header (Figma 1:1) */}
       <FigmaHeader
@@ -205,7 +205,7 @@ export const HomePage: React.FC = () => {
                     className="text-[#161616] dark:text-white flex flex-col text-left"
                   >
                     <span>Результаты поиска по тегу</span>
-                    <span className="text-[#5737FA]">{selectedTag}</span>
+                    <span className="text-[var(--accent)]">{selectedTag}</span>
                   </h3>
 
                   {/* Posts List */}

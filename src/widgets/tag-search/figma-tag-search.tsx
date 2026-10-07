@@ -63,7 +63,7 @@ export const FigmaTagSearch: React.FC<FigmaTagSearchProps> = ({
               }}
               className={`inline-flex items-center justify-center transition-all cursor-pointer select-none active:scale-95 ${
                 isSelected
-                  ? 'bg-[#5737FA] text-white shadow-xs'
+                  ? 'bg-[var(--accent)] text-white shadow-xs'
                   : 'bg-[#F9F9F9] text-[#161616] dark:bg-neutral-800 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700'
               }`}
             >
