@@ -10,22 +10,31 @@ interface Props {
   onSelect: (c: AppCategory) => void;
 }
 
+// Перенос строки, как в основном приложении, задаётся символом \n в тексте: «Навигатор по вашим\nзадачам»
+const lines = (t: string) =>
+  t.split('\n').map((l, i, arr) => (
+    <React.Fragment key={i}>
+      {l}
+      {i < arr.length - 1 && <br />}
+    </React.Fragment>
+  ));
+
 // Карточки «Готовых решений»: белые, акцент — цвет приложения (--accent). Если карточек нечётное число,
 // последняя растягивается на всю ширину, чтобы внизу не оставалось «дырки».
 export const CategoryGrid: React.FC<Props> = ({ title, subtitle, categories, onSelect }) => (
-  <div className="w-full max-w-[390px] mx-auto px-3 py-3 flex flex-col gap-6 select-none">
+  <div className="w-full px-3 py-3 flex flex-col gap-6 select-none">
     <div className="flex flex-col gap-2 items-center text-center">
       <h2
         style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 600, fontSize: '24px', lineHeight: '30px' }}
         className="text-[#161616] dark:text-white"
       >
-        {title}
+        {lines(title)}
       </h2>
       <p
         style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 500, fontSize: '14px', lineHeight: '18px' }}
         className="text-[#161616]/80 dark:text-neutral-300"
       >
-        {subtitle}
+        {lines(subtitle)}
       </p>
     </div>
 
