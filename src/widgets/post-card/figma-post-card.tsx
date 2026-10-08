@@ -1,7 +1,7 @@
 import React from 'react';
 import { ExternalLink } from 'lucide-react';
 import { Post } from '../../entities/post/model/types';
-import { openPostLink } from '../../shared/lib/open-telegram-link';
+import { usePostReader } from '../../shared/lib/post-reader-context';
 import { triggerHaptic } from '../../lib/telegram';
 
 interface FigmaPostCardProps {
@@ -12,9 +12,10 @@ interface FigmaPostCardProps {
 }
 
 export const FigmaPostCard: React.FC<FigmaPostCardProps> = ({ post, onTagClick, showTags = true, showDate = false } ) => {
+  const { openPost } = usePostReader();
   const handleClick = () => {
     triggerHaptic('light');
-    openPostLink(post.url, post.title);
+    openPost(post.url, post.title); // читается внутри приложения; закрытые каналы и чужие сайты откроются в Telegram
   };
 
   return (

@@ -55,7 +55,10 @@ export type AnalyticsEventType =
   | 'calendar_bonds_filter'
   | 'calendar_bonds_more'
   | 'calendar_bond_click'
-  | 'calendar_site_link';
+  | 'calendar_site_link'
+  // Читалка постов внутри мини-аппа
+  | 'post_reader_telegram'
+  | 'post_reader_timeout';
 
 export interface AnalyticsPayload {
   [key: string]: any;

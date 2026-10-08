@@ -2,6 +2,7 @@ import React from 'react';
 import { useNews } from '../../entities/news/model/use-news';
 import { formatNewsDate } from '../../shared/lib/format';
 import { openPostLink } from '../../shared/lib/open-telegram-link';
+import { usePostReader } from '../../shared/lib/post-reader-context';
 import { triggerHaptic } from '../../lib/telegram';
 import { AnalyticsService } from '../../shared/analytics/analytics';
 
@@ -9,6 +10,7 @@ const NEWS_CHANNEL_URL = 'https://t.me/if_market_news';
 
 export const NewsBlock: React.FC = () => {
   const { items, isLoading, error } = useNews();
+  const { openPost } = usePostReader();
 
   return (
     <div className="w-full flex flex-col gap-2">
@@ -25,7 +27,7 @@ export const NewsBlock: React.FC = () => {
           onClick={() => {
             triggerHaptic('light');
             AnalyticsService.track('market_news_click', { url: n.url });
-            openPostLink(n.url, 'IF News', { silent: true });
+            openPost(n.url, 'IF News', { silent: true }); // новость читается внутри приложения
           }}
           style={{ borderRadius: '12px' }}
           className="w-full text-left p-3 bg-[#F9F9F9] dark:bg-neutral-800/80 active:opacity-70 transition-opacity"

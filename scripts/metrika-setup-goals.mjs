@@ -37,6 +37,9 @@ export const GOALS = [
   ['calendar_bonds_more', 'Календари: «Показать ещё» у облигаций'],
   ['calendar_bond_click', 'Календари: открыли облигацию на сайте'],
   ['calendar_site_link', 'Календари: «Календарь на investfuture.ru»'],
+  // Читалка постов внутри мини-аппа
+  ['post_reader_telegram', 'Читалка: нажали «Открыть в Telegram»'],
+  ['post_reader_timeout', 'Читалка: пост не загрузился за 7 секунд'],
   // Меню приложений в шапке
   ['app_switcher_open', 'Меню приложений: открыли'],
   ['app_switcher_select', 'Меню приложений: выбрали приложение'],
