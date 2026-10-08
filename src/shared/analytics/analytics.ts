@@ -47,7 +47,15 @@ export type AnalyticsEventType =
   | 'market_stocks_tab'
   | 'market_chart_link'
   | 'market_news_click'
-  | 'market_news_all';
+  | 'market_news_all'
+  | 'market_ticker_copy'
+  // Вкладка «Календари»
+  | 'calendar_open'
+  | 'calendar_tab'
+  | 'calendar_bonds_filter'
+  | 'calendar_bonds_more'
+  | 'calendar_bond_click'
+  | 'calendar_site_link';
 
 export interface AnalyticsPayload {
   [key: string]: any;

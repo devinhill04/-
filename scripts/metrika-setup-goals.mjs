@@ -29,6 +29,14 @@ export const GOALS = [
   ['market_chart_link', 'Рынок: переход на график InvestFuture'],
   ['market_news_click', 'Рынок: клик по новости'],
   ['market_news_all', 'Рынок: «Все новости»'],
+  ['market_ticker_copy', 'Рынок: скопировали тикер'],
+  // Вкладка «Календари»
+  ['calendar_open', 'Календари: открыли вкладку'],
+  ['calendar_tab', 'Календари: переключили (облигации / ключевая ставка)'],
+  ['calendar_bonds_filter', 'Календари: фильтр календаря облигаций'],
+  ['calendar_bonds_more', 'Календари: «Показать ещё» у облигаций'],
+  ['calendar_bond_click', 'Календари: открыли облигацию на сайте'],
+  ['calendar_site_link', 'Календари: «Календарь на investfuture.ru»'],
   // Меню приложений в шапке
   ['app_switcher_open', 'Меню приложений: открыли'],
   ['app_switcher_select', 'Меню приложений: выбрали приложение'],

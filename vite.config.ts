@@ -22,6 +22,17 @@ export default defineConfig(() => {
       // (в проде то же самое делает nginx, см. Dockerfile)
       proxy: {
         // Страница котировок InvestFuture: в блоке «Популярные» внизу — цены всех шести котировок
+        // Календари InvestFuture: фильтры (?from=&to=&type=&page=) передаются как есть
+        '/api/if-calendar/bonds': {
+          target: 'https://investfuture.ru',
+          changeOrigin: true,
+          rewrite: (path: string) => path.replace('/api/if-calendar/bonds', '/calendar/bonds'),
+        },
+        '/api/if-calendar/key-rate': {
+          target: 'https://investfuture.ru',
+          changeOrigin: true,
+          rewrite: () => '/calendar/key-rate',
+        },
         '/api/if-quotes': {
           target: 'https://investfuture.ru',
           changeOrigin: true,

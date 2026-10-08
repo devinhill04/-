@@ -27,6 +27,34 @@ RUN apk add --no-cache wget curl \
   '  root /usr/share/nginx/html;' \
   '  index index.html;' \
   '  location /healthz { access_log off; return 200 "healthy\n"; add_header Content-Type text/plain; }' \
+  '  location = /api/if-calendar/bonds {' \
+  '    resolver 1.1.1.1 8.8.8.8 valid=300s ipv6=off;' \
+  '    set $if_cal_bonds "https://investfuture.ru/calendar/bonds$is_args$args";' \
+  '    proxy_pass $if_cal_bonds;' \
+  '    proxy_ssl_server_name on;' \
+  '    proxy_set_header Host investfuture.ru;' \
+  '    proxy_set_header User-Agent "Mozilla/5.0 (compatible; IFMiniApp)";' \
+  '    proxy_set_header Accept-Encoding "";' \
+  '    proxy_connect_timeout 5s;' \
+  '    proxy_read_timeout 10s;' \
+  '    proxy_hide_header Set-Cookie;' \
+  '    proxy_hide_header Cache-Control;' \
+  '    add_header Cache-Control "public, max-age=300";' \
+  '  }' \
+  '  location = /api/if-calendar/key-rate {' \
+  '    resolver 1.1.1.1 8.8.8.8 valid=300s ipv6=off;' \
+  '    set $if_cal_kr "https://investfuture.ru/calendar/key-rate";' \
+  '    proxy_pass $if_cal_kr;' \
+  '    proxy_ssl_server_name on;' \
+  '    proxy_set_header Host investfuture.ru;' \
+  '    proxy_set_header User-Agent "Mozilla/5.0 (compatible; IFMiniApp)";' \
+  '    proxy_set_header Accept-Encoding "";' \
+  '    proxy_connect_timeout 5s;' \
+  '    proxy_read_timeout 10s;' \
+  '    proxy_hide_header Set-Cookie;' \
+  '    proxy_hide_header Cache-Control;' \
+  '    add_header Cache-Control "public, max-age=300";' \
+  '  }' \
   '  location = /api/if-quotes {' \
   '    resolver 1.1.1.1 8.8.8.8 valid=300s ipv6=off;' \
   '    set $if_quotes_upstream "https://investfuture.ru/quotes/currency-cb-usd";' \
