@@ -30,3 +30,19 @@ export function parseEmbedMessage(data: unknown): { height?: number } | null {
     return null;
   }
 }
+
+// Имя события из сообщения встроенного просмотра: resize, ready, visible_off ...
+export function embedEventName(data: unknown): string | null {
+  if (typeof data !== 'string') return null;
+  try {
+    const d = JSON.parse(data);
+    return d && typeof d.event === 'string' ? d.event : null;
+  } catch {
+    return null;
+  }
+}
+
+// Идентификатор рамки так же, как его строит официальный скрипт Telegram: telegram-post-<канал>-<номер>
+export function embedFrameId(post: TelegramPostRef): string {
+  return `telegram-post-${`${post.channel}/${post.id}`.replace(/[^a-z0-9_]/gi, '-')}`;
+}

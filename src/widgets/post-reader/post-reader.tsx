@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ExternalLink, X } from 'lucide-react';
-import { TelegramPostRef, embedUrl, parseEmbedMessage } from '../../shared/lib/telegram-post';
+import { embedEventName, embedFrameId, embedUrl, parseEmbedMessage } from '../../shared/lib/telegram-post';
+import type { TelegramPostRef } from '../../shared/lib/telegram-post';
 import { getTelegramWebApp, triggerHaptic } from '../../lib/telegram';
 import { openPostLink } from '../../shared/lib/open-telegram-link';
 import { AnalyticsService } from '../../shared/analytics/analytics';
@@ -30,24 +31,45 @@ function useIsDark() {
 export const PostReader: React.FC<{ post: ReaderPost | null; onClose: () => void }> = ({ post, onClose }) => {
   const frameRef = useRef<HTMLIFrameElement>(null);
   const loadedRef = useRef(false);
+  const visibleStopped = useRef(false); // встроенный просмотр ответил «visible_off»: больше сообщать не нужно
   const [height, setHeight] = useState(START_HEIGHT);
   const [hint, setHint] = useState(false);
   const dark = useIsDark();
   const key = post ? `${post.channel}/${post.id}` : '';
 
+  // Так же, как официальный скрипт Telegram (telegram-widget.js): сообщаем встроенному посту, что он на экране.
+  // По этому сообщению пост засчитывает просмотр — как при чтении на сайте со вставкой. Окно читалки видно целиком,
+  // поэтому сообщение честное. Адресат ограничен t.me, чтобы его не получил посторонний документ.
+  const tell = (event: string, data: Record<string, unknown> = {}) => {
+    try {
+      frameRef.current?.contentWindow?.postMessage(JSON.stringify({ event, ...data }), 'https://t.me');
+    } catch {
+      // рамка уже закрыта — не страшно
+    }
+  };
+  const tellVisible = () => {
+    if (post && !visibleStopped.current) tell('visible', { frame: embedFrameId(post) });
+  };
+
   // Высоту окна поста подгоняем под содержимое: встроенный просмотр сам сообщает её сообщениями «resize»
   useEffect(() => {
     if (!post) return;
     loadedRef.current = false;
+    visibleStopped.current = false;
     setHeight(START_HEIGHT);
     setHint(false);
     const onMessage = (e: MessageEvent) => {
       if (e.source !== frameRef.current?.contentWindow) return; // чужие окна игнорируем
+      const name = embedEventName(e.data);
+      if (name === 'visible_off') { visibleStopped.current = true; return; }
+      if (name === 'ready') { tell('focus', { has_focus: document.hasFocus() }); return; }
       const msg = parseEmbedMessage(e.data);
       if (msg?.height) {
+        const first = !loadedRef.current;
         loadedRef.current = true;
         setHeight(msg.height);
         setHint(false);
+        if (first) tellVisible(); // пост отрисован — теперь он действительно на экране
       }
     };
     window.addEventListener('message', onMessage);
@@ -99,7 +121,9 @@ export const PostReader: React.FC<{ post: ReaderPost | null; onClose: () => void
         <div className="flex-1 overflow-y-auto overscroll-contain px-2 pt-2">
           <iframe
             key={key}
+            id={embedFrameId(post)}
             ref={frameRef}
+            onLoad={tellVisible}
             src={embedUrl(post, dark)}
             title={post.title}
             width="100%"
