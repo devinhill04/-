@@ -15,26 +15,31 @@ export interface MiniApp {
   gridSubtitle?: string;
 }
 
+import { SECOND_APP_ENABLED } from './features';
+
 export const DEFAULT_APP_ID = 'navigation';
 
-export const MINI_APPS: MiniApp[] = [
-  {
-    id: 'navigation',
-    title: 'InvestFuture',
-    subtitle: 'Каталог полезных материалов',
-    iconSrc: '/figma_assets/fill_ad6b082b617a802b8358b6de4c2b025b81969cdc.png',
-    kind: 'main',
-  },
-  {
-    id: 'jobs',
-    title: 'Работа не рабство',
-    subtitle: 'Работа и заработок',
-    iconSrc: '/figma_assets/fill_57395bbcb316c014e24a2ed38a60c9d5f8ebe118.png',
-    kind: 'catalog',
-    contentUrl: '/data/apps/jobs.json',
-    defaultTab: 'solutions',
-  },
-];
+const MAIN_APP: MiniApp = {
+  id: 'navigation',
+  title: 'InvestFuture',
+  subtitle: 'Каталог полезных материалов',
+  iconSrc: '/figma_assets/fill_ad6b082b617a802b8358b6de4c2b025b81969cdc.png',
+  kind: 'main',
+};
+
+const JOBS_APP: MiniApp = {
+  id: 'jobs',
+  title: 'Работа не рабство',
+  subtitle: 'Работа и заработок',
+  iconSrc: '/figma_assets/fill_57395bbcb316c014e24a2ed38a60c9d5f8ebe118.png',
+  kind: 'catalog',
+  contentUrl: '/data/apps/jobs.json',
+  defaultTab: 'solutions',
+};
+
+// Пока SECOND_APP_ENABLED = false, в списке одно приложение: меню в шапке не появляется.
+// Если на устройстве осталось сохранённое «jobs», resolveAppId вернёт основное — белого экрана не будет.
+export const MINI_APPS: MiniApp[] = SECOND_APP_ENABLED ? [MAIN_APP, JOBS_APP] : [MAIN_APP];
 
 // Если в памяти устройства остался id приложения, которого уже нет — возвращаем основное
 export function resolveAppId(id: string | null | undefined, apps: MiniApp[] = MINI_APPS): string {

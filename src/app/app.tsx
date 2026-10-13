@@ -9,15 +9,19 @@ import { AnalyticsService } from '../shared/analytics/analytics';
 import { CatalogApp } from '../widgets/catalog-app/catalog-app';
 import { MiniAppsProvider } from '../shared/lib/mini-app-context';
 import { MINI_APPS, loadCurrentAppId, saveCurrentAppId } from '../shared/config/mini-apps';
+import { CALENDAR_TAB_ENABLED } from '../shared/config/features';
 
 type Section = 'feed' | 'market' | 'calendar';
 
 // Вкладки нижней навигации; event — событие аналитики при открытии вкладки
-const NAV: { id: Section; label: string; Icon: React.ComponentType<{ className?: string }>; event?: 'market_open' | 'calendar_open' }[] = [
+const ALL_NAV: { id: Section; label: string; Icon: React.ComponentType<{ className?: string }>; event?: 'market_open' | 'calendar_open' }[] = [
   { id: 'feed', label: 'Материалы', Icon: LayoutGrid },
   { id: 'market', label: 'Рынок', Icon: TrendingUp, event: 'market_open' },
   { id: 'calendar', label: 'Календари', Icon: CalendarDays, event: 'calendar_open' },
 ];
+
+// Пока CALENDAR_TAB_ENABLED = false, вкладки «Календари» в навигации нет
+const NAV = ALL_NAV.filter((n) => n.id !== 'calendar' || CALENDAR_TAB_ENABLED);
 
 export const App: React.FC = () => {
   const [activeSection, setActiveSection] = useState<Section>('feed');
