@@ -26,7 +26,8 @@ RUN apk add --no-cache wget curl \
   '  server_name _;' \
   '  root /usr/share/nginx/html;' \
   '  index index.html;' \
-  '  location /healthz { access_log off; return 200 "healthy\n"; add_header Content-Type text/plain; }' \
+  '  location = /healthz { access_log off; try_files /index.html =503; }' \
+  '  location = /robots.txt { default_type text/plain; add_header Cache-Control "public, max-age=3600"; try_files /robots.txt =404; }' \
   '  location = /api/if-calendar/bonds {' \
   '    resolver 1.1.1.1 8.8.8.8 valid=300s ipv6=off;' \
   '    set $if_cal_bonds "https://investfuture.ru/calendar/bonds$is_args$args";' \
@@ -89,6 +90,7 @@ RUN apk add --no-cache wget curl \
   '}' \
   > /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/dist /usr/share/nginx/html
+RUN chmod -R a+rX /usr/share/nginx/html
 EXPOSE 80
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD wget --quiet --tries=1 --spider http://localhost/healthz || exit 1
