@@ -13,6 +13,63 @@ services:
       timeout: 3s
       retries: 3
       start_period: 5s
+  telegram-vpn:
+    # Same SSH client and forwarding-only account as if-api; credentials are mounted.
+    image: cr.yandex/crpvhgo33ec1f8rrvb74/api@sha256:c980aeb2153ceca6436c8631832851e117f9ee32ae6aed090c7998bcf5da0dbb
+    restart: unless-stopped
+    network_mode: service:if-navigation-miniapp
+    depends_on:
+      - if-navigation-miniapp
+    user: "10001:10001"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    volumes:
+      - ${TELEGRAM_SSH_DIRECTORY:?Set TELEGRAM_SSH_DIRECTORY to the provisioned SSH directory}:/app/.ssh-proxy:ro
+    entrypoint: [ssh]
+    command:
+      - -F
+      - /dev/null
+      - -NTn
+      - -L
+      - 127.0.0.1:8443:t.me:443
+      - -p
+      - "22"
+      - -l
+      - if-api-proxy
+      - -i
+      - /app/.ssh-proxy/id_ed25519
+      - -o
+      - BatchMode=yes
+      - -o
+      - IdentitiesOnly=yes
+      - -o
+      - IdentityAgent=none
+      - -o
+      - PreferredAuthentications=publickey
+      - -o
+      - StrictHostKeyChecking=yes
+      - -o
+      - UpdateHostKeys=no
+      - -o
+      - UserKnownHostsFile=/app/.ssh-proxy/known_hosts
+      - -o
+      - GlobalKnownHostsFile=/dev/null
+      - -o
+      - ExitOnForwardFailure=yes
+      - -o
+      - ConnectTimeout=10
+      - -o
+      - ConnectionAttempts=1
+      - -o
+      - ServerAliveInterval=10
+      - -o
+      - ServerAliveCountMax=3
+      - -o
+      - ControlMaster=no
+      - -o
+      - ControlPath=none
+      - "178.208.81.28"
 networks:
   if-navigation-miniapp:
     external: true
