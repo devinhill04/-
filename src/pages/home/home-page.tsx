@@ -13,6 +13,7 @@ import { FigmaPainCard, FIGMA_PAIN_CARDS } from '../../shared/config/figma-data'
 import { AnalyticsService } from '../../shared/analytics/analytics';
 import { triggerHaptic } from '../../lib/telegram';
 import { loadLastAppState, saveLastAppState } from '../../shared/lib/last-app-state';
+import { loadTagUsage, orderTags, recordTagClick } from '../../shared/lib/tag-usage';
 
 export const HomePage: React.FC = () => {
   // Восстанавливаем последнее место, где был пользователь (см. src/shared/lib/last-app-state.ts) —
@@ -41,6 +42,10 @@ export const HomePage: React.FC = () => {
 
   const { posts, isLoading } = usePosts();
 
+  // Личная статистика тегов — снимок на старте сессии: список не должен прыгать под пальцем после клика,
+  // новые клики учтутся при следующем открытии приложения
+  const [tagUsage] = useState(() => loadTagUsage());
+
   // Порядок тегов по популярности кликов — подтягивается раз в неделю
   // отдельным заданием в CI из API Яндекс.Метрики (см. scripts/sync-tag-popularity.mjs)
   const [tagPopularity, setTagPopularity] = useState<string[]>([]);
@@ -68,24 +73,10 @@ export const HomePage: React.FC = () => {
         tagsSet.add(t.startsWith('#') ? t : `#${t}`);
       });
     });
-    const tags = Array.from(tagsSet);
-    const PRIORITY_TAG = '#Инвестидея';
-
-    // Индекс тега в списке популярности из Метрики (чем меньше — тем популярнее).
-    // Тег без данных считается наименее приоритетным (в конец, но перед PRIORITY_TAG это не касается).
-    const popularityIndex = (tag: string) => {
-      const clean = tag.replace(/^#/, '');
-      const idx = tagPopularity.indexOf(clean);
-      return idx === -1 ? Infinity : idx;
-    };
-
-    tags.sort((a, b) => {
-      if (a === PRIORITY_TAG) return -1;
-      if (b === PRIORITY_TAG) return 1;
-      return popularityIndex(a) - popularityIndex(b);
-    });
-    return tags;
-  }, [posts, tagPopularity]);
+    // Порядок: #Инвестидея всегда первая, затем до трёх тегов, которые человек сам открывает чаще всего,
+    // затем остальные по общей популярности (из Метрики, когда она подключена), затем как в данных.
+    return orderTags(Array.from(tagsSet), { priorityTag: '#Инвестидея', globalOrder: tagPopularity, usage: tagUsage });
+  }, [posts, tagPopularity, tagUsage]);
 
   // Filter posts by active selected tag
   const filteredPosts = useMemo(() => {
@@ -119,6 +110,7 @@ export const HomePage: React.FC = () => {
   const handleSelectTag = (tag: string) => {
     setSelectedTag(tag);
     setPostsLimit(10);
+    recordTagClick(tag);
     AnalyticsService.track('tag_click', { tag });
   };
 
