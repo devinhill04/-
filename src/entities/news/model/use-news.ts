@@ -52,9 +52,14 @@ export function useNews() {
     async function load() {
       try {
         const res = await fetch(NEWS_ENDPOINT);
-        if (!res.ok) throw new Error(String(res.status));
-        const parsed = parseNews(await res.text());
-        if (parsed.length === 0) throw new Error('не удалось разобрать страницу канала');
+        const body = await res.text().catch(() => '');
+        // Причину пишем в сообщение об ошибке — она видна в консоли (F12): сервер не достучался до t.me (502/504),
+        // прокси нет (404), либо страница пришла, но постов в ней нет (превью канала отключено или другая вёрстка)
+        if (!res.ok) throw new Error(`HTTP ${res.status} от ${NEWS_ENDPOINT} (прокси не достучался до t.me или его нет на сервере)`);
+        const parsed = parseNews(body);
+        if (parsed.length === 0) {
+          throw new Error(`страница канала получена (${body.length} байт), но постов в ней нет. Начало ответа: «${body.replace(/\s+/g, ' ').slice(0, 160)}»`);
+        }
         if (!alive) return;
         setItems(parsed);
         setError(false);

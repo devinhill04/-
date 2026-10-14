@@ -50,6 +50,7 @@ export const QuotePopup: React.FC<{ data: PopupData; onClose: () => void }> = ({
   let price = '—';
   let change: number | null = null;
   let rows: { label: string; value: string }[] = [];
+  let source = '';
   let tvSymbol: string | null = null;
   let chartLabel = '';
   let fallbackUrl: string | null = null;
@@ -60,7 +61,7 @@ export const QuotePopup: React.FC<{ data: PopupData; onClose: () => void }> = ({
     subtitle = q.ticker;
     price = q.price !== null ? `${formatNumber(q.price, q.decimals)} ${q.unit}` : '—';
     change = q.changePercent;
-    rows = [{ label: 'Источник', value: q.source }];
+    source = q.source;
     tvSymbol = tvSymbolForQuote(q.id);
     chartLabel = q.title;
     fallbackUrl = investfutureUrlForQuote(q.id);
@@ -73,8 +74,8 @@ export const QuotePopup: React.FC<{ data: PopupData; onClose: () => void }> = ({
     rows = [
       { label: 'Капитализация', value: formatBigRub(s.marketCap) },
       { label: 'Оборот за день', value: formatBigRub(s.tradingValue) },
-      { label: 'Источник', value: 'Мосбиржа' },
     ];
+    source = 'Мосбиржа';
     tvSymbol = tvSymbolForStock(s.secid);
     chartLabel = s.shortname;
     fallbackUrl = investfutureUrlForStock(s.secid);
@@ -110,9 +111,16 @@ export const QuotePopup: React.FC<{ data: PopupData; onClose: () => void }> = ({
           <TradingViewMiniChart key={tvSymbol ?? chartLabel} symbol={tvSymbol} label={chartLabel} fallbackUrl={fallbackUrl} isDark={isDark} />
         </div>
 
-        <div className="mt-1 divide-y divide-black/5 dark:divide-white/10">
-          {rows.map((r) => <Row key={r.label} label={r.label} value={r.value} />)}
-        </div>
+        {rows.length > 0 && (
+          <div className="mt-1 divide-y divide-black/5 dark:divide-white/10">
+            {rows.map((r) => <Row key={r.label} label={r.label} value={r.value} />)}
+          </div>
+        )}
+
+        {/* Источник данных — внизу по центру, мелким серым шрифтом */}
+        {source && (
+          <p className="mt-4 text-center text-[11px] leading-[14px] text-[#7D7C82] dark:text-neutral-500">Источник: {source}</p>
+        )}
       </div>
     </div>
   );
