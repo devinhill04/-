@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { reportMarketError } from '../../../shared/analytics/market-errors';
 
 export interface NewsItem {
   id: string;
@@ -66,6 +67,7 @@ export function useNews() {
         try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), items: parsed })); } catch { /* не критично */ }
       } catch (e) {
         console.error('[news] не удалось загрузить новости:', e);
+        reportMarketError('news');
         if (alive && items.length === 0) setError(true);
       } finally {
         if (alive) setIsLoading(false);

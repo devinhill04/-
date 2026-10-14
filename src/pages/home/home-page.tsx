@@ -134,6 +134,7 @@ export const HomePage: React.FC = () => {
       <FigmaHeader
         activeScreen={activeTab}
         onSelectScreen={(screen) => {
+          if (screen !== activeTab) AnalyticsService.track('screen_view', { screen: screen === 'catalog' ? 'tags' : 'solutions' });
           setActiveTab(screen);
           setActivePain(null);
           setIsEcosystemOpen(false);

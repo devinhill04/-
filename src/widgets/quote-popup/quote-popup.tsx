@@ -117,9 +117,9 @@ export const QuotePopup: React.FC<{ data: PopupData; onClose: () => void }> = ({
           </div>
         )}
 
-        {/* Источник данных — внизу по центру, мелким серым шрифтом */}
+        {/* Источник данных — внизу окна, слева, мелким серым шрифтом. Одно место на все окна: и акций (карта, списки), и котировок */}
         {source && (
-          <p className="mt-4 text-center text-[11px] leading-[14px] text-[#7D7C82] dark:text-neutral-500">Источник: {source}</p>
+          <p className="mt-4 text-left text-[11px] leading-[14px] text-[#7D7C82] dark:text-neutral-500">Источник: {source}</p>
         )}
       </div>
     </div>

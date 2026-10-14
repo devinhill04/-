@@ -68,7 +68,7 @@ export const CatalogApp: React.FC<{ app: MiniApp }> = ({ app }) => {
           <FigmaEcosystemScreen onBack={() => setEco(false)} />
         ) : active ? (
           <FigmaPainDetailScreen
-            pain={{ title: active.title }}
+            pain={{ title: active.title, slug: active.slug }}
             intro={active.pain ?? undefined}
             posts={posts}
             onBack={() => setSlug(null)}

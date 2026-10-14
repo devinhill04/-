@@ -3,6 +3,7 @@ import { ArrowLeft } from 'lucide-react';
 import { FIGMA_ECOSYSTEM } from '../../shared/config/figma-data';
 import { openPostLink } from '../../shared/lib/open-telegram-link';
 import { triggerHaptic } from '../../lib/telegram';
+import { AnalyticsService } from '../../shared/analytics/analytics';
 
 interface FigmaEcosystemScreenProps {
   onBack: () => void;
@@ -47,7 +48,9 @@ export const FigmaEcosystemScreen: React.FC<FigmaEcosystemScreenProps> = ({ onBa
                 key={channel.id}
                 onClick={() => {
                   triggerHaptic('light');
-                  openPostLink(siteLink.url, channel.title);
+                  // Своё событие вместо post_open: переход на канал или сайт — не открытие поста
+                  AnalyticsService.track('external_channel_click', { name: channel.title, url: siteLink.url, platform: siteLink.label });
+                  openPostLink(siteLink.url, channel.title, { silent: true });
                 }}
                 style={{
                   borderRadius: '12px',
@@ -145,7 +148,8 @@ export const FigmaEcosystemScreen: React.FC<FigmaEcosystemScreenProps> = ({ onBa
                     key={link.label}
                     onClick={() => {
                       triggerHaptic('light');
-                      openPostLink(link.url, `${channel.title} (${link.label})`);
+                      AnalyticsService.track('external_channel_click', { name: channel.title, url: link.url, platform: link.label });
+                      openPostLink(link.url, `${channel.title} (${link.label})`, { silent: true });
                     }}
                     style={{
                       borderRadius: '4px',

@@ -71,6 +71,7 @@ export const App: React.FC = () => {
                 onClick={() => {
                   triggerHaptic('light');
                   if (!active && event) AnalyticsService.track(event);
+                  if (!active && id === 'feed') AnalyticsService.track('screen_view', { screen: 'feed' }); // вернулись на «Материалы»
                   setActiveSection(id);
                 }}
                 className="flex-1 flex flex-col items-center justify-center gap-1 py-2.5"

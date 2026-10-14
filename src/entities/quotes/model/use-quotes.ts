@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Quote } from './types';
+import { reportMarketError } from '../../../shared/analytics/market-errors';
 
 const ISS = 'https://iss.moex.com/iss';
 const REFRESH_MS = 60_000;
@@ -377,8 +378,14 @@ export function useQuotes() {
     async function refresh() {
       // ЦБ первым: биржевые значения ниже перекрывают его; сайт InvestFuture последним: его цены перекрывают остальные
       const sources = [fetchCbr, fetchFx, fetchMetals, fetchIndex, fetchFutures, fetchCrypto, fetchUralsMonthly, fetchInvestfuture];
+      // Подписи в том же порядке: в боевой сборке имена функций сокращаются, по ним источник не опознать
+      const SOURCE_LABELS = ['cbr', 'fx', 'metals', 'index', 'futures', 'crypto', 'urals', 'site'];
       const results = await Promise.allSettled(sources.map((f) => f()));
-      results.forEach((r, i) => { if (r.status === 'rejected') console.error(`[quotes] источник ${sources[i].name} упал:`, r.reason); });
+      results.forEach((r, i) => {
+        if (r.status !== 'rejected') return;
+        console.error(`[quotes] источник ${SOURCE_LABELS[i]} упал:`, r.reason);
+        reportMarketError(SOURCE_LABELS[i]);
+      });
       if (!mounted.current) return;
       setValues((prev) => combineValues(prev, results));
       setIsLoading(false);

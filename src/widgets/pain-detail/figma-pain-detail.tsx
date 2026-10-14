@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { FigmaPainCard } from '../../shared/config/figma-data';
 import { FigmaPostCard } from '../post-card/figma-post-card';
+import { AnalyticsService } from '../../shared/analytics/analytics';
 import { Post } from '../../entities/post/model/types';
 import { triggerHaptic } from '../../lib/telegram';
 
 interface FigmaPainDetailScreenProps {
-  pain: Pick<FigmaPainCard, 'title' | 'detailTitle'>;
+  pain: Pick<FigmaPainCard, 'title' | 'detailTitle'> & { slug?: string };
   intro?: string; // цитата-«боль» под заголовком (есть у приложений из Excel)
   posts: Post[];
   onBack: () => void;
@@ -80,6 +81,7 @@ export const FigmaPainDetailScreen: React.FC<FigmaPainDetailScreenProps> = ({
                 post={post}
                 onTagClick={onSelectTag}
                 showTags={false}
+                onOpen={(p) => AnalyticsService.track('pain_solution_open', { painSlug: pain.slug ?? pain.title, url: p.url })}
               />
             ))}
 

@@ -3,6 +3,9 @@
  * Заводит в Яндекс.Метрике цели типа «JavaScript-событие» под все события мини-аппа.
  * Уже существующие цели (по идентификатору) пропускаются — запускать повторно безопасно.
  *
+ * По умолчанию создаются цели ТОЛЬКО для того, что сейчас есть в приложении. Цели для замороженных функций
+ * (календари, читалка постов, меню приложений) создаются с флагом --with-frozen, когда их разморозят.
+ *
  * Токен: переменная METRIKA_OAUTH_TOKEN — OAuth-токен с правом metrika:write (не read-only!).
  * Счётчик: METRIKA_COUNTER_ID (по умолчанию 112456720).
  *
@@ -18,45 +21,44 @@ const COUNTER_ID = process.env.METRIKA_COUNTER_ID || '112456720';
 const API = (process.env.METRIKA_API_BASE || 'https://api-metrika.yandex.net').replace(/\/$/, '');
 const TOKEN = process.env.METRIKA_OAUTH_TOKEN;
 const DRY = process.argv.includes('--dry-run');
+const WITH_FROZEN = process.argv.includes('--with-frozen');
 
 // Идентификатор события = первый аргумент track() в коде = значение в ym(..., 'reachGoal', <идентификатор>)
 export const GOALS = [
-  // Вкладка «Рынок»
+  // ---- Вкладка «Рынок» ----
   ['market_open', 'Рынок: открыли вкладку'],
   ['market_quote_click', 'Рынок: клик по котировке или акции'],
   ['market_quotes_expand', 'Рынок: «Показать ещё» у котировок'],
   ['market_stocks_tab', 'Рынок: вкладка акций (рост / падение / по обороту)'],
+  ['market_stocks_expand', 'Рынок: «Показать ещё» в списке по обороту'],
   ['market_chart_link', 'Рынок: переход на график InvestFuture'],
   ['market_news_click', 'Рынок: клик по новости'],
   ['market_news_all', 'Рынок: «Все новости»'],
   ['market_ticker_copy', 'Рынок: скопировали тикер'],
-  // Вкладка «Календари»
-  ['calendar_open', 'Календари: открыли вкладку'],
-  ['calendar_tab', 'Календари: переключили (облигации / ключевая ставка)'],
-  ['calendar_bonds_filter', 'Календари: фильтр календаря облигаций'],
-  ['calendar_bonds_more', 'Календари: «Показать ещё» у облигаций'],
-  ['calendar_bond_click', 'Календари: открыли облигацию на сайте'],
-  ['calendar_site_link', 'Календари: «Календарь на investfuture.ru»'],
-  // Читалка постов внутри мини-аппа
-  ['post_reader_telegram', 'Читалка: нажали «Открыть в Telegram»'],
-  ['post_reader_timeout', 'Читалка: пост не загрузился за 7 секунд'],
-  // Меню приложений в шапке
-  ['app_switcher_open', 'Меню приложений: открыли'],
-  ['app_switcher_select', 'Меню приложений: выбрали приложение'],
-  // Основное приложение (если цели уже заведены вручную — будут пропущены)
+  ['market_data_error', 'Рынок: источник данных не отвечает (параметр source)'],
+  // ---- Основное приложение ----
+  ['screen_view', 'Переключение экрана (параметр screen: tags / solutions / feed)'],
   ['tag_click', 'Клик по тегу'],
   ['post_open', 'Открытие поста'],
-  ['banner_click', 'Клик по баннеру'],
-  ['external_channel_click', 'Клик по каналу экосистемы'],
-  ['if_plus_subscription_cta', 'Клик на подписку IF+'],
   ['pain_selected', 'Выбор карточки в «Готовых решениях»'],
-  ['pain_solution_open', 'Открытие поста в карточке'],
-  ['theme_toggle', 'Переключение темы'],
+  ['pain_solution_open', 'Открытие поста в карточке «Готовых решений»'],
+  ['banner_click', 'Клик по баннеру'],
+  ['if_plus_subscription_cta', 'Клик на подписку IF+'],
   ['lead_magnet_open', 'Открытие лид-магнита'],
   ['resources_sheet_open', 'Ресурсы: открыли «Все наши ресурсы»'],
-  ['resources_sheet_close', 'Ресурсы: закрыли'],
-  ['resources_platform_filter', 'Ресурсы: фильтр по площадке'],
-  ['resources_search', 'Ресурсы: поиск'],
+  ['external_channel_click', 'Клик по каналу или сайту в «Экосистеме»'],
+  ['theme_toggle', 'Переключение темы'],
+  // ---- ЗАМОРОЖЕНО: создаются только с флагом --with-frozen ----
+  ['app_switcher_open', 'Меню приложений: открыли', 'frozen'],
+  ['app_switcher_select', 'Меню приложений: выбрали приложение', 'frozen'],
+  ['calendar_open', 'Календари: открыли вкладку', 'frozen'],
+  ['calendar_tab', 'Календари: переключили (облигации / ключевая ставка)', 'frozen'],
+  ['calendar_bonds_filter', 'Календари: фильтр календаря облигаций', 'frozen'],
+  ['calendar_bonds_more', 'Календари: «Показать ещё» у облигаций', 'frozen'],
+  ['calendar_bond_click', 'Календари: открыли облигацию на сайте', 'frozen'],
+  ['calendar_site_link', 'Календари: «Календарь на investfuture.ru»', 'frozen'],
+  ['post_reader_telegram', 'Читалка: нажали «Открыть в Telegram»', 'frozen'],
+  ['post_reader_timeout', 'Читалка: пост не загрузился за 7 секунд', 'frozen'],
 ];
 
 async function api(method, path, body) {
@@ -96,7 +98,9 @@ export async function main() {
   console.log(`Уже заведено целей «JavaScript-событие»: ${existing.size}`);
 
   let created = 0, skipped = 0, failed = 0;
-  for (const [id, name] of GOALS) {
+  const wanted = GOALS.filter((g) => WITH_FROZEN || g[2] !== 'frozen');
+  const frozenSkipped = GOALS.length - wanted.length;
+  for (const [id, name] of wanted) {
     if (existing.has(id)) { console.log(`  = ${id} — уже есть, пропускаю`); skipped++; continue; }
     if (DRY) { console.log(`  + ${id} — создам «${name}»`); created++; continue; }
     const r = await api('POST', `/management/v1/counter/${COUNTER_ID}/goals`, {
@@ -106,6 +110,7 @@ export async function main() {
     else { console.error(`  ! ${id} — ошибка: ${explain(r.status, r.json, r.text)}`); failed++; if (r.status === 401 || r.status === 403) break; }
   }
   console.log(`\nИтого: ${DRY ? 'будет создано' : 'создано'} ${created}, уже было ${skipped}, ошибок ${failed}`);
+  if (frozenSkipped) console.log(`Не трогал ${frozenSkipped} целей замороженных функций (календари, читалка, меню приложений). Когда их разморозят, запустить с --with-frozen.`);
   return failed ? 1 : 0;
 }
 

@@ -1,3 +1,4 @@
+import { reportMarketError } from '../../../shared/analytics/market-errors';
 import { useEffect, useRef, useState } from 'react';
 import { MoexStock } from './types';
 
@@ -107,6 +108,7 @@ export function useMoexHeatmap() {
         }
       } catch (err) {
         console.error('[MOEX heatmap] Ошибка запроса (возможно, CORS — см. вкладку Network):', err);
+        reportMarketError('moex');
         if (isMountedRef.current) {
           setError(err instanceof Error ? err.message : 'Не удалось загрузить котировки');
           setIsLoading(false);

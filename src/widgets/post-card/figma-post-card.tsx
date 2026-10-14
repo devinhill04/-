@@ -9,12 +9,14 @@ interface FigmaPostCardProps {
   onTagClick?: (tag: string) => void;
   showTags?: boolean;
   showDate?: boolean;
+  onOpen?: (post: Post) => void; // вызывается при нажатии, перед открытием поста (например, для аналитики по категории)
 }
 
-export const FigmaPostCard: React.FC<FigmaPostCardProps> = ({ post, onTagClick, showTags = true, showDate = false } ) => {
+export const FigmaPostCard: React.FC<FigmaPostCardProps> = ({ post, onTagClick, showTags = true, showDate = false, onOpen } ) => {
   const { openPost } = usePostReader();
   const handleClick = () => {
     triggerHaptic('light');
+    onOpen?.(post);
     openPost(post.url, post.title); // читается внутри приложения; закрытые каналы и чужие сайты откроются в Telegram
   };
 

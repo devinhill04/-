@@ -49,6 +49,8 @@ export type AnalyticsEventType =
   | 'market_news_click'
   | 'market_news_all'
   | 'market_ticker_copy'
+  | 'market_stocks_expand'
+  | 'market_data_error'
   // Вкладка «Календари»
   | 'calendar_open'
   | 'calendar_tab'

@@ -255,7 +255,11 @@ export const StocksTabs: React.FC<ListProps> = ({ stocks, onSelect }) => {
 
       {tab === 'turnover' && turnoverTop.length > 5 && (
         <button
-          onClick={() => { triggerHaptic('light'); setTurnoverExpanded((v) => !v); }}
+          onClick={() => {
+            triggerHaptic('light');
+            if (!turnoverExpanded) AnalyticsService.track('market_stocks_expand');
+            setTurnoverExpanded((v) => !v);
+          }}
           className="w-full h-10 flex items-center justify-center gap-1 text-[#161616] dark:text-neutral-200 text-[14px] font-medium active:opacity-70"
         >
           {turnoverExpanded ? 'Скрыть' : `Показать ещё ${turnoverTop.length - 5}`}
