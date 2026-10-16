@@ -3,6 +3,8 @@ import { ThemeToggle } from '../../shared/ui/theme-toggle';
 import { triggerHaptic } from '../../lib/telegram';
 import { AppSwitcherMenu } from '../app-switcher/app-switcher-menu';
 import { useMiniApps } from '../../shared/lib/mini-app-context';
+import { useDiagnostics } from '../../shared/diagnostics/diagnostics-context';
+import { useSecretTaps } from '../../shared/diagnostics/use-secret-taps';
 import { AnalyticsService } from '../../shared/analytics/analytics';
 
 interface FigmaHeaderProps {
@@ -21,10 +23,14 @@ export const FigmaHeader: React.FC<FigmaHeaderProps> = ({
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const { apps, currentApp, selectApp } = useMiniApps();
+  // Скрытый вход в диагностику: 7 нажатий на логотип подряд за 4 секунды
+  const { open: openDiagnostics } = useDiagnostics();
+  const secretTap = useSecretTaps(openDiagnostics);
   // Меню нужно, только если есть из чего выбирать; иначе клик по логотипу работает как раньше
   const hasSwitcher = apps.length > 1;
 
   const handleLogoClick = () => {
+    secretTap();
     triggerHaptic('light');
     if (!hasSwitcher) {
       onLogoClick?.();

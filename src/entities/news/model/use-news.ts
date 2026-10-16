@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { reportMarketError } from '../../../shared/analytics/market-errors';
+import { reportSource } from '../../../shared/diagnostics/source-status';
 
 export interface NewsItem {
   id: string;
@@ -14,7 +15,7 @@ const NEWS_ENDPOINT = '/api/news';
 const REFRESH_MS = 25 * 60 * 1000; // проверяем канал раз в 25 минут
 const CACHE_KEY = 'if_news_cache_v1';
 
-function parseNews(html: string): NewsItem[] {
+export function parseNews(html: string): NewsItem[] {
   const doc = new DOMParser().parseFromString(html, 'text/html');
   const items: NewsItem[] = [];
   doc.querySelectorAll('.tgme_widget_message_wrap').forEach((wrap) => {
@@ -64,10 +65,12 @@ export function useNews() {
         if (!alive) return;
         setItems(parsed);
         setError(false);
+        reportSource('news', true, `постов: ${parsed.length}`);
         try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), items: parsed })); } catch { /* не критично */ }
       } catch (e) {
         console.error('[news] не удалось загрузить новости:', e);
         reportMarketError('news');
+        reportSource('news', false, e);
         if (alive && items.length === 0) setError(true);
       } finally {
         if (alive) setIsLoading(false);

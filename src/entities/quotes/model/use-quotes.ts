@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Quote } from './types';
 import { reportMarketError } from '../../../shared/analytics/market-errors';
+import { reportSource, reportSourceIfStale } from '../../../shared/diagnostics/source-status';
 
 const ISS = 'https://iss.moex.com/iss';
 const REFRESH_MS = 60_000;
@@ -292,6 +293,7 @@ export async function fetchInvestfuture(): Promise<Values> {
       source: ifSourceLabel(it.id, it.stamp),
     };
   });
+  reportSource('site', true, `цен разобрано: ${items.length} из ${Object.keys(IF_SLUGS).length}`);
   const missing = Object.values(IF_SLUGS).filter((id) => !out[id]);
   if (missing.length) console.warn('[quotes/if] на странице не нашлись:', missing, '— для них остаются прежние источники');
   return out;
@@ -380,8 +382,11 @@ export function useQuotes() {
       const sources = [fetchCbr, fetchFx, fetchMetals, fetchIndex, fetchFutures, fetchCrypto, fetchUralsMonthly, fetchInvestfuture];
       // Подписи в том же порядке: в боевой сборке имена функций сокращаются, по ним источник не опознать
       const SOURCE_LABELS = ['cbr', 'fx', 'metals', 'index', 'futures', 'crypto', 'urals', 'site'];
+      const cycleStart = Date.now();
       const results = await Promise.allSettled(sources.map((f) => f()));
       results.forEach((r, i) => {
+        // Журнал для экрана диагностики; если источник сам записал точнее (например, «цен: 6 из 6»), его запись не затираем
+        reportSourceIfStale(SOURCE_LABELS[i], r.status === 'fulfilled', r.status === 'rejected' ? r.reason : undefined, cycleStart);
         if (r.status !== 'rejected') return;
         console.error(`[quotes] источник ${SOURCE_LABELS[i]} упал:`, r.reason);
         reportMarketError(SOURCE_LABELS[i]);

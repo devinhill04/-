@@ -3,10 +3,21 @@ import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
 import path from 'path';
 import {defineConfig} from 'vite';
+import {execSync} from 'node:child_process';
+
+// Короткий номер коммита: из параметра сборки (в контейнере нет .git), иначе из git (локально)
+const gitHash = () => {
+  try { return execSync('git rev-parse --short HEAD', {stdio: ['ignore', 'pipe', 'ignore']}).toString().trim(); } catch { return ''; }
+};
 
 export default defineConfig(() => {
   return {
     plugins: [react(), tailwindcss(), svgr()],
+    // Версия сборки для экрана диагностики
+    define: {
+      __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
+      __COMMIT__: JSON.stringify(process.env.VITE_COMMIT || process.env.CI_COMMIT_SHORT_SHA || gitHash()),
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),

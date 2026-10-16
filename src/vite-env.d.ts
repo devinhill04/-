@@ -20,3 +20,7 @@ declare module '*.svg?react' {
   const ReactComponent: React.FC<React.SVGProps<SVGSVGElement>>;
   export default ReactComponent;
 }
+
+// Подставляются при сборке (vite.config.ts)
+declare const __BUILD_TIME__: string;
+declare const __COMMIT__: string;

@@ -1,3 +1,4 @@
+import { reportSource } from '../../../shared/diagnostics/source-status';
 import { useEffect, useState } from 'react';
 import { Post } from './types';
 
@@ -17,11 +18,13 @@ export function usePosts() {
         if (isMounted) {
           setPosts(data);
           setIsLoading(false);
+          reportSource('posts', true, `постов: ${Array.isArray(data) ? data.length : '?'}`);
         }
       })
       .catch((err) => {
         if (isMounted) {
           setError(err.message || 'Ошибка загрузки данных');
+          reportSource('posts', false, err);
           setIsLoading(false);
         }
       });

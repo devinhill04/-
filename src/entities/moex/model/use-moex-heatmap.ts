@@ -1,4 +1,5 @@
 import { reportMarketError } from '../../../shared/analytics/market-errors';
+import { reportSource } from '../../../shared/diagnostics/source-status';
 import { useEffect, useRef, useState } from 'react';
 import { MoexStock } from './types';
 
@@ -96,6 +97,7 @@ export function useMoexHeatmap() {
 
         if (isMountedRef.current) {
           setStocks(merged);
+    reportSource('moex', true, `бумаг: ${merged.length}`);
           if (merged.length === 0) {
             setError(
               'Биржа ответила, но данные не распознаны (возможно, изменились названия полей — см. консоль F12 для диагностики).'
@@ -109,6 +111,7 @@ export function useMoexHeatmap() {
       } catch (err) {
         console.error('[MOEX heatmap] Ошибка запроса (возможно, CORS — см. вкладку Network):', err);
         reportMarketError('moex');
+        reportSource('moex', false, err);
         if (isMountedRef.current) {
           setError(err instanceof Error ? err.message : 'Не удалось загрузить котировки');
           setIsLoading(false);
