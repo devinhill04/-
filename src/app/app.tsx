@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { CalendarDays, LayoutGrid, TrendingUp } from 'lucide-react';
 import { HomePage } from '../pages/home/home-page';
-import { MarketScreen } from '../widgets/market-screen/market-screen';
-import { CalendarScreen } from '../widgets/calendar-screen/calendar-screen';
+import { LazySection, lazyWithRetry } from '../shared/ui/lazy-section';
+
+// Вкладки «Рынок» и «Календари» подгружаются при открытии: первый экран остаётся лёгким
+const loadMarket = () => import('../widgets/market-screen/market-screen').then((m) => ({ default: m.MarketScreen }));
+const MarketScreen = lazyWithRetry(loadMarket);
+const CalendarScreen = lazyWithRetry(() => import('../widgets/calendar-screen/calendar-screen').then((m) => ({ default: m.CalendarScreen })));
 import { initTelegramTheme } from '../shared/theme/init-telegram';
 import { triggerHaptic } from '../lib/telegram';
 import { AnalyticsService } from '../shared/analytics/analytics';
@@ -27,6 +31,15 @@ export const App: React.FC = () => {
   const [activeSection, setActiveSection] = useState<Section>('feed');
   const [appId, setAppId] = useState(() => loadCurrentAppId());
   const currentApp = MINI_APPS.find((a) => a.id === appId) ?? MINI_APPS[0];
+
+  // Когда браузер свободен, тихо подгружаем «Рынок» (календари не трогаем: пока заморожены)
+  useEffect(() => {
+    const warm = () => { loadMarket().catch(() => {}); };
+    const w = window as any;
+    if (w.requestIdleCallback) { const id = w.requestIdleCallback(warm, { timeout: 4000 }); return () => w.cancelIdleCallback?.(id); }
+    const t = setTimeout(warm, 2500);
+    return () => clearTimeout(t);
+  }, []);
 
   const selectApp = (id: string) => {
     saveCurrentAppId(id);
@@ -53,7 +66,11 @@ export const App: React.FC = () => {
     <MiniAppsProvider value={{ apps: MINI_APPS, currentApp, selectApp }}>
     <div data-app={currentApp.id} className="min-h-screen flex flex-col bg-white dark:bg-[#111111]">
       <div className="flex-1 pb-16">
-        {activeSection === 'feed' ? <HomePage /> : activeSection === 'market' ? <MarketScreen /> : <CalendarScreen />}
+        {activeSection === 'feed' ? (
+          <HomePage />
+        ) : (
+          <LazySection>{activeSection === 'market' ? <MarketScreen /> : <CalendarScreen />}</LazySection>
+        )}
       </div>
 
       {/* Нижняя навигация */}

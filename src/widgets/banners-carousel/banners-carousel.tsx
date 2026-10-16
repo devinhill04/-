@@ -110,11 +110,10 @@ export const BannersCarousel: React.FC<BannersCarouselProps> = ({
         style={{ width: '320px', minWidth: '320px', height: '140px', borderRadius: '12px' }}
         className="snap-start shrink-0 relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform bg-[#F9F9F7] dark:bg-neutral-800 shadow-2xs"
       >
-        <img
-          src="/figma_assets/banner_all_resources_v3.png"
-          alt="Все наши ресурсы и площадки"
-          className="w-full h-full object-cover pointer-events-none"
-        />
+        <picture className="block w-full h-full">
+          <source srcSet="/figma_assets/banner_all_resources_v3.webp" type="image/webp" />
+          <img src="/figma_assets/banner_all_resources_v3.png" alt="Все наши ресурсы и площадки" className="w-full h-full object-cover pointer-events-none" />
+        </picture>
       </div>
     ),
     'if-plus': (
@@ -125,11 +124,10 @@ export const BannersCarousel: React.FC<BannersCarouselProps> = ({
         style={{ width: '320px', minWidth: '320px', height: '140px', borderRadius: '12px' }}
         className="snap-start shrink-0 relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform bg-black shadow-2xs"
       >
-        <img
-          src="/figma_assets/banner_if_plus_v4.png"
-          alt="Подписка IF+"
-          className="w-full h-full object-cover pointer-events-none"
-        />
+        <picture className="block w-full h-full">
+          <source srcSet="/figma_assets/banner_if_plus_v4.webp" type="image/webp" />
+          <img src="/figma_assets/banner_if_plus_v4.png" alt="Подписка IF+" className="w-full h-full object-cover pointer-events-none" />
+        </picture>
       </div>
     ),
     gift: (
@@ -140,11 +138,10 @@ export const BannersCarousel: React.FC<BannersCarouselProps> = ({
         style={{ width: '320px', minWidth: '320px', height: '140px', borderRadius: '12px' }}
         className="snap-start shrink-0 relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform bg-white shadow-2xs"
       >
-        <img
-          src="/figma_assets/banner_credit_carousels_v3.png"
-          alt="Кредитные карусели"
-          className="w-full h-full object-cover pointer-events-none"
-        />
+        <picture className="block w-full h-full">
+          <source srcSet="/figma_assets/banner_credit_carousels_v3.webp" type="image/webp" />
+          <img src="/figma_assets/banner_credit_carousels_v3.png" alt="Кредитные карусели" className="w-full h-full object-cover pointer-events-none" />
+        </picture>
       </div>
     ),
   };
