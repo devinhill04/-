@@ -115,6 +115,7 @@ export async function main() {
 }
 
 // Запуск только из командной строки (при импорте в тестах ничего не выполняется)
-if (import.meta.url === `file://${process.argv[1].replace(/\\/g, '/')}` || process.argv[1]?.endsWith('metrika-setup-goals.mjs')) {
+const entry = process.argv[1] ?? '';
+if (entry.endsWith('metrika-setup-goals.mjs')) {
   main().then((code) => process.exit(code));
 }
