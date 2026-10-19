@@ -22,7 +22,7 @@ RUN printf '%s\n' \
   > .env
 RUN npm run build
 FROM nginx:1.27-alpine
-RUN apk add --no-cache wget curl \
+RUN apk add --no-cache wget curl ca-certificates \
   && printf '%s\n' \
   'server {' \
   '  listen 80;' \
@@ -74,10 +74,12 @@ RUN apk add --no-cache wget curl \
   '    add_header Cache-Control "public, max-age=300";' \
   '  }' \
   '  location = /api/news {' \
-  '    resolver 1.1.1.1 8.8.8.8 valid=300s ipv6=off;' \
-  '    set $news_upstream "https://t.me/s/if_market_news";' \
+  '    set $news_upstream "https://127.0.0.1:8443/s/if_market_news";' \
   '    proxy_pass $news_upstream;' \
   '    proxy_ssl_server_name on;' \
+  '    proxy_ssl_name t.me;' \
+  '    proxy_ssl_verify on;' \
+  '    proxy_ssl_trusted_certificate /etc/ssl/certs/ca-certificates.crt;' \
   '    proxy_set_header Host t.me;' \
   '    proxy_set_header User-Agent "Mozilla/5.0 (compatible; IFMiniApp)";' \
   '    proxy_connect_timeout 5s;' \
