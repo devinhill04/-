@@ -57,7 +57,7 @@ export function useNews() {
         const body = await res.text().catch(() => '');
         // Причину пишем в сообщение об ошибке — она видна в консоли (F12): сервер не достучался до t.me (502/504),
         // прокси нет (404), либо страница пришла, но постов в ней нет (превью канала отключено или другая вёрстка)
-        if (!res.ok) throw new Error(`HTTP ${res.status} от ${NEWS_ENDPOINT} (прокси не достучался до t.me или его нет на сервере)`);
+        if (!res.ok) throw new Error(`HTTP ${res.status} от ${NEWS_ENDPOINT} (сервер не получил страницу канала: туннель telegram-vpn до t.me не работает или маршрута нет)`);
         const parsed = parseNews(body);
         if (parsed.length === 0) {
           throw new Error(`страница канала получена (${body.length} байт), но постов в ней нет. Начало ответа: «${body.replace(/\s+/g, ' ').slice(0, 160)}»`);

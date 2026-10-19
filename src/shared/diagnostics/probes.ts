@@ -23,7 +23,7 @@ interface Probe {
 }
 
 export const PROBES: Probe[] = [
-  { id: 'news', label: 'Новости IF News (через наш сервер → t.me)', url: '/api/news', analyze: (t) => `постов в ответе: ${parseNews(t).length}` },
+  { id: 'news', label: 'Новости IF News (наш сервер → туннель → t.me)', url: '/api/news', analyze: (t) => `постов в ответе: ${parseNews(t).length}` },
   { id: 'site', label: 'Цены с сайта (через наш сервер → investfuture.ru)', url: '/api/if-quotes', analyze: (t) => `цен разобрано: ${parseIfStrip(t).length} из 6${/Загрузка котировок/.test(t) ? ' (на странице заглушка «Загрузка котировок…»)' : ''}` },
   { id: 'posts', label: 'Каталог постов', url: '/data/posts.json' },
   { id: 'urals', label: 'Urals: средняя цена', url: '/data/urals-monthly.json' },
