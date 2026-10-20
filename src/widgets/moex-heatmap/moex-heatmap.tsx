@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { tileLabelSizes } from './tile-label';
 import { hierarchy, treemap, treemapSquarify } from 'd3-hierarchy';
 import { MoexStock, MoexHeatmapState } from '../../entities/moex/model/types';
 
@@ -195,10 +196,9 @@ export const MoexHeatmap: React.FC<MoexHeatmapProps> = ({ stocks, isLoading, err
         )}
         {rects.map(({ stock, x, y, width, height }) => {
           const { bg, fg } = tileColors(stock.changePercent ?? 0, isDark);
-          // Подпись есть на КАЖДОЙ плитке, меняется только размер шрифта
-          const size = width >= 70 && height >= 44 ? 'lg' : width >= 46 && height >= 32 ? 'md' : 'sm';
-          const tickerPx = size === 'lg' ? 12 : size === 'md' ? 10 : width < 34 ? 8 : 9;
-          const percentPx = size === 'lg' ? 10 : 9;
+          // Подпись есть на КАЖДОЙ плитке; размер подбирается под плитку — чем больше плитка, тем крупнее текст
+          const percentText = stock.changePercent !== null ? `${stock.changePercent > 0 ? '+' : ''}${stock.changePercent.toFixed(2)}%` : '—';
+          const { tickerPx, percentPx } = tileLabelSizes(width, height, stock.secid, percentText);
           return (
             <div
               key={stock.secid}
@@ -214,14 +214,12 @@ export const MoexHeatmap: React.FC<MoexHeatmapProps> = ({ stocks, isLoading, err
               }}
               className="flex flex-col items-center justify-center overflow-hidden px-0.5 text-center border border-white/40 dark:border-black/30 transition-colors duration-500 cursor-pointer active:opacity-80"
             >
-              <span className="font-semibold leading-tight max-w-full truncate" style={{ fontSize: tickerPx }}>
+              <span className="font-semibold leading-tight max-w-full truncate" style={{ fontSize: tickerPx, lineHeight: 1.15 }}>
                 {stock.secid}
               </span>
-              {size !== 'sm' && (
-                <span className="font-medium leading-tight opacity-85" style={{ fontSize: percentPx }}>
-                  {stock.changePercent !== null
-                    ? `${stock.changePercent > 0 ? '+' : ''}${stock.changePercent.toFixed(2)}%`
-                    : '—'}
+              {percentPx !== null && (
+                <span className="font-medium leading-tight opacity-85 max-w-full" style={{ fontSize: percentPx }}>
+                  {percentText}
                 </span>
               )}
             </div>
