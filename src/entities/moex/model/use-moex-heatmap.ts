@@ -1,3 +1,4 @@
+import { IFQ_TOP40_URL, countStatus, parseSnapshot, top40ToStocks } from '../../quotes/model/if-api';
 import { reportMarketError } from '../../../shared/analytics/market-errors';
 import { reportSource } from '../../../shared/diagnostics/source-status';
 import { useEffect, useRef, useState } from 'react';
@@ -39,8 +40,8 @@ export function useMoexHeatmap() {
   useEffect(() => {
     isMountedRef.current = true;
 
-    async function fetchData() {
-      try {
+    // Прежний источник — открытый API Мосбиржи (ISS). Теперь он запасной: на случай, если API InvestFuture не ответил.
+    async function fetchFromIss(): Promise<MoexStock[]> {
         const res = await fetch(MOEX_URL);
         if (!res.ok) throw new Error(`MOEX ISS API: ${res.status}`);
         const json = await res.json();
@@ -66,7 +67,7 @@ export function useMoexHeatmap() {
 
         const marketBySecid = new Map(marketdata.map((m) => [m.secid, m]));
 
-        const merged: MoexStock[] = securities
+        return securities
           .map((s) => {
             const m = marketBySecid.get(s.secid);
             const lastPrice = typeof m?.last === 'number' ? m.last : null;
@@ -94,14 +95,40 @@ export function useMoexHeatmap() {
           // отбор компаний в список идёт по капитализации (см. ниже, в компоненте) —
           // здесь просто убираем бумаги без цены изменения, толку от них всё равно нет
           .filter((s) => s.marketCap > 0 && s.changePercent !== null);
+    }
 
+    // Основной источник — API котировок InvestFuture (метод /market-snapshot, universe=moex-top40) через наш сервер:
+    // цена, изменение за день по выбранной базе, оборот и капитализация уже посчитаны.
+    async function fetchFromApi(): Promise<MoexStock[]> {
+      const res = await fetch(IFQ_TOP40_URL);
+      if (!res.ok) {
+        const body = await res.text().catch(() => '');
+        throw new Error(`API InvestFuture: HTTP ${res.status}${/token_not_configured/.test(body) ? ' (на сервере не задан токен QUOTES_API_TOKEN)' : ''}`);
+      }
+      const items = parseSnapshot(await res.json());
+      const stocks = top40ToStocks(items);
+      if (stocks.length < 10) throw new Error(`API InvestFuture: в ответе только ${stocks.length} бумаг с ценой`);
+      const c = countStatus(items);
+      reportSource('ifapi-top40', true, `бумаг: ${stocks.length} из ${c.total} (устарело ${c.stale})`);
+      return stocks;
+    }
+
+    async function fetchData() {
+      let merged: MoexStock[];
+      try {
+        try {
+          merged = await fetchFromApi();
+        } catch (apiErr) {
+          console.warn('[heatmap] API InvestFuture недоступен, беру данные Мосбиржи:', apiErr);
+          reportSource('ifapi-top40', false, apiErr);
+          reportMarketError('ifapi-top40');
+          merged = await fetchFromIss();
+          reportSource('moex', true, `бумаг: ${merged.length} (запасной источник)`);
+        }
         if (isMountedRef.current) {
           setStocks(merged);
-    reportSource('moex', true, `бумаг: ${merged.length}`);
           if (merged.length === 0) {
-            setError(
-              'Биржа ответила, но данные не распознаны (возможно, изменились названия полей — см. консоль F12 для диагностики).'
-            );
+            setError('Биржа ответила, но данные не распознаны (возможно, изменились названия полей — см. консоль F12 для диагностики).');
           } else {
             setError(null);
           }

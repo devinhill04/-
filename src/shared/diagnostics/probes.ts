@@ -22,7 +22,11 @@ interface Probe {
   analyze?: (text: string) => string;
 }
 
+const ifq = (t: string) => { try { const items = JSON.parse(t).items; return Array.isArray(items) ? `доступно: ${items.filter((i: any) => i.status === 'available').length}, устарело: ${items.filter((i: any) => i.status === 'stale').length}, всего: ${items.length}` : 'в ответе нет items'; } catch { return 'ответ не JSON'; } };
+
 export const PROBES: Probe[] = [
+  { id: 'ifq-overview', label: 'API InvestFuture: котировки (через наш сервер)', url: '/api/ifq/overview', analyze: ifq },
+  { id: 'ifq-top40', label: 'API InvestFuture: акции для карты (через наш сервер)', url: '/api/ifq/top40', analyze: ifq },
   { id: 'news', label: 'Новости IF News (наш сервер → туннель → t.me)', url: '/api/news', analyze: (t) => `постов в ответе: ${parseNews(t).length}` },
   { id: 'site', label: 'Цены с сайта (через наш сервер → investfuture.ru)', url: '/api/if-quotes', analyze: (t) => `цен разобрано: ${parseIfStrip(t).length} из 6${/Загрузка котировок/.test(t) ? ' (на странице заглушка «Загрузка котировок…»)' : ''}` },
   { id: 'posts', label: 'Каталог постов', url: '/data/posts.json' },

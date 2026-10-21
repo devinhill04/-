@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Quote } from './types';
+import { IFQ_OVERVIEW_URL, countStatus, overviewToValues, parseSnapshot } from './if-api';
 import { reportMarketError } from '../../../shared/analytics/market-errors';
 import { reportSource, reportSourceIfStale } from '../../../shared/diagnostics/source-status';
 
@@ -7,7 +8,7 @@ const ISS = 'https://iss.moex.com/iss';
 const REFRESH_MS = 60_000;
 
 type Block = { columns: string[]; data: unknown[][] } | undefined;
-type Values = Record<string, { price: number | null; changePercent: number | null; source?: string; estimate?: boolean; decimals?: number }>;
+type Values = Record<string, { price: number | null; changePercent: number | null; source?: string; estimate?: boolean; decimals?: number; ticker?: string }>;
 
 // decimals = максимум знаков после запятой (лишние нули не показываем, как в макете)
 // iconBox/iconCover — как картинка лежит в круге: размеры замерены по макету дизайнера
@@ -299,6 +300,23 @@ export async function fetchInvestfuture(): Promise<Values> {
   return out;
 }
 
+// ---------- API котировок InvestFuture: основной источник ----------
+// Один запрос /market-snapshot?universe=overview через наш сервер (токен подставляет nginx) — 9 котировок сразу.
+// Его значения перекрывают остальные источники; если API не ответил, остаются прежние.
+export async function fetchIfApiOverview(): Promise<Values> {
+  const res = await fetch(IFQ_OVERVIEW_URL);
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    throw new Error(`API InvestFuture: HTTP ${res.status}${/token_not_configured/.test(body) ? ' (на сервере не задан токен QUOTES_API_TOKEN)' : ''}`);
+  }
+  const items = parseSnapshot(await res.json());
+  const vals = overviewToValues(items);
+  const n = Object.keys(vals).length;
+  if (n === 0) throw new Error('API InvestFuture ответил, но ни одной котировки не разобрано');
+  reportSource('ifapi', true, `котировок: ${n} из 9 (устарело ${countStatus(items).stale})`);
+  return vals;
+}
+
 // Биткоин и эфир
 async function fetchCrypto(): Promise<Values> {
   const json = await getJson(
@@ -379,9 +397,9 @@ export function useQuotes() {
     mounted.current = true;
     async function refresh() {
       // ЦБ первым: биржевые значения ниже перекрывают его; сайт InvestFuture последним: его цены перекрывают остальные
-      const sources = [fetchCbr, fetchFx, fetchMetals, fetchIndex, fetchFutures, fetchCrypto, fetchUralsMonthly, fetchInvestfuture];
+      const sources = [fetchCbr, fetchFx, fetchMetals, fetchIndex, fetchFutures, fetchCrypto, fetchUralsMonthly, fetchInvestfuture, fetchIfApiOverview];
       // Подписи в том же порядке: в боевой сборке имена функций сокращаются, по ним источник не опознать
-      const SOURCE_LABELS = ['cbr', 'fx', 'metals', 'index', 'futures', 'crypto', 'urals', 'site'];
+      const SOURCE_LABELS = ['cbr', 'fx', 'metals', 'index', 'futures', 'crypto', 'urals', 'site', 'ifapi'];
       const cycleStart = Date.now();
       const results = await Promise.allSettled(sources.map((f) => f()));
       results.forEach((r, i) => {
