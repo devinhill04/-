@@ -101,7 +101,10 @@ RUN apk add --no-cache wget curl ca-certificates \
 # из секрета в шаблон и пишет /etc/nginx/conf.d/quotes-api.inc. Если переменной нет или шаблон не обработан —
 # остаётся запасной quotes-api.inc: маршруты отвечают 503 token_not_configured, nginx стартует, приложение
 # работает на прежних источниках.
-ENV QUOTES_API_TOKEN=
+# Токен можно передать при сборке из переменной GitLab (--build-arg QUOTES_API_TOKEN=...) — тогда он лежит в образе
+# и виден тем, у кого есть доступ к реестру. Правильнее — секрет Kubernetes в деплое: он перекрывает это значение.
+ARG QUOTES_API_TOKEN=
+ENV QUOTES_API_TOKEN=${QUOTES_API_TOKEN}
 ENV NGINX_ENVSUBST_FILTER=QUOTES_API_TOKEN
 RUN mkdir -p /etc/nginx/templates /var/cache/nginx/ifquotes \
   && printf '%s\n' \
