@@ -111,7 +111,7 @@ RUN mkdir -p /etc/nginx/templates /var/cache/nginx/ifquotes \
   'location = /api/ifq/overview {' \
   '  default_type application/json;' \
   '  set $ifq_token "${QUOTES_API_TOKEN}";' \
-  '  if ($ifq_token = "") { return 503 '{"error":"token_not_configured"}'; }' \
+  '  if ($ifq_token = "") { return 503 "{\"error\":\"token_not_configured\"}"; }' \
   '  resolver 1.1.1.1 8.8.8.8 valid=300s ipv6=off;' \
   '  set $ifq_upstream "https://investfuture.ru/api/v1/market-snapshot?universe=overview";' \
   '  proxy_pass $ifq_upstream;' \
@@ -142,7 +142,7 @@ RUN mkdir -p /etc/nginx/templates /var/cache/nginx/ifquotes \
   'location = /api/ifq/top40 {' \
   '  default_type application/json;' \
   '  set $ifq_token "${QUOTES_API_TOKEN}";' \
-  '  if ($ifq_token = "") { return 503 '{"error":"token_not_configured"}'; }' \
+  '  if ($ifq_token = "") { return 503 "{\"error\":\"token_not_configured\"}"; }' \
   '  resolver 1.1.1.1 8.8.8.8 valid=300s ipv6=off;' \
   '  set $ifq_upstream "https://investfuture.ru/api/v1/market-snapshot?universe=moex-top40";' \
   '  proxy_pass $ifq_upstream;' \
@@ -174,11 +174,11 @@ RUN mkdir -p /etc/nginx/templates /var/cache/nginx/ifquotes \
   && printf '%s\n' \
   'location = /api/ifq/overview {' \
   '  default_type application/json;' \
-  '  return 503 '{"error":"token_not_configured"}';' \
+  '  return 503 "{\"error\":\"token_not_configured\"}";' \
   '}' \
   'location = /api/ifq/top40 {' \
   '  default_type application/json;' \
-  '  return 503 '{"error":"token_not_configured"}';' \
+  '  return 503 "{\"error\":\"token_not_configured\"}";' \
   '}' \
   > /etc/nginx/conf.d/quotes-api.inc
 COPY --from=builder /app/dist /usr/share/nginx/html
