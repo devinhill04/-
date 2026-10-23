@@ -118,6 +118,7 @@ RUN mkdir -p /etc/nginx/templates /var/cache/nginx/ifquotes \
   '  proxy_ssl_server_name on;' \
   '  proxy_ssl_name investfuture.ru;' \
   '  proxy_ssl_verify on;' \
+  '  proxy_ssl_verify_depth 3;' \
   '  proxy_ssl_trusted_certificate /etc/ssl/certs/ca-certificates.crt;' \
   '  proxy_set_header Host investfuture.ru;' \
   '  proxy_set_header Authorization "Bearer $ifq_token";' \
@@ -149,6 +150,7 @@ RUN mkdir -p /etc/nginx/templates /var/cache/nginx/ifquotes \
   '  proxy_ssl_server_name on;' \
   '  proxy_ssl_name investfuture.ru;' \
   '  proxy_ssl_verify on;' \
+  '  proxy_ssl_verify_depth 3;' \
   '  proxy_ssl_trusted_certificate /etc/ssl/certs/ca-certificates.crt;' \
   '  proxy_set_header Host investfuture.ru;' \
   '  proxy_set_header Authorization "Bearer $ifq_token";' \
