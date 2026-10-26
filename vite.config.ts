@@ -44,11 +44,6 @@ export default defineConfig(() => {
           changeOrigin: true,
           rewrite: () => '/calendar/key-rate',
         },
-        '/api/if-quotes': {
-          target: 'https://investfuture.ru',
-          changeOrigin: true,
-          rewrite: () => '/quotes/currency-cb-usd',
-        },
         '/api/news': {
           target: 'https://t.me',
           changeOrigin: true,

@@ -216,90 +216,6 @@ export async function fetchMetals(): Promise<Values> {
   return out;
 }
 
-// ---------- Данные с сайта InvestFuture ----------
-// Цены шести котировок (USD, EUR, CNY — курс ЦБ; IMOEX; BTC; ETH) берём с самого сайта, чтобы цифры в мини-аппе
-// совпадали с сайтом. На каждой странице котировок внизу есть блок «Популярные» с ценами всех шести,
-// поэтому хватает одного запроса. Запрос идёт через наш сервер (/api/if-quotes): у сайта нет заголовков CORS.
-// Если вёрстка блока изменится и разобрать его не получится — остаются прежние источники (биржа, ЦБ, CoinGecko).
-export const IF_SLUGS: Record<string, string> = {
-  'currency-cb-usd': 'USD',
-  'currency-cb-eur': 'EUR',
-  'currency-cb-cny': 'CNY',
-  'indices-moex-imoex': 'IMOEX',
-  'crypto-btcusd': 'BTC',
-  'crypto-ethusd': 'ETH',
-};
-
-export interface IfItem {
-  id: string;
-  price: number;
-  changePercent: number;
-  decimals: number;
-  stamp: string;
-}
-
-const toNumber = (str: string): number | null => {
-  const n = Number(str.replace(/[\s\u00a0\u202f\u2009]/g, '').replace(/[\u2212\u2013]/g, '-').replace(',', '.'));
-  return Number.isFinite(n) ? n : null;
-};
-
-export function parseIfStrip(html: string): IfItem[] {
-  const out: IfItem[] = [];
-  const seen = new Set<string>();
-  const re = /<a\b([^>]*)>([\s\S]*?)<\/a>/gi;
-  let m: RegExpExecArray | null;
-  while ((m = re.exec(html))) {
-    const href = /href="([^"]*)"/i.exec(m[1])?.[1] ?? '';
-    const slug = /\/quotes\/([a-z0-9-]+)\/?(?:[?#].*)?$/i.exec(href)?.[1];
-    const id = slug ? IF_SLUGS[slug] : undefined;
-    if (!id || seen.has(id)) continue;
-    // Теги заменяем на пробел, чтобы цена и процент не слиплись: «2 326,990.23» нельзя разобрать однозначно
-    const text = m[2]
-      .replace(/<[^>]+>/g, ' ')
-      .replace(/&nbsp;|&#160;|&#xa0;/gi, ' ')
-      .replace(/&amp;/gi, '&')
-      .replace(/\s+/g, ' ')
-      .trim();
-    const mm = /(\d[\d\s]*(?:[.,]\d+)?)\s*(?:₽|\$|руб\.?)?\s*([-\u2212\u2013+]?\d+(?:[.,]\d+)?)\s*%/.exec(text);
-    if (!mm) continue; // ссылка на ту же котировку без цифр (меню, «Другие курсы») — пропускаем
-    const price = toNumber(mm[1]);
-    const change = toNumber(mm[2]);
-    if (price === null || change === null) continue;
-    const stamp = (/title="([^"]*)"/i.exec(m[1])?.[1] ?? '').trim();
-    out.push({ id, price, changePercent: change, decimals: (mm[1].split(/[.,]/)[1] ?? '').length, stamp });
-    seen.add(id);
-  }
-  return out;
-}
-
-function ifSourceLabel(id: string, stamp: string): string {
-  const cb = id === 'USD' || id === 'EUR' || id === 'CNY';
-  const date = /(\d{2}\.\d{2}\.\d{4})/.exec(stamp)?.[1];
-  if (cb) return `InvestFuture: официальный курс ЦБ РФ${date ? ` на ${date}` : ''}`;
-  return `InvestFuture${stamp ? `: данные на ${stamp}` : ''}`;
-}
-
-export async function fetchInvestfuture(): Promise<Values> {
-  const res = await fetch('/api/if-quotes');
-  if (!res.ok) throw new Error(`/api/if-quotes: ${res.status}`);
-  const items = parseIfStrip(await res.text());
-  console.log('[quotes/if] разобрано с сайта:', items);
-  if (items.length === 0) throw new Error('блок «Популярные» не найден на странице — возможно, изменилась вёрстка сайта');
-  const out: Values = {};
-  items.forEach((it) => {
-    out[it.id] = {
-      price: it.price,
-      changePercent: it.changePercent,
-      decimals: Math.min(Math.max(it.decimals, 2), 4),
-      source: ifSourceLabel(it.id, it.stamp),
-    };
-  });
-  reportSource('site', true, `цен разобрано: ${items.length} из ${Object.keys(IF_SLUGS).length}`);
-  const missing = Object.values(IF_SLUGS).filter((id) => !out[id]);
-  if (missing.length) console.warn('[quotes/if] на странице не нашлись:', missing, '— для них остаются прежние источники');
-  return out;
-}
-
 // ---------- API котировок InvestFuture: основной источник ----------
 // Один запрос /market-snapshot?universe=overview через наш сервер (токен подставляет nginx) — 9 котировок сразу.
 // Его значения перекрывают остальные источники; если API не ответил, остаются прежние.
@@ -397,9 +313,9 @@ export function useQuotes() {
     mounted.current = true;
     async function refresh() {
       // ЦБ первым: биржевые значения ниже перекрывают его; сайт InvestFuture последним: его цены перекрывают остальные
-      const sources = [fetchCbr, fetchFx, fetchMetals, fetchIndex, fetchFutures, fetchCrypto, fetchUralsMonthly, fetchInvestfuture, fetchIfApiOverview];
+      const sources = [fetchCbr, fetchFx, fetchMetals, fetchIndex, fetchFutures, fetchCrypto, fetchUralsMonthly, fetchIfApiOverview];
       // Подписи в том же порядке: в боевой сборке имена функций сокращаются, по ним источник не опознать
-      const SOURCE_LABELS = ['cbr', 'fx', 'metals', 'index', 'futures', 'crypto', 'urals', 'site', 'ifapi'];
+      const SOURCE_LABELS = ['cbr', 'fx', 'metals', 'index', 'futures', 'crypto', 'urals', 'ifapi'];
       const cycleStart = Date.now();
       const results = await Promise.allSettled(sources.map((f) => f()));
       results.forEach((r, i) => {

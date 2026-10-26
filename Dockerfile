@@ -60,20 +60,6 @@ RUN apk add --no-cache wget curl ca-certificates \
   '    proxy_hide_header Cache-Control;' \
   '    add_header Cache-Control "public, max-age=300";' \
   '  }' \
-  '  location = /api/if-quotes {' \
-  '    resolver 1.1.1.1 8.8.8.8 valid=300s ipv6=off;' \
-  '    set $if_quotes_upstream "https://investfuture.ru/quotes/currency-cb-usd";' \
-  '    proxy_pass $if_quotes_upstream;' \
-  '    proxy_ssl_server_name on;' \
-  '    proxy_set_header Host investfuture.ru;' \
-  '    proxy_set_header User-Agent "Mozilla/5.0 (compatible; IFMiniApp)";' \
-  '    proxy_set_header Accept-Encoding "";' \
-  '    proxy_connect_timeout 5s;' \
-  '    proxy_read_timeout 10s;' \
-  '    proxy_hide_header Set-Cookie;' \
-  '    proxy_hide_header Cache-Control;' \
-  '    add_header Cache-Control "public, max-age=300";' \
-  '  }' \
   '  location = /api/news {' \
   '    set $news_upstream "https://127.0.0.1:8443/s/if_market_news";' \
   '    proxy_pass $news_upstream;' \

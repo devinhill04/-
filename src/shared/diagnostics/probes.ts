@@ -1,4 +1,3 @@
-import { parseIfStrip } from '../../entities/quotes/model/use-quotes';
 import { parseNews } from '../../entities/news/model/use-news';
 
 // «Проверка связи»: живые запросы с самого устройства к тем же адресам, что использует приложение.
@@ -28,7 +27,6 @@ export const PROBES: Probe[] = [
   { id: 'ifq-overview', label: 'API InvestFuture: котировки (через наш сервер)', url: '/api/ifq/overview', analyze: ifq },
   { id: 'ifq-top40', label: 'API InvestFuture: акции для карты (через наш сервер)', url: '/api/ifq/top40', analyze: ifq },
   { id: 'news', label: 'Новости IF News (наш сервер → туннель → t.me)', url: '/api/news', analyze: (t) => `постов в ответе: ${parseNews(t).length}` },
-  { id: 'site', label: 'Цены с сайта (через наш сервер → investfuture.ru)', url: '/api/if-quotes', analyze: (t) => `цен разобрано: ${parseIfStrip(t).length} из 6${/Загрузка котировок/.test(t) ? ' (на странице заглушка «Загрузка котировок…»)' : ''}` },
   { id: 'posts', label: 'Каталог постов', url: '/data/posts.json' },
   { id: 'urals', label: 'Urals: средняя цена', url: '/data/urals-monthly.json' },
   { id: 'moex', label: 'Мосбиржа (ISS) с этого устройства', url: 'https://iss.moex.com/iss/engines.json?iss.meta=off' },
