@@ -97,13 +97,14 @@ RUN mkdir -p /etc/nginx/templates /var/cache/nginx/ifquotes \
   'location = /api/ifq/overview {' \
   '  default_type application/json;' \
   '  set $ifq_token "${QUOTES_API_TOKEN}";' \
-  '  if ($ifq_token = "") { return 503 '{"error":"token_not_configured"}'; }' \
+  '  if ($ifq_token = "") { return 503 "{\"error\":\"token_not_configured\"}"; }' \
   '  resolver 1.1.1.1 8.8.8.8 valid=300s ipv6=off;' \
   '  set $ifq_upstream "https://investfuture.ru/api/v1/market-snapshot?universe=overview";' \
   '  proxy_pass $ifq_upstream;' \
   '  proxy_ssl_server_name on;' \
   '  proxy_ssl_name investfuture.ru;' \
   '  proxy_ssl_verify on;' \
+  '  proxy_ssl_verify_depth 3;' \
   '  proxy_ssl_trusted_certificate /etc/ssl/certs/ca-certificates.crt;' \
   '  proxy_set_header Host investfuture.ru;' \
   '  proxy_set_header Authorization "Bearer $ifq_token";' \
@@ -128,13 +129,14 @@ RUN mkdir -p /etc/nginx/templates /var/cache/nginx/ifquotes \
   'location = /api/ifq/top40 {' \
   '  default_type application/json;' \
   '  set $ifq_token "${QUOTES_API_TOKEN}";' \
-  '  if ($ifq_token = "") { return 503 '{"error":"token_not_configured"}'; }' \
+  '  if ($ifq_token = "") { return 503 "{\"error\":\"token_not_configured\"}"; }' \
   '  resolver 1.1.1.1 8.8.8.8 valid=300s ipv6=off;' \
   '  set $ifq_upstream "https://investfuture.ru/api/v1/market-snapshot?universe=moex-top40";' \
   '  proxy_pass $ifq_upstream;' \
   '  proxy_ssl_server_name on;' \
   '  proxy_ssl_name investfuture.ru;' \
   '  proxy_ssl_verify on;' \
+  '  proxy_ssl_verify_depth 3;' \
   '  proxy_ssl_trusted_certificate /etc/ssl/certs/ca-certificates.crt;' \
   '  proxy_set_header Host investfuture.ru;' \
   '  proxy_set_header Authorization "Bearer $ifq_token";' \
@@ -160,11 +162,11 @@ RUN mkdir -p /etc/nginx/templates /var/cache/nginx/ifquotes \
   && printf '%s\n' \
   'location = /api/ifq/overview {' \
   '  default_type application/json;' \
-  '  return 503 '{"error":"token_not_configured"}';' \
+  '  return 503 "{\"error\":\"token_not_configured\"}";' \
   '}' \
   'location = /api/ifq/top40 {' \
   '  default_type application/json;' \
-  '  return 503 '{"error":"token_not_configured"}';' \
+  '  return 503 "{\"error\":\"token_not_configured\"}";' \
   '}' \
   > /etc/nginx/conf.d/quotes-api.inc
 COPY --from=builder /app/dist /usr/share/nginx/html
