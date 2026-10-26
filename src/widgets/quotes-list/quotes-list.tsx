@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { fmtDecimal, fmtPct } from '../../shared/lib/exact-format';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Quote } from '../../entities/quotes/model/types';
 import { deriveAbsoluteChange, formatAbsChange, formatTrimmed } from '../../shared/lib/format';
@@ -51,19 +52,19 @@ const QuoteRow: React.FC<{ q: Quote; onSelect: (q: Quote) => void }> = ({ q, onS
         <div className="flex items-center justify-between gap-2">
           <span className="text-[#161616] dark:text-white text-[14px] font-medium leading-[1.25] truncate">{q.title}</span>
           <span className="text-[#161616] dark:text-white text-[14px] font-medium leading-[1.25] shrink-0">
-            {q.price !== null ? `${formatTrimmed(q.price, q.decimals)} ${q.unit}` : '—'}
+            {q.price !== null ? `${q.priceText ? fmtDecimal(q.priceText) : formatTrimmed(q.price, q.decimals)} ${q.unit}` : '—'}
           </span>
         </div>
         <div className="flex items-center justify-between gap-2">
           <span className="text-[#7D7C82] dark:text-neutral-400 text-[12px] leading-[1.5] truncate">{q.ticker}</span>
           {abs !== null && q.changePercent !== null && (
             <span className={`flex items-center text-[12px] leading-[1.5] shrink-0 ${changeColor(q.changePercent)}`}>
-              {isZero ? '0' : `${abs > 0 ? '+' : ''}${formatAbsChange(abs, q.decimals)}`} {q.unit}
+              {isZero ? '0' : q.changeText ? `${Number(q.changeText) > 0 ? '+' : ''}${fmtDecimal(q.changeText)}` : `${abs > 0 ? '+' : ''}${formatAbsChange(abs, q.decimals)}`} {q.unit}
               {/* Icons/Point_S из макета: область 16×16, точка по центру */}
               <span className="w-4 h-4 inline-flex items-center justify-center">
                 <span className="w-1 h-1 rounded-full bg-current" />
               </span>
-              {formatTrimmed(Math.abs(q.changePercent), 2)} %
+              {fmtPct(q.changePercentText ?? q.changePercent, { abs: true })} %
             </span>
           )}
         </div>

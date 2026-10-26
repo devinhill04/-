@@ -8,7 +8,7 @@ const ISS = 'https://iss.moex.com/iss';
 const REFRESH_MS = 60_000;
 
 type Block = { columns: string[]; data: unknown[][] } | undefined;
-type Values = Record<string, { price: number | null; changePercent: number | null; source?: string; estimate?: boolean; decimals?: number; ticker?: string }>;
+type Values = Record<string, { price: number | null; changePercent: number | null; source?: string; estimate?: boolean; decimals?: number; ticker?: string; unit?: string; priceText?: string; changeText?: string; changePercentText?: string }>;
 
 // decimals = максимум знаков после запятой (лишние нули не показываем, как в макете)
 // iconBox/iconCover — как картинка лежит в круге: размеры замерены по макету дизайнера

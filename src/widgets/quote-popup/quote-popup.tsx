@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { fmtDecimal, fmtPct } from '../../shared/lib/exact-format';
 import { X } from 'lucide-react';
 import { TradingViewMiniChart } from '../tradingview-mini-chart/tradingview-mini-chart';
 import {
@@ -49,6 +50,7 @@ export const QuotePopup: React.FC<{ data: PopupData; onClose: () => void }> = ({
   let subtitle = '';
   let price = '—';
   let change: number | null = null;
+  let changeText: string | undefined;
   let rows: { label: string; value: string }[] = [];
   let source = '';
   let tvSymbol: string | null = null;
@@ -59,8 +61,9 @@ export const QuotePopup: React.FC<{ data: PopupData; onClose: () => void }> = ({
     const q = data.quote;
     title = q.title;
     subtitle = q.ticker;
-    price = q.price !== null ? `${formatNumber(q.price, q.decimals)} ${q.unit}` : '—';
+    price = q.price !== null ? `${q.priceText ? fmtDecimal(q.priceText) : formatNumber(q.price, q.decimals)} ${q.unit}` : '—';
     change = q.changePercent;
+    changeText = q.changePercentText;
     source = q.source;
     tvSymbol = tvSymbolForQuote(q.id);
     chartLabel = q.title;
@@ -69,8 +72,9 @@ export const QuotePopup: React.FC<{ data: PopupData; onClose: () => void }> = ({
     const s = data.stock;
     title = s.shortname;
     subtitle = s.secid;
-    price = s.lastPrice !== null ? `${formatNumber(s.lastPrice, 2)} ₽` : '—';
+    price = s.lastPrice !== null ? `${s.priceText ? fmtDecimal(s.priceText) : formatNumber(s.lastPrice, 2)} ₽` : '—';
     change = s.changePercent;
+    changeText = s.changePercentText;
     rows = [
       { label: 'Капитализация', value: formatBigRub(s.marketCap) },
       { label: 'Оборот за день', value: formatBigRub(s.tradingValue) },
@@ -103,7 +107,7 @@ export const QuotePopup: React.FC<{ data: PopupData; onClose: () => void }> = ({
         {tvSymbol === null && (
           <div className="mt-4 flex items-baseline gap-2">
             <span className="text-[#161616] dark:text-white text-[26px] font-bold leading-none">{price}</span>
-            {change !== null && <span className={`text-[14px] font-semibold ${changeColor(change)}`}>{formatPercent(change)}</span>}
+            {change !== null && <span className={`text-[14px] font-semibold ${changeColor(change)}`}>{fmtPct(changeText ?? change, { sign: true })}%</span>}
           </div>
         )}
 

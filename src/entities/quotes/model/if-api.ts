@@ -17,6 +17,7 @@ export interface SnapshotItem {
     references: Ref[]; turnover: string | null; marketCap: string | null;
   };
   reference: Ref | null;
+  change?: string | null;
   changePercent: string | null;
   freshness: null | { priceAgeSeconds: number; observationAgeSeconds: number; staleAfterSeconds: number };
 }
@@ -40,6 +41,7 @@ export function parseSnapshot(json: unknown): SnapshotItem[] {
 export function changeFor(item: SnapshotItem, basis: EquityChangeBasis = EQUITY_CHANGE_BASIS): number | null {
   const s = item.snapshot;
   const price = num(s?.price);
+  if (item.reference?.basis === basis || !s || s.kind !== 'equity') return num(item.changePercent); // API посчитал по той же базе
   if (s && s.kind === 'equity' && price !== null) {
     const ref = s.references?.find((r) => r.basis === basis);
     const v = num(ref?.value);
@@ -73,7 +75,7 @@ export const OVERVIEW_MAP: Record<string, { id: string; ticker: string }> = {
   ETHUSDT: { id: 'ETH', ticker: 'ETH/USDT' },
 };
 
-export interface OverviewValue { price: number; changePercent: number | null; source: string; decimals: number; ticker: string }
+export interface OverviewValue { price: number; changePercent: number | null; source: string; decimals: number; ticker: string; unit?: string; priceText: string; changeText?: string; changePercentText?: string }
 
 export function overviewToValues(items: SnapshotItem[]): Record<string, OverviewValue> {
   const out: Record<string, OverviewValue> = {};
@@ -86,6 +88,12 @@ export function overviewToValues(items: SnapshotItem[]): Record<string, Overview
       source: sourceLabel(i),
       decimals: Math.min(Math.max(decimalsOf(i.snapshot!.price), 2), 4),
       ticker: m.ticker,
+      // Строки ровно как в API — экран покажет их без пересчёта (как сайт)
+      priceText: i.snapshot!.price,
+      changeText: i.change ?? undefined,
+      changePercentText: i.changePercent ?? undefined,
+      // Криптовалюта у API и на сайте — в USDT (токен Tether), это не доллар
+      ...(i.snapshot!.kind === 'crypto' ? { unit: 'USDT' } : {}),
     };
   }
   return out;
@@ -109,6 +117,9 @@ export function top40ToStocks(items: SnapshotItem[]): MoexStock[] {
     changePercent: changeFor(i),
     marketCap: num(i.snapshot!.marketCap) ?? 0,
     tradingValue: num(i.snapshot!.turnover) ?? 0,
+    priceText: i.snapshot!.price,
+    // Готовые строки API годятся, только если он считал по той же базе, что выбрана у нас
+    ...(i.reference?.basis === EQUITY_CHANGE_BASIS ? { changeText: i.change ?? undefined, changePercentText: i.changePercent ?? undefined } : {}),
   }));
 }
 

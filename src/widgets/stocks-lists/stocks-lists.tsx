@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Check, ChevronDown, ChevronUp, Copy } from 'lucide-react';
 import { copyText } from '../../shared/lib/copy-text';
+import { fmtDecimal, fmtPct } from '../../shared/lib/exact-format';
 import { MoexStock } from '../../entities/moex/model/types';
 import { formatBigRub, formatNumber, formatPercent } from '../../shared/lib/format';
 import { triggerHaptic } from '../../lib/telegram';
@@ -150,10 +151,10 @@ const StockRow: React.FC<{ stock: MoexStock; subtitle: string; onSelect: (s: Moe
       </div>
       <div className="text-right shrink-0">
         <p className="text-[#161616] dark:text-white text-[14px] font-semibold leading-tight">
-          {stock.lastPrice !== null ? `${formatNumber(stock.lastPrice, priceDecimals(stock.lastPrice))} ₽` : '—'}
+          {stock.lastPrice !== null ? `${stock.priceText ? fmtDecimal(stock.priceText) : formatNumber(stock.lastPrice, priceDecimals(stock.lastPrice))} ₽` : '—'}
         </p>
         <p className={`text-[12px] font-medium leading-tight mt-0.5 ${changeColor(stock.changePercent)}`}>
-          {stock.changePercent !== null ? formatPercent(stock.changePercent) : ''}
+          {stock.changePercent !== null ? `${fmtPct(stock.changePercentText ?? stock.changePercent, { sign: true })}%` : ''}
         </p>
       </div>
 

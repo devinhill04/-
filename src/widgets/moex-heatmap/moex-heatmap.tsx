@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { tileLabelSizes } from './tile-label';
+import { fmtPct } from '../../shared/lib/exact-format';
 import { hierarchy, treemap, treemapSquarify } from 'd3-hierarchy';
 import { MoexStock, MoexHeatmapState } from '../../entities/moex/model/types';
 
@@ -197,7 +198,8 @@ export const MoexHeatmap: React.FC<MoexHeatmapProps> = ({ stocks, isLoading, err
         {rects.map(({ stock, x, y, width, height }) => {
           const { bg, fg } = tileColors(stock.changePercent ?? 0, isDark);
           // Подпись есть на КАЖДОЙ плитке; размер подбирается под плитку — чем больше плитка, тем крупнее текст
-          const percentText = stock.changePercent !== null ? `${stock.changePercent > 0 ? '+' : ''}${stock.changePercent.toFixed(2)}%` : '—';
+          const pct = fmtPct(stock.changePercentText ?? stock.changePercent, { sign: true });
+          const percentText = pct !== null ? `${pct}%` : '—';
           const { tickerPx, percentPx } = tileLabelSizes(width, height, stock.secid, percentText);
           return (
             <div

@@ -8,7 +8,11 @@ export interface Quote {
   iconSrc?: string; // иконка из макета Figma — /figma_assets/quotes/<id>.png, если файл есть
   price: number | null;
   changePercent: number | null;
-  unit: string; // ₽ | $ | пт.
+  unit: string; // ₽ | $ | пт. | USDT
+  // Точные строки из API (как на сайте): если есть — показываются они, а не пересчёт из чисел
+  priceText?: string;
+  changeText?: string;
+  changePercentText?: string;
   decimals: number;
   source: string;
 }
