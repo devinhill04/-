@@ -72,7 +72,7 @@ export const QuotePopup: React.FC<{ data: PopupData; onClose: () => void }> = ({
     const s = data.stock;
     title = s.shortname;
     subtitle = s.secid;
-    price = s.lastPrice !== null ? `${s.priceText ? fmtDecimal(s.priceText) : formatNumber(s.lastPrice, 2)} ₽` : '—';
+    price = s.lastPrice !== null ? `${fmtDecimal(s.priceText ?? s.lastPrice)} ₽` : '—';
     change = s.changePercent;
     changeText = s.changePercentText;
     rows = [

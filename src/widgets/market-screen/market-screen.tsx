@@ -6,6 +6,7 @@ import { NewsBlock } from '../news-block/news-block';
 import { StocksTabs } from '../stocks-lists/stocks-lists';
 import { useQuotes } from '../../entities/quotes/model/use-quotes';
 import { useMoexHeatmap } from '../../entities/moex/model/use-moex-heatmap';
+import { useMoexMovers } from '../../entities/moex/model/use-moex-movers';
 import { MoexStock } from '../../entities/moex/model/types';
 import { Quote } from '../../entities/quotes/model/types';
 import { AnalyticsService } from '../../shared/analytics/analytics';
@@ -27,6 +28,7 @@ export const MarketScreen: React.FC = () => {
   const { main, extra } = useQuotes();
   // Данные акций грузим один раз на всю вкладку: карта и список под ней используют один и тот же ответ биржи
   const heat = useMoexHeatmap();
+  const movers = useMoexMovers();
   const [popup, setPopup] = useState<PopupData>(null);
   // Один и тот же результат («открыли карточку инструмента») с разных мест: source показывает, откуда нажали
   const openQuote = (quote: Quote) => {
@@ -56,7 +58,7 @@ export const MarketScreen: React.FC = () => {
         ) : heat.error || heat.stocks.length === 0 ? (
           <Note>Не удалось загрузить котировки акций</Note>
         ) : (
-          <StocksTabs stocks={heat.stocks} onSelect={(s) => openStock(s, 'stocks_list')} />
+          <StocksTabs stocks={heat.stocks} movers={movers} onSelect={(s) => openStock(s, 'stocks_list')} />
         )}
       </section>
 

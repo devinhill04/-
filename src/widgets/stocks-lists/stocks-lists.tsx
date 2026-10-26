@@ -151,7 +151,7 @@ const StockRow: React.FC<{ stock: MoexStock; subtitle: string; onSelect: (s: Moe
       </div>
       <div className="text-right shrink-0">
         <p className="text-[#161616] dark:text-white text-[14px] font-semibold leading-tight">
-          {stock.lastPrice !== null ? `${stock.priceText ? fmtDecimal(stock.priceText) : formatNumber(stock.lastPrice, priceDecimals(stock.lastPrice))} ₽` : '—'}
+          {stock.lastPrice !== null ? `${fmtDecimal(stock.priceText ?? stock.lastPrice)} ₽` : '—'}
         </p>
         <p className={`text-[12px] font-medium leading-tight mt-0.5 ${changeColor(stock.changePercent)}`}>
           {stock.changePercent !== null ? `${fmtPct(stock.changePercentText ?? stock.changePercent, { sign: true })}%` : ''}
@@ -197,17 +197,22 @@ const Card: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 interface ListProps {
   stocks: MoexStock[];
   onSelect: (s: MoexStock) => void;
+  // Лидеры по всем бумагам биржи (как на сайте); если нет — лидеры среди бумаг карты
+  movers?: { gainers: MoexStock[]; losers: MoexStock[] } | null;
 }
 
 // ---------- Единый блок под картой: вкладки «Рост / Падение / По обороту» ----------
 
 type Tab = 'up' | 'down' | 'turnover';
 
-export const StocksTabs: React.FC<ListProps> = ({ stocks, onSelect }) => {
+export const StocksTabs: React.FC<ListProps> = ({ stocks, onSelect, movers }) => {
   const [tab, setTab] = useState<Tab>('up');
   const [turnoverExpanded, setTurnoverExpanded] = useState(false);
 
-  const { gainers, losers } = useMemo(() => pickMovers(stocks), [stocks]);
+  const { gainers, losers } = useMemo(
+    () => (movers && movers.gainers.length + movers.losers.length > 0 ? movers : pickMovers(stocks)),
+    [stocks, movers]
+  );
   const turnoverTop = useMemo(() => pickTopByTurnover(stocks, 10), [stocks]);
 
   const tabBtn = (id: Tab, label: string) => (
