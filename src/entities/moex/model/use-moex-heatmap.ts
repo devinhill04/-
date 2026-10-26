@@ -1,4 +1,5 @@
 import { IFQ_TOP40_URL, countStatus, parseSnapshot, top40ToStocks } from '../../quotes/model/if-api';
+import { setTop40Snapshot } from '../../../shared/diagnostics/broker-check';
 import { reportMarketError } from '../../../shared/analytics/market-errors';
 import { reportSource } from '../../../shared/diagnostics/source-status';
 import { useEffect, useRef, useState } from 'react';
@@ -106,6 +107,7 @@ export function useMoexHeatmap() {
         throw new Error(`API InvestFuture: HTTP ${res.status}${/token_not_configured/.test(body) ? ' (на сервере не задан токен QUOTES_API_TOKEN)' : ''}`);
       }
       const items = parseSnapshot(await res.json());
+      setTop40Snapshot(items); // для сверки с брокером в экране диагностики
       const stocks = top40ToStocks(items);
       if (stocks.length < 10) throw new Error(`API InvestFuture: в ответе только ${stocks.length} бумаг с ценой`);
       const c = countStatus(items);

@@ -9,6 +9,7 @@ export interface ReportInput {
   flags: Record<string, boolean>;
   sources: SourceStatus[];
   probes: ProbeResult[];
+  broker?: string[]; // строки сверки акций с брокером
 }
 
 export function ago(ms: number): string {
@@ -40,6 +41,7 @@ export function buildReport(i: ReportInput): string {
   L.push('', 'ИСТОЧНИКИ ДАННЫХ (последняя попытка в этом запуске)');
   if (i.sources.length === 0) L.push('пока ни один источник не запрашивался');
   for (const s of [...i.sources].sort((a, b) => a.name.localeCompare(b.name))) L.push(`${s.ok ? '✓' : '✗'} ${s.name} — ${s.detail ?? (s.ok ? 'ок' : 'ошибка')} (${ago(i.now - s.at)})`);
+  if (i.broker) { L.push('', 'СВЕРКА АКЦИЙ С БРОКЕРОМ (цена, время цены, изменение по обеим базам)'); L.push(...i.broker); }
   L.push('', 'ПРОВЕРКА СВЯЗИ (запросы с этого устройства)');
   if (i.probes.length === 0) L.push('не запускалась');
   for (const p of i.probes) {

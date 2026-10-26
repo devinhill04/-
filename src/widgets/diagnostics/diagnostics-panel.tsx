@@ -5,6 +5,7 @@ import { ProbeResult, runAllProbes } from '../../shared/diagnostics/probes';
 import { ago, buildReport } from '../../shared/diagnostics/report';
 import { getTelegramWebApp } from '../../lib/telegram';
 import { copyText } from '../../shared/lib/copy-text';
+import { brokerReportLines, brokerRows, currentBasisLabel, fmtPct } from '../../shared/diagnostics/broker-check';
 import { CALENDAR_TAB_ENABLED, POST_READER_ENABLED, SECOND_APP_ENABLED } from '../../shared/config/features';
 
 const FLAGS = {
@@ -44,6 +45,7 @@ export const DiagnosticsPanel: React.FC<{ onClose: () => void }> = ({ onClose })
   useEffect(() => { const t = setInterval(() => setNow(Date.now()), 5000); return () => clearInterval(t); }, []);
 
   const sources = getSources().sort((a, b) => a.name.localeCompare(b.name));
+  const broker = brokerRows();
   const env = collectEnv();
 
   const run = async () => {
@@ -54,7 +56,7 @@ export const DiagnosticsPanel: React.FC<{ onClose: () => void }> = ({ onClose })
   };
 
   const copy = async () => {
-    const ok = await copyText(buildReport({ buildTime: __BUILD_TIME__, commit: __COMMIT__, now: Date.now(), env, flags: FLAGS, sources: getSources(), probes }));
+    const ok = await copyText(buildReport({ buildTime: __BUILD_TIME__, commit: __COMMIT__, now: Date.now(), env, flags: FLAGS, sources: getSources(), probes, broker: brokerReportLines(brokerRows()) }));
     setCopied(ok ? 'ok' : 'fail');
     setTimeout(() => setCopied(null), 2500);
   };
@@ -89,6 +91,28 @@ export const DiagnosticsPanel: React.FC<{ onClose: () => void }> = ({ onClose })
               <span className={s.ok ? 'text-[#11BA2D]' : 'text-[#BA1111]'}>{s.ok ? '✓' : '✗'}</span> <b>{s.name}</b> — {s.detail ?? (s.ok ? 'ок' : 'ошибка')} <span className="text-[#7D7C82] dark:text-neutral-400">({ago(now - s.at)})</span>
             </p>
           ))}
+        </Section>
+
+        <Section title="Сверка акций с брокером">
+          {broker.length === 0 ? (
+            <p className="text-[13px] text-[#7D7C82] dark:text-neutral-400">Откройте вкладку «Рынок» и вернитесь — здесь появятся крупнейшие бумаги.</p>
+          ) : (
+            <>
+              <p className="text-[12px] leading-[16px] text-[#7D7C82] dark:text-neutral-400 mb-2">
+                Сравните в тот же момент с брокером. Совпадает столбец «от вечерней» — нужно переключить базу (сейчас: {currentBasisLabel()}). Разница то есть, то нет — это задержка данных Мосбиржи, смотрите «время цены».
+              </p>
+              <div className="overflow-x-auto">
+                <table className="text-[12px] w-full" data-broker>
+                  <thead><tr className="text-[#7D7C82] dark:text-neutral-400 text-left"><th className="pr-2 font-medium">Бумага</th><th className="pr-2 font-medium">Цена</th><th className="pr-2 font-medium">Время</th><th className="pr-2 font-medium">От основной</th><th className="font-medium">От вечерней</th></tr></thead>
+                  <tbody>
+                    {broker.map((r) => (
+                      <tr key={r.ticker}><td className="pr-2 font-semibold">{r.ticker}</td><td className="pr-2">{r.price}</td><td className="pr-2">{r.priceTimeMsk}{r.ageMin !== null ? ` (${r.ageMin} мин)` : ''}</td><td className="pr-2">{fmtPct(r.pctRegular)}</td><td>{fmtPct(r.pctEvening)}</td></tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
         </Section>
 
         <Section title="Проверка связи с этого устройства">
