@@ -81,6 +81,15 @@ export interface AnalyticsEventRecord {
 
 export type HapticFeedbackType = 'light' | 'medium' | 'heavy' | 'rigid' | 'soft' | 'success' | 'warning' | 'error';
 
+// Параметры для Яндекс.Метрики кладём под имя события: { tag_click: { tag: '#Инвестидея' } }.
+// Метрика складывает параметры всех целей в одно дерево «Параметры визитов», и при плоской передаче
+// одинаковые имена у разных событий смешивались (url — у 10 событий, source — у 4, id — у 5), а в виджет
+// «Топ тегов» попадали тема, экраны и прочее. Теперь путь в дереве: событие › параметр › значение.
+export function metrikaParams(event: string, payload?: AnalyticsPayload): Record<string, AnalyticsPayload> | undefined {
+  if (!payload || Object.keys(payload).length === 0) return undefined;
+  return { [event]: payload };
+}
+
 class AnalyticsServiceImpl {
   private storageKey = 'if_miniapp_analytics_events';
   private sessionStorageKey = 'if_miniapp_session_id';
@@ -158,7 +167,7 @@ class AnalyticsServiceImpl {
 
     // Поддержка Google Analytics / Яндекс Метрики
     if ((window as any).ym) {
-      (window as any).ym(112456720, 'reachGoal', event, payload);
+      (window as any).ym(112456720, 'reachGoal', event, metrikaParams(event, payload));
     }
     if ((window as any).gtag) {
       (window as any).gtag('event', event, payload);
