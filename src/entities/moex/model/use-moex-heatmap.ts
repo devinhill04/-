@@ -1,3 +1,4 @@
+import { DataFreshness, latestPriceAt } from '../../../shared/lib/freshness';
 import { IFQ_TOP40_URL, countStatus, parseSnapshot, top40ToStocks } from '../../quotes/model/if-api';
 import { setTop40Snapshot } from '../../../shared/diagnostics/broker-check';
 import { reportMarketError } from '../../../shared/analytics/market-errors';
@@ -13,6 +14,7 @@ export function useMoexHeatmap() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [freshness, setFreshness] = useState<DataFreshness | null>(null);
   const isMountedRef = useRef(true);
 
   useEffect(() => {
@@ -33,12 +35,15 @@ export function useMoexHeatmap() {
       }
       const items = parseSnapshot(await res.json());
       setTop40Snapshot(items); // для сверки с брокером в экране диагностики
+      lastFreshness = { source: 'api', dataAtUtc: latestPriceAt(items) };
       const stocks = top40ToStocks(items);
       if (stocks.length < 10) throw new Error(`API InvestFuture: в ответе только ${stocks.length} бумаг с ценой`);
       const c = countStatus(items);
       reportSource('ifapi-top40', true, `бумаг: ${stocks.length} из ${c.total} (устарело ${c.stale})`);
       return stocks;
     }
+
+    let lastFreshness: DataFreshness | null = null;
 
     async function fetchData() {
       let merged: MoexStock[];
@@ -50,6 +55,7 @@ export function useMoexHeatmap() {
           reportSource('ifapi-top40', false, apiErr);
           reportMarketError('ifapi-top40');
           merged = await fetchFromIss();
+          lastFreshness = { source: 'iss', dataAtUtc: null };
           reportSource('moex', true, `бумаг: ${merged.length} (запасной источник)`);
         }
         if (isMountedRef.current) {
@@ -60,6 +66,7 @@ export function useMoexHeatmap() {
             setError(null);
           }
           setLastUpdated(new Date());
+          setFreshness(lastFreshness);
           setIsLoading(false);
         }
       } catch (err) {
@@ -82,5 +89,5 @@ export function useMoexHeatmap() {
     };
   }, []);
 
-  return { stocks, isLoading, error, lastUpdated };
+  return { stocks, isLoading, error, lastUpdated, freshness };
 }

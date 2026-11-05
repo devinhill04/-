@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { tileLabelSizes } from './tile-label';
 import { fmtPct } from '../../shared/lib/exact-format';
+import { DataFreshness, freshnessLabel } from '../../shared/lib/freshness';
 import { hierarchy, treemap, treemapSquarify } from 'd3-hierarchy';
 import { MoexStock, MoexHeatmapState } from '../../entities/moex/model/types';
 
@@ -146,7 +147,7 @@ interface MoexHeatmapProps extends MoexHeatmapState {
   onSelectStock?: (stock: MoexStock) => void;
 }
 
-export const MoexHeatmap: React.FC<MoexHeatmapProps> = ({ stocks, isLoading, error, lastUpdated, onSelectStock }) => {
+export const MoexHeatmap: React.FC<MoexHeatmapProps> = ({ stocks, isLoading, error, lastUpdated, freshness, onSelectStock }) => {
   const { ref: containerRef, width: containerWidth } = useContainerWidth();
 
   // Тёмная тема определяется тем же способом, что и остальное приложение — классом на html
@@ -229,9 +230,9 @@ export const MoexHeatmap: React.FC<MoexHeatmapProps> = ({ stocks, isLoading, err
         })}
       </div>
 
-      {lastUpdated && (
+      {(freshnessLabel(freshness) || lastUpdated) && (
         <p className="text-[#7D7C82] dark:text-neutral-500 text-[10px] text-right">
-          Обновлено: {lastUpdated.toLocaleTimeString('ru-RU')}
+          {freshnessLabel(freshness) ?? `Обновлено: ${lastUpdated!.toLocaleTimeString('ru-RU')}`}
         </p>
       )}
     </div>

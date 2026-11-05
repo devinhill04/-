@@ -16,4 +16,6 @@ export interface MoexHeatmapState {
   isLoading: boolean;
   error: string | null;
   lastUpdated: Date | null;
+  // время самих цен Мосбиржи и источник — для подписи «Данные Мосбиржи на 14:35 МСК, с задержкой»
+  freshness?: import('../../../shared/lib/freshness').DataFreshness | null;
 }
