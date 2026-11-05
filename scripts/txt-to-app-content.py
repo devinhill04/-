@@ -2,12 +2,11 @@
 """
 Текст с наполнением приложения из каталога → public/data/apps/<app>.json.
 
-Формат текста (как присылает редакция):
-  Название карточки
-  Заголовок поста - https://t.me/канал/номер
-  ...
-  Тег<TAB><TAB>https://t.me/канал/номер     ← строка с табуляцией начинает тег
-  <TAB><TAB>https://t.me/канал/номер        ← следующие посты этого тега
+Два файла, потому что карточки и теги редакция записывает одинаково и по тексту их не отличить:
+  карточки (categories.txt):              теги (tags.txt), любой из двух видов:
+    Название карточки                       Название тега                  Тег<TAB><TAB>https://t.me/канал/номер
+    Заголовок поста - https://t.me/…        Заголовок - https://t.me/…     <TAB><TAB>https://t.me/канал/номер
+    ...                                     ...
 
 Что делает:
 - убирает из ссылок всё после «?» и «#» (например, ?utm_source=chatgpt.com)
@@ -16,7 +15,7 @@
 - заголовки постов в тегах берёт из текущего JSON (если уже есть), иначе из KNOWN_TAG_TITLES; остальные — null,
   их можно добрать скриптом scripts/fetch-tg-titles.mjs (подписи берутся из самих постов)
 
-Запуск: python3 scripts/txt-to-app-content.py content/jobs/source.txt public/data/apps/jobs.json
+Запуск: python3 scripts/txt-to-app-content.py content/jobs/categories.txt content/jobs/tags.txt public/data/apps/jobs.json
 """
 import json, re, sys
 from urllib.parse import urlsplit, urlunsplit
@@ -75,12 +74,26 @@ def parse(text: str):
         cur_cat = {'title': line.strip(), 'posts': []}; cats.append(cur_cat); cur_tag = None
     return cats, tags, problems
 
-def main(src, dst):
-    text = open(src, encoding='utf-8').read()
+def main(cats_src, tags_src, dst):
+    cats_text = open(cats_src, encoding='utf-8').read()
+    tags_text = open(tags_src, encoding='utf-8').read()
     old = json.load(open(dst, encoding='utf-8'))
     old_by_slug = {c['slug']: c for c in old.get('categories', [])}
     old_titles = {p['url']: p.get('title') for t in old.get('tags', []) for p in t.get('posts', [])}
-    cats, tags, problems = parse(text)
+    cats, stray_tags, problems = parse(cats_text)
+    if stray_tags: problems.append(f'в файле карточек есть строки с табуляцией (теги?): {", ".join(t["tag"] for t in stray_tags)}')
+    # теги: блоки «Название + заголовок - ссылка» — это теги с заголовками; строки с табуляцией — теги из одних ссылок
+    tag_blocks, tab_tags, p2 = parse(tags_text)
+    problems += p2
+    tags = [{'tag': t['tag'], 'posts': [x for x in t['posts']]} for t in tab_tags]
+    titled = {}
+    for b in tag_blocks:
+        tags.append({'tag': b['title'], 'posts': [p['url'] for p in b['posts']]})
+        for p in b['posts']: titled[p['url']] = p['title']
+    order = [t['tag'] for t in (tab_tags + [{'tag': b['title']} for b in tag_blocks])]
+    # порядок тегов — как в файле
+    pos = {name: tags_text.find(name) for name in order}
+    tags.sort(key=lambda t: pos.get(t['tag'], 0))
     out_cats = []
     for c in cats:
         slug = RENAMES.get(c['title']) or translit_slug(c['title'])
@@ -92,7 +105,7 @@ def main(src, dst):
             seen.add(p['url']); posts.append(p)
         out_cats.append({'id': slug, 'slug': slug, 'emoji': (prev or {}).get('emoji', '📌'), 'title': c['title'],
                          'subtitle': (prev or {}).get('subtitle', ''), 'pain': (prev or {}).get('pain'), 'posts': posts})
-    out_tags = [{'tag': t['tag'], 'posts': [{'url': u, 'title': old_titles.get(u) or KNOWN_TAG_TITLES.get(u)} for u in dict.fromkeys(t['posts'])]} for t in tags]
+    out_tags = [{'tag': t['tag'], 'posts': [{'url': u, 'title': titled.get(u) or old_titles.get(u) or KNOWN_TAG_TITLES.get(u)} for u in dict.fromkeys(t['posts'])]} for t in tags]
     result = {'appId': old.get('appId'), 'channel': old.get('channel'), 'categories': out_cats, 'tags': out_tags}
     json.dump(result, open(dst, 'w', encoding='utf-8'), ensure_ascii=False, indent=2)
     open(dst, 'a', encoding='utf-8').write('\n')
@@ -102,4 +115,5 @@ def main(src, dst):
     print('замечания:' if problems else 'замечаний нет'); [print('  - ' + p) for p in problems]
 
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2])
+    if len(sys.argv) != 4: sys.exit('Запуск: python3 scripts/txt-to-app-content.py <карточки.txt> <теги.txt> <выход.json>')
+    main(sys.argv[1], sys.argv[2], sys.argv[3])
