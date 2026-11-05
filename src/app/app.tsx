@@ -13,6 +13,8 @@ import { AnalyticsService } from '../shared/analytics/analytics';
 import { CatalogApp } from '../widgets/catalog-app/catalog-app';
 import { MiniAppsProvider } from '../shared/lib/mini-app-context';
 import { MINI_APPS, loadCurrentAppId, saveCurrentAppId } from '../shared/config/mini-apps';
+import { takeDeepLink } from '../shared/lib/deep-link';
+import { loadLastAppState, saveLastAppState } from '../shared/lib/last-app-state';
 import { CALENDAR_TAB_ENABLED } from '../shared/config/features';
 
 type Section = 'feed' | 'market' | 'calendar';
@@ -28,7 +30,20 @@ const ALL_NAV: { id: Section; label: string; Icon: React.ComponentType<{ classNa
 const NAV = ALL_NAV.filter((n) => n.id !== 'calendar' || CALENDAR_TAB_ENABLED);
 
 export const App: React.FC = () => {
-  const [activeSection, setActiveSection] = useState<Section>('feed');
+  // Прямая ссылка (startapp): применяется один раз при запуске
+  const [deepLink] = useState(() => {
+    const link = takeDeepLink();
+    if (link?.intent?.kind === 'feed') {
+      // открываем нужную вкладку или карточку через то же «последнее место», что восстанавливает главная
+      const last = loadLastAppState();
+      saveLastAppState({ ...last, activeTab: link.intent.tab, activePainSlug: link.intent.painSlug ?? null, isEcosystemOpen: false });
+    }
+    return link;
+  });
+  const [activeSection, setActiveSection] = useState<Section>(() => (deepLink?.intent?.kind === 'market' ? 'market' : 'feed'));
+  useEffect(() => {
+    if (deepLink) AnalyticsService.track('deeplink_open', { route: deepLink.route, source: deepLink.source ?? 'none', known: deepLink.intent ? 'yes' : 'no' });
+  }, []);
   const [appId, setAppId] = useState(() => loadCurrentAppId());
   const currentApp = MINI_APPS.find((a) => a.id === appId) ?? MINI_APPS[0];
 

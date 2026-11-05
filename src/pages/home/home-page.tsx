@@ -15,6 +15,7 @@ import { AnalyticsService } from '../../shared/analytics/analytics';
 import { triggerHaptic } from '../../lib/telegram';
 import { loadLastAppState, saveLastAppState } from '../../shared/lib/last-app-state';
 import { loadTagUsage, orderTags, recordTagClick } from '../../shared/lib/tag-usage';
+import { takePendingTag } from '../../shared/lib/deep-link';
 
 export const HomePage: React.FC = () => {
   // Восстанавливаем последнее место, где был пользователь (см. src/shared/lib/last-app-state.ts) —
@@ -78,6 +79,12 @@ export const HomePage: React.FC = () => {
     // затем остальные по общей популярности (из Метрики, когда она подключена), затем как в данных.
     return orderTags(Array.from(tagsSet), { priorityTag: '#Инвестидея', globalOrder: tagPopularity, usage: tagUsage });
   }, [posts, tagPopularity, tagUsage]);
+
+  // Тег из прямой ссылки (startapp=tag-…): выбираем, как только список тегов готов
+  useEffect(() => {
+    const t = takePendingTag(allTags);
+    if (t) { setActiveTab('catalog'); setSelectedTag(t); }
+  }, [allTags]);
 
   // Filter posts by active selected tag
   const filteredPosts = useMemo(() => {

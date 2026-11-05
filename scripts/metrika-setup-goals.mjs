@@ -38,6 +38,7 @@ export const GOALS = [
   ['market_data_error', 'Рынок: источник данных не отвечает (параметр source)'],
   // ---- Основное приложение ----
   ['screen_view', 'Переключение экрана (параметр screen: tags / solutions / feed)'],
+  ['deeplink_open', 'Открыли по прямой ссылке (параметры route и source)'],
   ['tag_click', 'Клик по тегу'],
   ['post_open', 'Открытие поста'],
   ['pain_selected', 'Выбор карточки в «Готовых решениях»'],
