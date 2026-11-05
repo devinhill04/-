@@ -12,3 +12,16 @@ describe('мелочи интерфейса', () => {
     expect(untitledFor('Юмор')).toBe('Пост из канала');
   });
 });
+
+describe('файл средней цены Urals', () => {
+  it('заполнен правильно: числа, даты, периоды', async () => {
+    const fs = await import('node:fs');
+    const d = JSON.parse(fs.readFileSync('public/data/urals-monthly.json', 'utf8'));
+    expect(d.price).toBeGreaterThan(0);
+    expect(d.previousPrice).toBeGreaterThan(0);
+    expect(d.publishedAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(d.period).toMatch(/^[а-я]+ \d{4}$/);
+    expect(d.previousPeriod).toMatch(/^[а-я]+ \d{4}$/);
+    expect(d.period).not.toBe(d.previousPeriod);
+  });
+});
