@@ -31,6 +31,10 @@ RENAMES = {
     'Меня обошли': 'so_mnoy_nespravedlivy',
     'ИИ отнимет мою работу?': 'boyus_ii',
     'Хочу начать заново': 'hochu_smenit_professiyu',
+    # прежние названия
+    'Мало денег': 'malo_deneg', 'Хочу уйти': 'hochu_uyti', 'Ищу работу': 'ischu_rabotu', 'Нарушают мои права': 'narushayut_moi_prava',
+    'Я выгорел': 'ya_vygorel', 'Боюсь ИИ': 'boyus_ii', 'Хочу сменить профессию': 'hochu_smenit_professiyu',
+    'Ненавижу начальника': 'nenavizhu_nachalnika', 'Со мной несправедливы': 'so_mnoy_nespravedlivy',
 }
 
 # Заголовки постов из тегов, взятые из самих постов (у комиксов-картинок подписи может не быть)
