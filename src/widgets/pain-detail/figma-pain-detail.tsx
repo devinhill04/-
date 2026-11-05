@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { plural, PUBLICATIONS } from '../../shared/lib/plural';
 import { FigmaPainCard } from '../../shared/config/figma-data';
 import { FigmaPostCard } from '../post-card/figma-post-card';
 import { AnalyticsService } from '../../shared/analytics/analytics';
@@ -91,7 +92,7 @@ export const FigmaPainDetailScreen: React.FC<FigmaPainDetailScreenProps> = ({
                 style={{ borderRadius: '8px' }}
                 className="w-full h-10 flex items-center justify-center text-[#161616] dark:text-neutral-200 font-manrope text-[14px] font-medium transition-all active:scale-[0.99] cursor-pointer hover:opacity-70"
               >
-                {`Показать ещё ${Math.min(PAGE_SIZE, remaining)} публикаций`}
+                {`Показать ещё ${Math.min(PAGE_SIZE, remaining)} ${plural(Math.min(PAGE_SIZE, remaining), PUBLICATIONS)}`}
               </button>
             )}
           </>

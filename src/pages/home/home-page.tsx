@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { plural, PUBLICATIONS } from '../../shared/lib/plural';
 import { FigmaHeader } from '../../widgets/top-nav/figma-header';
 import { BannersCarousel } from '../../widgets/banners-carousel/banners-carousel';
 import { FigmaTagSearch } from '../../widgets/tag-search/figma-tag-search';
@@ -240,7 +241,7 @@ export const HomePage: React.FC = () => {
                         }}
                         className="w-full flex items-center justify-center text-[#161616] bg-[#F9F9F9] dark:bg-neutral-800 dark:text-white hover:bg-neutral-200 transition-colors mt-2 cursor-pointer"
                       >
-                        {`Показать еще ${Math.min(10, filteredPosts.length - postsLimit)} публикаций`}
+                        {`Показать ещё ${Math.min(10, filteredPosts.length - postsLimit)} ${plural(Math.min(10, filteredPosts.length - postsLimit), PUBLICATIONS)}`}
                       </button>
                     )}
                   </div>

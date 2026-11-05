@@ -1,13 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { plural, PUBLICATIONS } from '../../shared/lib/plural';
 import { FigmaHeader } from '../top-nav/figma-header';
 import { FigmaPainDetailScreen } from '../pain-detail/figma-pain-detail';
 import { FigmaTagSearch } from '../tag-search/figma-tag-search';
+import { FigmaPostCard } from '../post-card/figma-post-card';
+import { triggerHaptic } from '../../lib/telegram';
 import { BannersCarousel } from '../banners-carousel/banners-carousel';
 import { FigmaEcosystemScreen } from '../ecosystem/figma-ecosystem-screen';
 import { CategoryGrid } from './category-grid';
 import { MiniApp } from '../../shared/config/mini-apps';
 import { AppCategory } from '../../entities/app-content/model/types';
-import { categoryToPosts } from '../../entities/app-content/model/to-posts';
+import { categoryToPosts, tagToPosts } from '../../entities/app-content/model/to-posts';
 import { useAppContent } from '../../entities/app-content/model/use-app-content';
 import { AnalyticsService } from '../../shared/analytics/analytics';
 
@@ -58,6 +61,19 @@ export const CatalogApp: React.FC<{ app: MiniApp }> = ({ app }) => {
   );
   const posts = useMemo(() => (active && content ? categoryToPosts(active, content.channel) : []), [active, content]);
 
+  // Поиск по тегам: теги из данных приложения; выбран первый, пока человек не выберет другой
+  const tags = content?.tags ?? [];
+  const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [tagLimit, setTagLimit] = useState(10);
+  const currentTag = tags.find((t) => `#${t.tag}` === selectedTag) ?? tags[0] ?? null;
+  const tagPosts = useMemo(() => (currentTag && content ? tagToPosts(currentTag, content.channel) : []), [currentTag, content]);
+  const selectTag = (t: string) => {
+    triggerHaptic('light');
+    setSelectedTag(t);
+    setTagLimit(10);
+    AnalyticsService.track('tag_click', { tag: t, app: app.id });
+  };
+
   return (
     <div className="min-h-screen bg-white dark:bg-[#111111] text-[#161616] dark:text-neutral-100 flex flex-col font-['Manrope',sans-serif] selection:bg-[var(--accent)] selection:text-white">
       <FigmaHeader activeScreen={tab} onSelectScreen={setTab} showNavTabs={!active && !eco} />
@@ -80,8 +96,34 @@ export const CatalogApp: React.FC<{ app: MiniApp }> = ({ app }) => {
               <BannersCarousel onOpenResources={() => setEco(true)} />
             </div>
 
-            {/* Поиск по тегам: тегов нет — виден только заголовок раздела, как в основном приложении без чипов */}
-            {tab === 'catalog' && <FigmaTagSearch selectedTag={null} onSelectTag={() => {}} availableTags={[]} />}
+            {/* Поиск по тегам — как в основном приложении: чипы тегов и посты по выбранному */}
+            {tab === 'catalog' && (
+              <>
+                <FigmaTagSearch selectedTag={currentTag ? `#${currentTag.tag}` : null} onSelectTag={selectTag} availableTags={tags.map((t) => `#${t.tag}`)} />
+                {currentTag && (
+                  <div className="w-full px-3 flex flex-col gap-3 pt-2">
+                    <h3 style={{ fontFamily: "'Manrope', sans-serif", fontWeight: 600, fontSize: '20px', lineHeight: '25px' }} className="text-[#161616] dark:text-white flex flex-col text-left">
+                      <span>Результаты поиска по тегу</span>
+                      <span className="text-[var(--accent)]">#{currentTag.tag}</span>
+                    </h3>
+                    <div className="flex flex-col gap-2 pt-1">
+                      {tagPosts.slice(0, tagLimit).map((post) => (
+                        <FigmaPostCard key={post.id} post={post} showTags={false} />
+                      ))}
+                      {tagPosts.length > tagLimit && (
+                        <button
+                          onClick={() => { triggerHaptic('light'); setTagLimit((v) => v + 10); }}
+                          style={{ height: '40px', borderRadius: '8px', fontFamily: "'Manrope', sans-serif", fontWeight: 500, fontSize: '12px', lineHeight: '15px' }}
+                          className="w-full flex items-center justify-center text-[#161616] bg-[#F9F9F9] dark:bg-neutral-800 dark:text-white mt-2 cursor-pointer"
+                        >
+                          {`Показать ещё ${Math.min(10, tagPosts.length - tagLimit)} ${plural(Math.min(10, tagPosts.length - tagLimit), PUBLICATIONS)}`}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
 
             {tab === 'solutions' && (
               <>

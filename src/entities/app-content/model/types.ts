@@ -13,8 +13,20 @@ export interface AppCategory {
   posts: AppCategoryPost[];
 }
 
+// Тег: подборка постов для вкладки «Поиск по тегам». У постов-картинок (комиксы) подписи может не быть — title: null
+export interface AppTagPost {
+  url: string;
+  title: string | null;
+}
+
+export interface AppTag {
+  tag: string; // без «#»
+  posts: AppTagPost[];
+}
+
 export interface AppContent {
   appId: string;
   channel: string;
   categories: AppCategory[];
+  tags?: AppTag[];
 }
