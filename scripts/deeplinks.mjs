@@ -14,6 +14,17 @@ const base = `https://t.me/${BOT}/${APP}?startapp=`;
 const TR = { а: 'a', б: 'b', в: 'v', г: 'g', д: 'd', е: 'e', ё: 'e', ж: 'zh', з: 'z', и: 'i', й: 'y', к: 'k', л: 'l', м: 'm', н: 'n', о: 'o', п: 'p', р: 'r', с: 's', т: 't', у: 'u', ф: 'f', х: 'h', ц: 'ts', ч: 'ch', ш: 'sh', щ: 'sch', ъ: '', ы: 'y', ь: '', э: 'e', ю: 'yu', я: 'ya' };
 export const tagSlug = (t) => [...t.replace(/^#/, '').toLowerCase()].map((c) => TR[c] ?? c).join('').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50);
 
+// «Работа не рабство»: карточки и теги из данных приложения (ссылки заработают, когда приложение выпустят)
+export function buildJobsRows(jobs) {
+  return [
+    { what: '«Работа не рабство»', param: 'jobs' },
+    { what: '«Работа не рабство»: поиск по тегам', param: 'jobs-tags' },
+    { what: '«Работа не рабство»: готовые решения', param: 'jobs-solutions' },
+    ...(jobs.categories || []).map((c) => ({ what: `«Работа не рабство»: карточка «${c.title}»`, param: `jobs-pain-${c.slug}` })),
+    ...(jobs.tags || []).map((t) => ({ what: `«Работа не рабство»: тег #${t.tag}`, param: `jobs-tag-${tagSlug(t.tag)}` })),
+  ];
+}
+
 export function buildRows(posts, figmaDataSource) {
   const tags = [...new Set(posts.flatMap((p) => p.tags || []))].sort((a, b) => a.localeCompare(b, 'ru'));
   const block = figmaDataSource.slice(figmaDataSource.indexOf('FIGMA_PAIN_CARDS'));
@@ -30,6 +41,7 @@ export function buildRows(posts, figmaDataSource) {
 if ((process.argv[1] ?? '').endsWith('deeplinks.mjs')) {
   const posts = JSON.parse(fs.readFileSync('public/data/posts.json', 'utf8'));
   const rows = buildRows(posts, fs.readFileSync('src/shared/config/figma-data.ts', 'utf8'));
+  const jobsRows = buildJobsRows(JSON.parse(fs.readFileSync('public/data/apps/jobs.json', 'utf8')));
   const md = [
     '# Прямые ссылки на разделы мини-аппа',
     '',
@@ -39,8 +51,16 @@ if ((process.argv[1] ?? '').endsWith('deeplinks.mjs')) {
     '| --- | --- |',
     ...rows.map((r) => `| ${r.what} | \`${base}${r.param}\` |`),
     '',
+    '## «Работа не рабство»',
+    '',
+    'Заработают, когда второе приложение выпустят для всех; до этого ссылка откроет основное приложение.',
+    '',
+    '| Куда ведёт | Ссылка |',
+    '| --- | --- |',
+    ...jobsRows.map((r) => `| ${r.what} | \`${base}${r.param}\` |`),
+    '',
   ].join('\n');
   fs.mkdirSync('docs', { recursive: true });
   fs.writeFileSync('docs/deeplinks.md', md);
-  console.log(`docs/deeplinks.md: ${rows.length} ссылок (${APP === '<короткое_имя>' ? 'короткое имя приложения не указано — подставьте --app' : 'приложение ' + APP})`);
+  console.log(`docs/deeplinks.md: ${rows.length} + ${jobsRows.length} («Работа не рабство») ссылок (${APP === '<короткое_имя>' ? 'короткое имя приложения не указано — подставьте --app' : 'приложение ' + APP})`);
 }

@@ -14,6 +14,8 @@ import { CatalogApp } from '../widgets/catalog-app/catalog-app';
 import { MiniAppsProvider } from '../shared/lib/mini-app-context';
 import { MINI_APPS, loadCurrentAppId, saveCurrentAppId } from '../shared/config/mini-apps';
 import { takeDeepLink } from '../shared/lib/deep-link';
+import { saveCatalogStartState } from '../widgets/catalog-app/catalog-app';
+import { SECOND_APP_ENABLED } from '../shared/config/features';
 import { loadLastAppState, saveLastAppState } from '../shared/lib/last-app-state';
 import { CALENDAR_TAB_ENABLED } from '../shared/config/features';
 
@@ -33,6 +35,15 @@ export const App: React.FC = () => {
   // Прямая ссылка (startapp): применяется один раз при запуске
   const [deepLink] = useState(() => {
     const link = takeDeepLink();
+    if (link?.intent?.kind === 'app') {
+      if (SECOND_APP_ENABLED && MINI_APPS.some((a) => a.id === (link.intent as any).appId)) {
+        const it = link.intent;
+        saveCurrentAppId(it.appId);
+        saveCatalogStartState(it.appId, { tab: it.tab, slug: it.painSlug ?? null });
+      } else {
+        link.intent = null; // второе приложение выключено — открываем основное как обычно
+      }
+    }
     if (link?.intent?.kind === 'feed') {
       // открываем нужную вкладку или карточку через то же «последнее место», что восстанавливает главная
       const last = loadLastAppState();
@@ -46,6 +57,7 @@ export const App: React.FC = () => {
   }, []);
   const [appId, setAppId] = useState(() => loadCurrentAppId());
   const currentApp = MINI_APPS.find((a) => a.id === appId) ?? MINI_APPS[0];
+  AnalyticsService.setApp(currentApp.id); // до любых событий этого рендера
 
   // Когда браузер свободен, тихо подгружаем «Рынок» (календари не трогаем: пока заморожены)
   useEffect(() => {

@@ -6,6 +6,10 @@ describe('параметры для Яндекс.Метрики', () => {
     expect(metrikaParams('tag_click', { tag: '#Инвестидея' })).toEqual({ tag_click: { tag: '#Инвестидея' } });
     expect(metrikaParams('market_data_error', { source: 'news' })).toEqual({ market_data_error: { source: 'news' } });
   });
+  it('приложение — отдельной веткой верхнего уровня, не внутри события (виджет тегов не засоряется)', () => {
+    expect(metrikaParams('tag_click', { tag: '#Юмор' }, 'jobs')).toEqual({ tag_click: { tag: '#Юмор' }, app: 'jobs' });
+    expect(metrikaParams('market_open', undefined, 'navigation')).toEqual({ app: 'navigation' });
+  });
   it('пустые параметры не отправляются', () => {
     expect(metrikaParams('market_open')).toBeUndefined();
     expect(metrikaParams('x', {})).toBeUndefined();

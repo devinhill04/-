@@ -4,6 +4,7 @@ import { FigmaHeader } from '../top-nav/figma-header';
 import { FigmaPainDetailScreen } from '../pain-detail/figma-pain-detail';
 import { FigmaTagSearch } from '../tag-search/figma-tag-search';
 import { FigmaPostCard } from '../post-card/figma-post-card';
+import { takePendingTag } from '../../shared/lib/deep-link';
 import { triggerHaptic } from '../../lib/telegram';
 import { BannersCarousel } from '../banners-carousel/banners-carousel';
 import { FigmaEcosystemScreen } from '../ecosystem/figma-ecosystem-screen';
@@ -17,6 +18,15 @@ import { AnalyticsService } from '../../shared/analytics/analytics';
 type Tab = 'catalog' | 'solutions';
 
 const STATE_KEY = 'if_catalog_state_v2';
+
+// Для прямых ссылок: открыть нужную вкладку или карточку приложения из каталога при запуске
+export function saveCatalogStartState(appId: string, state: { tab?: 'catalog' | 'solutions'; slug?: string | null }) {
+  try {
+    const all = JSON.parse(localStorage.getItem(STATE_KEY) || '{}');
+    all[appId] = { ...(all[appId] || {}), ...(state.tab ? { tab: state.tab } : {}), slug: state.slug ?? null, eco: false };
+    localStorage.setItem(STATE_KEY, JSON.stringify(all));
+  } catch { /* не критично */ }
+}
 
 // Запоминаем вкладку и открытую карточку: когда человек жмёт на пост, Telegram закрывает мини-апп,
 // а при повторном открытии он должен вернуться туда же, где был
@@ -65,13 +75,18 @@ export const CatalogApp: React.FC<{ app: MiniApp }> = ({ app }) => {
   const tags = content?.tags ?? [];
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [tagLimit, setTagLimit] = useState(10);
+  // Тег из прямой ссылки (jobs-tag-…) — как только загрузились теги
+  useEffect(() => {
+    const t = takePendingTag(tags.map((x) => `#${x.tag}`));
+    if (t) setSelectedTag(t);
+  }, [tags]);
   const currentTag = tags.find((t) => `#${t.tag}` === selectedTag) ?? tags[0] ?? null;
   const tagPosts = useMemo(() => (currentTag && content ? tagToPosts(currentTag, content.channel) : []), [currentTag, content]);
   const selectTag = (t: string) => {
     triggerHaptic('light');
     setSelectedTag(t);
     setTagLimit(10);
-    AnalyticsService.track('tag_click', { tag: t, app: app.id });
+    AnalyticsService.track('tag_click', { tag: t });
   };
 
   return (

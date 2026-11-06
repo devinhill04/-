@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { _resetDeepLink, parseStartParam, readStartParam, tagSlug, takeDeepLink, takePendingTag } from '../src/shared/lib/deep-link';
 // @ts-ignore — скрипт для редакторов на чистом JS
-import { buildRows, tagSlug as scriptTagSlug } from '../scripts/deeplinks.mjs';
+import { buildJobsRows, buildRows, tagSlug as scriptTagSlug } from '../scripts/deeplinks.mjs';
 
 afterEach(() => { vi.unstubAllGlobals(); _resetDeepLink(); });
 
@@ -38,6 +38,15 @@ describe('прямые ссылки на разделы (startapp)', () => {
     expect(rows.slice(0, 3).map((r: any) => r.param)).toEqual(['market', 'tags', 'solutions']);
     expect(rows.filter((r: any) => r.param.startsWith('pain-')).length).toBe(8);
     for (const r of rows) expect(parseStartParam(r.param)!.intent).not.toBeNull();
+  });
+  it('ссылки на «Работа не рабство»: приложение, вкладки, теги и карточки', () => {
+    expect(parseStartParam('jobs')!.intent).toEqual({ kind: 'app', appId: 'jobs' });
+    expect(parseStartParam('jobs-tag-yumor__post')!.intent).toEqual({ kind: 'app', appId: 'jobs', tab: 'catalog', tagSlug: 'yumor' });
+    expect(parseStartParam('jobs-pain-ischu_rabotu')!.intent).toEqual({ kind: 'app', appId: 'jobs', tab: 'solutions', painSlug: 'ischu_rabotu' });
+    const jobs = JSON.parse(fs.readFileSync('public/data/apps/jobs.json', 'utf8'));
+    const rows = buildJobsRows(jobs);
+    expect(rows.length).toBe(3 + jobs.categories.length + jobs.tags.length);
+    for (const r of rows) { expect(r.param.length).toBeLessThanOrEqual(64); expect(parseStartParam(r.param)!.intent).not.toBeNull(); }
   });
   it('параметр берётся из Telegram, а в браузере — из адреса; применяется один раз', () => {
     vi.stubGlobal('window', { Telegram: { WebApp: { initDataUnsafe: { start_param: 'tag-nalogi__post1234' } } } });

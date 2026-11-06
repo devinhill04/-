@@ -5,6 +5,8 @@
 //   tags / solutions          — «Поиск по тегам» / «Готовые решения»
 //   tag-<тег>                 — сразу выбранный тег: tag-investideya для #Инвестидея
 //   pain-<карточка>           — сразу открытая карточка «Готовых решений»: pain-personal_finance
+//   jobs, jobs-tags, jobs-solutions, jobs-tag-<тег>, jobs-pain-<карточка> — то же для «Работа не рабство»
+//                               (работает, когда второе приложение включено; иначе открывается основное)
 //   …__<источник>             — метка, откуда пришли (пост, рассылка): market__rassylka_nov
 // Неизвестный раздел — мини-апп открывается как обычно.
 
@@ -17,7 +19,8 @@ export function tagSlug(tag: string): string {
 
 export type DeepLinkIntent =
   | { kind: 'market' }
-  | { kind: 'feed'; tab: 'catalog' | 'solutions'; tagSlug?: string; painSlug?: string };
+  | { kind: 'feed'; tab: 'catalog' | 'solutions'; tagSlug?: string; painSlug?: string }
+  | { kind: 'app'; appId: string; tab?: 'catalog' | 'solutions'; tagSlug?: string; painSlug?: string };
 
 export interface DeepLink {
   route: string;
@@ -37,6 +40,11 @@ export function parseStartParam(param: string | null | undefined): DeepLink | nu
   else if (route === 'solutions') intent = { kind: 'feed', tab: 'solutions' };
   else if (route.startsWith('tag-') && route.length > 4) intent = { kind: 'feed', tab: 'catalog', tagSlug: route.slice(4) };
   else if (route.startsWith('pain-') && route.length > 5) intent = { kind: 'feed', tab: 'solutions', painSlug: route.slice(5) };
+  else if (route === 'jobs') intent = { kind: 'app', appId: 'jobs' };
+  else if (route === 'jobs-tags') intent = { kind: 'app', appId: 'jobs', tab: 'catalog' };
+  else if (route === 'jobs-solutions') intent = { kind: 'app', appId: 'jobs', tab: 'solutions' };
+  else if (route.startsWith('jobs-tag-') && route.length > 9) intent = { kind: 'app', appId: 'jobs', tab: 'catalog', tagSlug: route.slice(9) };
+  else if (route.startsWith('jobs-pain-') && route.length > 10) intent = { kind: 'app', appId: 'jobs', tab: 'solutions', painSlug: route.slice(10) };
   return { route, source, intent };
 }
 
@@ -58,7 +66,7 @@ export function takeDeepLink(): DeepLink | null {
   if (consumed) return null;
   consumed = true;
   const link = parseStartParam(readStartParam());
-  if (link?.intent?.kind === 'feed' && link.intent.tagSlug) pendingTagSlug = link.intent.tagSlug;
+  if (link?.intent && link.intent.kind !== 'market' && link.intent.tagSlug) pendingTagSlug = link.intent.tagSlug;
   return link;
 }
 
