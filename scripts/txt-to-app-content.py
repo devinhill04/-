@@ -46,7 +46,7 @@ KNOWN_TAG_TITLES = {
     'https://t.me/if_jobs/1494': 'Есть жизнь после работы?',
 }
 
-POST_RE = re.compile(r'^(.*\S)\s+-\s+(https?://\S+)\s*$')
+POST_RE = re.compile(r'^(.*?\S)\s+(?:-\s+)?(https?://\S+)\s*$')  # «заголовок - ссылка» или «заголовок ссылка»
 TAG_START_RE = re.compile(r'^([^\t]+?)\t+(https?://\S+)\s*$')
 TAG_MORE_RE = re.compile(r'^\t+(https?://\S+)\s*$')
 
