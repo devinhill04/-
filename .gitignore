@@ -6,3 +6,7 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# служебные файлы Python
+__pycache__/
+*.pyc
