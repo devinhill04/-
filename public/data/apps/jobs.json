@@ -367,124 +367,23 @@
   ],
   "tags": [
     {
-      "tag": "Комиксы",
+      "tag": "Скетч «Офис. Терпеть нельзя уйти»",
       "posts": [
+        {
+          "url": "https://t.me/if_jobs/1553",
+          "title": "Серия 4. Когда на работе аврал"
+        },
+        {
+          "url": "https://t.me/if_jobs/1538",
+          "title": "Серия 3. Первый рабочий день"
+        },
+        {
+          "url": "https://t.me/if_jobs/1523",
+          "title": "Серия 2. Не дай HR себя переиграть"
+        },
         {
           "url": "https://t.me/if_jobs/1500",
-          "title": "Сериал «Офис. Терпеть нельзя уйти»"
-        },
-        {
-          "url": "https://t.me/if_jobs/1408",
-          "title": "Кто ты из этой великолепной троицы?"
-        },
-        {
-          "url": "https://t.me/if_jobs/1439",
-          "title": "Как токсичный босс определяет, что сотрудник хорошо работает"
-        },
-        {
-          "url": "https://t.me/if_jobs/1394",
-          "title": "Жиза?"
-        },
-        {
-          "url": "https://t.me/if_jobs/1331",
-          "title": null
-        },
-        {
-          "url": "https://t.me/if_jobs/1300",
-          "title": null
-        },
-        {
-          "url": "https://t.me/if_jobs/1270",
-          "title": null
-        },
-        {
-          "url": "https://t.me/if_jobs/1257",
-          "title": null
-        },
-        {
-          "url": "https://t.me/if_jobs/1228",
-          "title": null
-        },
-        {
-          "url": "https://t.me/if_jobs/1214",
-          "title": null
-        }
-      ]
-    },
-    {
-      "tag": "Юмор",
-      "posts": [
-        {
-          "url": "https://t.me/if_jobs/1494",
-          "title": "Есть жизнь после работы?"
-        },
-        {
-          "url": "https://t.me/if_jobs/1478",
-          "title": null
-        },
-        {
-          "url": "https://t.me/if_jobs/1475",
-          "title": null
-        },
-        {
-          "url": "https://t.me/if_jobs/1472",
-          "title": null
-        },
-        {
-          "url": "https://t.me/if_jobs/1461",
-          "title": null
-        },
-        {
-          "url": "https://t.me/if_jobs/1454",
-          "title": null
-        },
-        {
-          "url": "https://t.me/if_jobs/1429",
-          "title": null
-        },
-        {
-          "url": "https://t.me/if_jobs/1414",
-          "title": null
-        },
-        {
-          "url": "https://t.me/if_jobs/1404",
-          "title": null
-        },
-        {
-          "url": "https://t.me/if_jobs/1381",
-          "title": null
-        },
-        {
-          "url": "https://t.me/if_jobs/1377",
-          "title": null
-        },
-        {
-          "url": "https://t.me/if_jobs/1369",
-          "title": null
-        },
-        {
-          "url": "https://t.me/if_jobs/1348",
-          "title": null
-        },
-        {
-          "url": "https://t.me/if_jobs/1340",
-          "title": null
-        },
-        {
-          "url": "https://t.me/if_jobs/1324",
-          "title": null
-        },
-        {
-          "url": "https://t.me/if_jobs/1317",
-          "title": null
-        },
-        {
-          "url": "https://t.me/if_jobs/1305",
-          "title": null
-        },
-        {
-          "url": "https://t.me/if_jobs/1287",
-          "title": null
+          "title": "Серия 1. Собеседование"
         }
       ]
     },

@@ -56,8 +56,7 @@
 | «Работа не рабство»: карточка «Хочу сменить профессию» | `https://t.me/if_miniapp_bot/<короткое_имя>?startapp=jobs-pain-hochu_smenit_professiyu` |
 | «Работа не рабство»: карточка «Ненавижу начальника» | `https://t.me/if_miniapp_bot/<короткое_имя>?startapp=jobs-pain-nenavizhu_nachalnika` |
 | «Работа не рабство»: карточка «Со мной несправедливы» | `https://t.me/if_miniapp_bot/<короткое_имя>?startapp=jobs-pain-so_mnoy_nespravedlivy` |
-| «Работа не рабство»: тег #Комиксы | `https://t.me/if_miniapp_bot/<короткое_имя>?startapp=jobs-tag-komiksy` |
-| «Работа не рабство»: тег #Юмор | `https://t.me/if_miniapp_bot/<короткое_имя>?startapp=jobs-tag-yumor` |
+| «Работа не рабство»: тег #Скетч «Офис. Терпеть нельзя уйти» | `https://t.me/if_miniapp_bot/<короткое_имя>?startapp=jobs-tag-sketch-ofis-terpet-nelzya-uyti` |
 | «Работа не рабство»: тег #Мне недоплачивают | `https://t.me/if_miniapp_bot/<короткое_имя>?startapp=jobs-tag-mne-nedoplachivayut` |
 | «Работа не рабство»: тег #Хочу уволиться | `https://t.me/if_miniapp_bot/<короткое_имя>?startapp=jobs-tag-hochu-uvolitsya` |
 | «Работа не рабство»: тег #Не могу найти работу | `https://t.me/if_miniapp_bot/<короткое_имя>?startapp=jobs-tag-ne-mogu-nayti-rabotu` |
