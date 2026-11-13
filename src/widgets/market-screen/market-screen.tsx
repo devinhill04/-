@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import { useCalculator } from '../../shared/lib/calculator-context';
-import { CALCULATORS_ENABLED } from '../../shared/config/features';
 import { MoexHeatmap } from '../moex-heatmap/moex-heatmap';
 import { QuotesList } from '../quotes-list/quotes-list';
 import { QuotePopup, PopupData } from '../quote-popup/quote-popup';
@@ -30,7 +28,6 @@ export const MarketScreen: React.FC = () => {
   const { main, extra } = useQuotes();
   // Данные акций грузим один раз на всю вкладку: карта и список под ней используют один и тот же ответ биржи
   const heat = useMoexHeatmap();
-  const { openCalculator } = useCalculator();
   const movers = useMoexMovers();
   const [popup, setPopup] = useState<PopupData>(null);
   // Один и тот же результат («открыли карточку инструмента») с разных мест: source показывает, откуда нажали
@@ -64,16 +61,6 @@ export const MarketScreen: React.FC = () => {
           <StocksTabs stocks={heat.stocks} movers={movers} onSelect={(s) => openStock(s, 'stocks_list')} />
         )}
       </section>
-
-      {CALCULATORS_ENABLED && (
-        <section>
-          <Title>Инструменты</Title>
-          <button onClick={() => openCalculator(null, 'market')} className="w-full text-left rounded-[12px] bg-[#F9F9F9] dark:bg-neutral-900 px-4 py-3 active:opacity-70" data-tool="bond-calculator">
-            <p className="text-[15px] font-semibold text-[#161616] dark:text-white">Калькулятор облигаций</p>
-            <p className="text-[12px] leading-[16px] text-[#7D7C82] dark:text-neutral-400 mt-0.5">Стоимость покупки с НКД, все будущие купоны и итог до погашения</p>
-          </button>
-        </section>
-      )}
 
       <section>
         <Title>Последние новости</Title>

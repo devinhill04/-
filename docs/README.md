@@ -12,7 +12,7 @@
 | «Рынок»: Urals | `public/data/urals-monthly.json`, обновляется вручную раз в месяц | `src/entities/quotes/model/use-quotes.ts` |
 | «Рынок»: новости | канал IF News через туннель `telegram-vpn` | `src/entities/news/` |
 | «Работа не рабство» (заморожено) | `content/jobs/*.txt` → `public/data/apps/jobs.json` | `src/widgets/catalog-app/` |
-| Калькулятор облигаций (за флажком) | открытый API Мосбиржи: поиск, график купонов и амортизаций, цена, НКД; метод расчёта — как на сайте | `src/entities/bonds/`, `src/widgets/bond-calculator/` |
+| «Калькуляторы» (за флажком): облигации, выплаты портфеля (скоро) | открытый API Мосбиржи: поиск, график купонов и амортизаций, цена, НКД; метод расчёта — как на сайте | `src/entities/bonds/`, `src/widgets/bond-calculator/` |
 | «Календари» (заморожено) | пока разбор страниц сайта, ждём API | `src/entities/calendar/` |
 
 ## Выпуск версии

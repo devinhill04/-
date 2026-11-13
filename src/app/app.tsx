@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CalendarDays, LayoutGrid, TrendingUp } from 'lucide-react';
+import { Calculator, CalendarDays, LayoutGrid, TrendingUp } from 'lucide-react';
 import { HomePage } from '../pages/home/home-page';
 import { LazySection, lazyWithRetry } from '../shared/ui/lazy-section';
 
@@ -7,6 +7,7 @@ import { LazySection, lazyWithRetry } from '../shared/ui/lazy-section';
 const loadMarket = () => import('../widgets/market-screen/market-screen').then((m) => ({ default: m.MarketScreen }));
 const MarketScreen = lazyWithRetry(loadMarket);
 const CalendarScreen = lazyWithRetry(() => import('../widgets/calendar-screen/calendar-screen').then((m) => ({ default: m.CalendarScreen })));
+const ToolsScreen = lazyWithRetry(() => import('../widgets/tools-screen/tools-screen').then((m) => ({ default: m.ToolsScreen })));
 import { initTelegramTheme } from '../shared/theme/init-telegram';
 import { triggerHaptic } from '../lib/telegram';
 import { AnalyticsService } from '../shared/analytics/analytics';
@@ -21,17 +22,18 @@ import { SECOND_APP_ENABLED } from '../shared/config/features';
 import { loadLastAppState, saveLastAppState } from '../shared/lib/last-app-state';
 import { CALENDAR_TAB_ENABLED } from '../shared/config/features';
 
-type Section = 'feed' | 'market' | 'calendar';
+type Section = 'feed' | 'market' | 'calendar' | 'tools';
 
 // Вкладки нижней навигации; event — событие аналитики при открытии вкладки
 const ALL_NAV: { id: Section; label: string; Icon: React.ComponentType<{ className?: string }>; event?: 'market_open' | 'calendar_open' }[] = [
   { id: 'feed', label: 'Материалы', Icon: LayoutGrid },
   { id: 'market', label: 'Рынок', Icon: TrendingUp, event: 'market_open' },
   { id: 'calendar', label: 'Календари', Icon: CalendarDays, event: 'calendar_open' },
+  { id: 'tools', label: 'Калькуляторы', Icon: Calculator },
 ];
 
 // Пока CALENDAR_TAB_ENABLED = false, вкладки «Календари» в навигации нет
-const NAV = ALL_NAV.filter((n) => n.id !== 'calendar' || CALENDAR_TAB_ENABLED);
+const NAV = ALL_NAV.filter((n) => (n.id !== 'calendar' || CALENDAR_TAB_ENABLED) && (n.id !== 'tools' || CALCULATORS_ENABLED));
 
 export const App: React.FC = () => {
   // Прямая ссылка (startapp): применяется один раз при запуске
@@ -54,8 +56,10 @@ export const App: React.FC = () => {
     }
     return link;
   });
-  const [activeSection, setActiveSection] = useState<Section>(() => (deepLink?.intent?.kind === 'market' ? 'market' : 'feed'));
-  const { openCalculator } = useCalculator();
+  const [activeSection, setActiveSection] = useState<Section>(() => (deepLink?.intent?.kind === 'market' ? 'market' : deepLink?.intent?.kind === 'calc' ? 'tools' : 'feed'));
+  const { openCalculator, request: calcRequest } = useCalculator();
+  // «Рассчитать» в календаре, прямая ссылка calc-… — переключаемся на вкладку калькуляторов
+  useEffect(() => { if (calcRequest && CALCULATORS_ENABLED) setActiveSection('tools'); }, [calcRequest?.n]);
   useEffect(() => {
     if (deepLink?.intent?.kind === 'calc') openCalculator(deepLink.intent.code, 'deeplink');
   }, []);
@@ -103,7 +107,7 @@ export const App: React.FC = () => {
         {activeSection === 'feed' ? (
           <HomePage />
         ) : (
-          <LazySection>{activeSection === 'market' ? <MarketScreen /> : <CalendarScreen />}</LazySection>
+          <LazySection>{activeSection === 'market' ? <MarketScreen /> : activeSection === 'tools' ? <ToolsScreen /> : <CalendarScreen />}</LazySection>
         )}
       </div>
 
