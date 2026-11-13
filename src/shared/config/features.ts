@@ -20,3 +20,7 @@ export const SECOND_APP_ENABLED = LOCAL_PREVIEW || false;
 // Вкладка «Календари» (облигации и ключевая ставка) в нижней навигации.
 // false — в навигации только «Материалы» и «Рынок».
 export const CALENDAR_TAB_ENABLED = LOCAL_PREVIEW || false;
+
+// Калькулятор облигаций (как на сайте investfuture.ru/tools/bond-calculator): блок «Инструменты» на «Рынке»,
+// кнопка «Рассчитать» в календаре облигаций, прямая ссылка calc / calc-<ISIN>. Локально включён, на проде — после проверки.
+export const CALCULATORS_ENABLED = LOCAL_PREVIEW || false;

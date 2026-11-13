@@ -39,6 +39,9 @@ export const GOALS = [
   // ---- Основное приложение ----
   ['screen_view', 'Переключение экрана (параметр screen: tags / solutions / feed)'],
   ['deeplink_open', 'Открыли по прямой ссылке (параметры route и source)'],
+  ['calc_open', 'Калькулятор облигаций: открыли (параметр source)', 'frozen'],
+  ['calc_bond_select', 'Калькулятор облигаций: выбрали бумагу (secid)', 'frozen'],
+  ['calc_result', 'Калькулятор облигаций: получили расчёт (secid, complete)', 'frozen'],
   ['tag_click', 'Клик по тегу'],
   ['post_open', 'Открытие поста'],
   ['pain_selected', 'Выбор карточки в «Готовых решениях»'],

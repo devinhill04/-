@@ -50,6 +50,9 @@ export type AnalyticsEventType =
   | 'market_news_all'
   | 'market_ticker_copy'
   | 'deeplink_open'
+  | 'calc_open'
+  | 'calc_bond_select'
+  | 'calc_result'
   | 'market_stocks_expand'
   | 'market_data_error'
   // Вкладка «Календари»

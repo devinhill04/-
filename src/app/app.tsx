@@ -14,6 +14,8 @@ import { CatalogApp } from '../widgets/catalog-app/catalog-app';
 import { MiniAppsProvider } from '../shared/lib/mini-app-context';
 import { MINI_APPS, loadCurrentAppId, saveCurrentAppId } from '../shared/config/mini-apps';
 import { takeDeepLink } from '../shared/lib/deep-link';
+import { useCalculator } from '../shared/lib/calculator-context';
+import { CALCULATORS_ENABLED } from '../shared/config/features';
 import { saveCatalogStartState } from '../widgets/catalog-app/catalog-app';
 import { SECOND_APP_ENABLED } from '../shared/config/features';
 import { loadLastAppState, saveLastAppState } from '../shared/lib/last-app-state';
@@ -44,6 +46,7 @@ export const App: React.FC = () => {
         link.intent = null; // второе приложение выключено — открываем основное как обычно
       }
     }
+    if (link?.intent?.kind === 'calc' && !CALCULATORS_ENABLED) link.intent = null; // калькулятор выключен — обычный запуск
     if (link?.intent?.kind === 'feed') {
       // открываем нужную вкладку или карточку через то же «последнее место», что восстанавливает главная
       const last = loadLastAppState();
@@ -52,6 +55,10 @@ export const App: React.FC = () => {
     return link;
   });
   const [activeSection, setActiveSection] = useState<Section>(() => (deepLink?.intent?.kind === 'market' ? 'market' : 'feed'));
+  const { openCalculator } = useCalculator();
+  useEffect(() => {
+    if (deepLink?.intent?.kind === 'calc') openCalculator(deepLink.intent.code, 'deeplink');
+  }, []);
   useEffect(() => {
     if (deepLink) AnalyticsService.track('deeplink_open', { route: deepLink.route, source: deepLink.source ?? 'none', known: deepLink.intent ? 'yes' : 'no' });
   }, []);

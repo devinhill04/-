@@ -59,3 +59,10 @@ describe('прямые ссылки на разделы (startapp)', () => {
     expect(takePendingTag(['#Налоги'])).toBeNull();
   });
 });
+
+describe('прямая ссылка на калькулятор облигаций', () => {
+  it('calc и calc-<ISIN>', () => {
+    expect(parseStartParam('calc')!.intent).toEqual({ kind: 'calc', code: null });
+    expect(parseStartParam('calc-su26238rmfs4__post555')!.intent).toEqual({ kind: 'calc', code: 'SU26238RMFS4' });
+  });
+});

@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useCalculator } from '../../shared/lib/calculator-context';
+import { CALCULATORS_ENABLED } from '../../shared/config/features';
 import { ExternalLink } from 'lucide-react';
 import { useBonds, useKeyRate, groupByDate } from '../../entities/calendar/model/use-calendar';
 import { BondEvent, BondsFilters, BondsPeriod, BondsTypeFilter, BondEventType, KeyRateEvent } from '../../entities/calendar/model/types';
@@ -121,18 +123,28 @@ const TYPE_STYLE: Record<BondEventType, string> = {
 
 const amountFmt = (n: number) => n.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-export const BondRow: React.FC<{ e: BondEvent; onOpen: (e: BondEvent) => void }> = ({ e, onOpen }) => (
-  <button onClick={() => onOpen(e)} className="w-full flex items-start gap-3 px-3 py-3 text-left active:opacity-70 transition-opacity">
-    <span className={`mt-0.5 shrink-0 text-[11px] font-medium px-2 py-0.5 rounded-full ${TYPE_STYLE[e.type]}`}>{TYPE_LABEL[e.type]}</span>
-    <div className="min-w-0 flex-1">
-      <p className="text-[#161616] dark:text-white text-[14px] font-semibold leading-tight truncate">{e.name}</p>
-      <p className="text-[#7D7C82] dark:text-neutral-400 text-[12px] leading-tight mt-0.5 truncate">
-        {e.isin}
-        {e.recordDate && ` · фиксация ${isoToRu(e.recordDate)}`}
-      </p>
+// Строка выплаты: облигация открывает свою страницу; «Рассчитать» — отдельная кнопка (кнопку в кнопку вкладывать нельзя)
+export const BondRow: React.FC<{ e: BondEvent; onOpen: (e: BondEvent) => void; onCalc?: (e: BondEvent) => void }> = ({ e, onOpen, onCalc }) => (
+  <div className="w-full flex items-start gap-3 px-3 py-3">
+    <button onClick={() => onOpen(e)} className="flex-1 min-w-0 flex items-start gap-3 text-left active:opacity-70 transition-opacity">
+      <span className={`mt-0.5 shrink-0 text-[11px] font-medium px-2 py-0.5 rounded-full ${TYPE_STYLE[e.type]}`}>{TYPE_LABEL[e.type]}</span>
+      <div className="min-w-0 flex-1">
+        <p className="text-[#161616] dark:text-white text-[14px] font-semibold leading-tight truncate">{e.name}</p>
+        <p className="text-[#7D7C82] dark:text-neutral-400 text-[12px] leading-tight mt-0.5 truncate">
+          {e.isin}
+          {e.recordDate && ` · фиксация ${isoToRu(e.recordDate)}`}
+        </p>
+      </div>
+    </button>
+    <div className="shrink-0 flex flex-col items-end gap-1">
+      <p className="text-[#161616] dark:text-white text-[14px] font-semibold leading-tight">{amountFmt(e.amount)} ₽</p>
+      {onCalc && (
+        <button onClick={() => onCalc(e)} className="text-[12px] font-medium text-[var(--accent)] active:opacity-60" data-calc={e.isin}>
+          Рассчитать
+        </button>
+      )}
     </div>
-    <p className="text-[#161616] dark:text-white text-[14px] font-semibold leading-tight shrink-0">{amountFmt(e.amount)} ₽</p>
-  </button>
+  </div>
 );
 
 const PERIODS: { id: BondsPeriod; label: string }[] = [
@@ -157,6 +169,7 @@ const BondsTab: React.FC = () => {
     AnalyticsService.track('calendar_bonds_filter', { period: next.period, type: next.type });
     setFilters(next);
   };
+  const { openCalculator } = useCalculator();
   const openBond = (e: BondEvent) => {
     triggerHaptic('light');
     AnalyticsService.track('calendar_bond_click', { isin: e.isin });
@@ -186,7 +199,7 @@ const BondsTab: React.FC = () => {
               <p className="text-[#161616] dark:text-white text-[14px] font-semibold px-1">
                 {formatDayMonth(g.date)}, {weekdayShort(g.date)}
               </p>
-              <Card>{g.items.map((e) => <BondRow key={`${e.type}-${e.isin}-${e.amount}`} e={e} onOpen={openBond} />)}</Card>
+              <Card>{g.items.map((e) => <BondRow key={`${e.type}-${e.isin}-${e.amount}`} e={e} onOpen={openBond} onCalc={CALCULATORS_ENABLED ? (x) => openCalculator(x.isin, 'calendar') : undefined} />)}</Card>
             </div>
           ))}
           {hasMore && (
