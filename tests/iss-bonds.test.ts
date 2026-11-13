@@ -47,3 +47,11 @@ describe('данные облигаций с Мосбиржи', () => {
     expect(r.reasons.length).toBe(2); // неизвестный купон + оферта
   });
 });
+
+describe('время последней сделки', () => {
+  it('из TRADEDATE и TIME, если есть цена последней сделки', () => {
+    const m = parseMarket({ securities: { columns: ['SECID', 'BOARDID', 'FACEVALUE', 'ACCRUEDINT', 'FACEUNIT'], data: [['SU26207RMFS9', 'TQOB', 1000, 23, 'SUR']] }, marketdata: { columns: ['BOARDID', 'LAST', 'TIME', 'TRADEDATE'], data: [['TQOB', 98.932, '09:01:17', '2026-11-13']] } });
+    expect(m!.lastTradeAt).toBe('2026-11-13T09:01');
+    expect(m!.pricePct).toBe(98.932);
+  });
+});

@@ -56,3 +56,23 @@ describe('калькулятор облигаций — метод сайта', 
     expect(r.complete).toBe(true);
   });
 });
+
+describe('сверка со скриншотом сайта (ОФЗ 26207, расчёт на 13.11.2026)', () => {
+  const events = [
+    { type: 'coupon' as const, date: '2027-02-03', recordDate: '2027-02-02', amount: 40.64 },
+    { type: 'redemption' as const, date: '2027-02-03', amount: 1000 },
+  ];
+  it('заплатить 1 012,32; купоны 40,64; номинал 1 000; разница 28,32; доходность за срок 2,8%', () => {
+    const r = calcBond({ nominal: 1000, pricePct: 98.932, accrued: 23, qty: 1, commission: 0, calcDate: '2026-11-13', events });
+    expect(r).toMatchObject({ pricePerBond: 989.32, costs: 1012.32, coupons: 40.64, principal: 1000, difference: 28.32, complete: true });
+    expect(r.differencePct!.toLocaleString('ru-RU', { maximumFractionDigits: 1 })).toBe('2,8');
+    expect(r.rows.map((x) => [x.date, x.type, x.amount, x.nominalLeft])).toEqual([['2027-02-03', 'coupon', 40.64, null], ['2027-02-03', 'redemption', 1000, 0]]);
+  });
+  it('шаг 2: тип выпуска, ближайший купон, число будущих событий', async () => {
+    const { bondTypeLabel, nearestCoupon } = await import('../src/entities/bonds/model/bond-calc');
+    expect(bondTypeLabel(events, '2026-11-13')).toBe('Облигация с фиксированным (известным) купоном');
+    expect(nearestCoupon(events, '2026-11-13')).toMatchObject({ amount: 40.64, date: '2027-02-03' });
+    expect(bondTypeLabel([{ type: 'coupon', date: '2027-01-01', amount: null }], '2026-11-13')).toBe('Облигация с переменным (неизвестным) купоном');
+    expect(bondTypeLabel([{ type: 'amortization', date: '2027-01-01', amount: 500 }, { type: 'redemption', date: '2028-01-01', amount: 500 }], '2026-11-13')).toBe('Облигация без купона (дисконтная), с амортизацией');
+  });
+});

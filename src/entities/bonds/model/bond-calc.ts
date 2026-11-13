@@ -86,3 +86,17 @@ export function calcBond(i: BondCalcInput): BondCalcResult {
   const differencePct = difference !== null && costs > 0 ? r2((difference / costs) * 100) : null;
   return { pricePerBond, costPerBond, costs, rows, coupons, principal, payments, difference, differencePct, complete, reasons };
 }
+
+// «Тип выпуска» на шаге 2 — по известному графику (так же, как сайт различает полный и неполный расчёт)
+export function bondTypeLabel(events: BondEvent[], calcDate: string): string {
+  const future = events.filter((e) => e.date > calcDate);
+  const coupons = future.filter((e) => e.type === 'coupon');
+  const amort = future.some((e) => e.type === 'amortization');
+  const base = coupons.length === 0 ? 'Облигация без купона (дисконтная)' : coupons.some((c) => c.amount === null) ? 'Облигация с переменным (неизвестным) купоном' : 'Облигация с фиксированным (известным) купоном';
+  return amort ? `${base}, с амортизацией` : base;
+}
+
+// «Ближайший доступный купон» — первый купон, дата фиксации которого ещё не наступила
+export function nearestCoupon(events: BondEvent[], calcDate: string): BondEvent | null {
+  return events.filter((e) => e.type === 'coupon' && (e.recordDate ?? e.date) > calcDate).sort((a, b) => (a.date < b.date ? -1 : 1))[0] ?? null;
+}

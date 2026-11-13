@@ -33,7 +33,7 @@ export function parseBondization(json: any, today: string): BondSchedule {
   return { events, offerDate: offers[0] ?? null, complete: true };
 }
 
-export interface BondMarket { secid: string; isin: string; shortname: string; nominal: number; pricePct: number | null; accrued: number; currency: string; matDate: string | null; offerDate: string | null }
+export interface BondMarket { secid: string; isin: string; shortname: string; nominal: number; pricePct: number | null; accrued: number; currency: string; matDate: string | null; offerDate: string | null; lastTradeAt: string | null }
 
 export function parseMarket(json: any, preferredBoard?: string | null): BondMarket | null {
   const sec = rows(json?.securities);
@@ -44,6 +44,13 @@ export function parseMarket(json: any, preferredBoard?: string | null): BondMark
     const s = sec.find((x) => x.boardid === board) ?? {};
     return num(m.last) ?? num(m.lcurrentprice) ?? num(m.waprice) ?? num(s.prevprice) ?? num(s.prevwaprice);
   };
+  // Время последней сделки: дата из TRADEDATE или SYSTIME, время из TIME — «13.11.2026, 09:01» на экране
+  const tradeAt = (board: string): string | null => {
+    const m = md.find((x) => x.boardid === board) ?? {};
+    const t = typeof m.time === 'string' && /^\d{2}:\d{2}/.test(m.time) ? m.time.slice(0, 5) : null;
+    const d = date(m.tradedate) ?? date(typeof m.systime === 'string' ? m.systime : null);
+    return t && d ? `${d}T${t}` : null;
+  };
   const s = (preferredBoard && sec.find((x) => x.boardid === preferredBoard)) || sec.find((x) => priceOf(x.boardid) !== null) || sec[0];
   const nominal = num(s.facevalue);
   if (nominal === null) return null;
@@ -51,7 +58,7 @@ export function parseMarket(json: any, preferredBoard?: string | null): BondMark
     secid: String(s.secid), isin: String(s.isin ?? s.secid), shortname: String(s.shortname ?? s.secid), nominal,
     pricePct: priceOf(s.boardid), accrued: num(s.accruedint) ?? 0,
     currency: s.faceunit === 'SUR' || s.faceunit === 'RUB' || !s.faceunit ? 'RUB' : String(s.faceunit),
-    matDate: date(s.matdate), offerDate: date(s.offerdate),
+    matDate: date(s.matdate), offerDate: date(s.offerdate), lastTradeAt: num(md.find((x) => x.boardid === s.boardid)?.last) !== null ? tradeAt(s.boardid) : null,
   };
 }
 
