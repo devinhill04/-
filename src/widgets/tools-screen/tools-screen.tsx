@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { BondCalculator } from '../bond-calculator/bond-calculator';
 import { DividendCalculator } from '../dividend-calculator/dividend-calculator';
+import { PortfolioCalculator } from '../portfolio-calculator/portfolio-calculator';
 import { useCalculator } from '../../shared/lib/calculator-context';
 import { AnalyticsService } from '../../shared/analytics/analytics';
 import { triggerHaptic } from '../../lib/telegram';
@@ -40,11 +41,7 @@ export const ToolsScreen: React.FC = () => {
       ) : tab === 'dividends' ? (
         <DividendCalculator source="subtab" />
       ) : (
-        <div className="rounded-[12px] bg-[#F9F9F9] dark:bg-neutral-900 p-4 text-[#161616] dark:text-white" data-calculator="portfolio">
-          <p className="text-[17px] font-semibold">Калькулятор дивидендов и купонов портфеля</p>
-          <p className="text-[13px] leading-[18px] text-[#7D7C82] dark:text-neutral-400 mt-1">Укажите акции, облигации и количество бумаг. Получите календарь опубликованных выплат на ближайшие 12 месяцев: дивиденды, купоны и отдельно возврат номинала.</p>
-          <p className="text-[13px] leading-[18px] mt-3">Скоро здесь. Для расчёта нужны данные о дивидендах, включая рекомендации и прогнозы, — подключим их вместе с API InvestFuture.</p>
-        </div>
+        <PortfolioCalculator onOpenDividends={() => select('dividends')} />
       )}
     </div>
   );
