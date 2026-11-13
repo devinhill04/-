@@ -53,6 +53,8 @@ export type AnalyticsEventType =
   | 'calc_open'
   | 'calc_bond_select'
   | 'calc_result'
+  | 'calc_dividend_select'
+  | 'calc_dividend_result'
   | 'market_stocks_expand'
   | 'market_data_error'
   // Вкладка «Календари»

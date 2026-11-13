@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BondCalculator } from '../bond-calculator/bond-calculator';
+import { DividendCalculator } from '../dividend-calculator/dividend-calculator';
 import { useCalculator } from '../../shared/lib/calculator-context';
 import { AnalyticsService } from '../../shared/analytics/analytics';
 import { triggerHaptic } from '../../lib/telegram';
@@ -14,7 +15,7 @@ const Pill: React.FC<{ active: boolean; onClick: () => void; children: React.Rea
   </button>
 );
 
-type Tab = 'bond' | 'portfolio';
+type Tab = 'bond' | 'dividends' | 'portfolio';
 
 export const ToolsScreen: React.FC = () => {
   const { request } = useCalculator();
@@ -31,10 +32,13 @@ export const ToolsScreen: React.FC = () => {
       <Title>Калькуляторы</Title>
       <div className="flex gap-1">
         <Pill active={tab === 'bond'} onClick={() => select('bond')}>Облигации</Pill>
-        <Pill active={tab === 'portfolio'} onClick={() => select('portfolio')}>Выплаты портфеля</Pill>
+        <Pill active={tab === 'dividends'} onClick={() => select('dividends')}>Дивиденды</Pill>
+        <Pill active={tab === 'portfolio'} onClick={() => select('portfolio')}>Портфель</Pill>
       </div>
       {tab === 'bond' ? (
         <BondCalculator key={request?.n ?? 0} initialCode={request?.code ?? null} source={request?.source ?? 'nav'} />
+      ) : tab === 'dividends' ? (
+        <DividendCalculator source="subtab" />
       ) : (
         <div className="rounded-[12px] bg-[#F9F9F9] dark:bg-neutral-900 p-4 text-[#161616] dark:text-white" data-calculator="portfolio">
           <p className="text-[17px] font-semibold">Калькулятор дивидендов и купонов портфеля</p>

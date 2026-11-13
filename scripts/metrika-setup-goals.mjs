@@ -42,6 +42,8 @@ export const GOALS = [
   ['calc_open', 'Калькулятор облигаций: открыли (параметр source)', 'frozen'],
   ['calc_bond_select', 'Калькулятор облигаций: выбрали бумагу (secid)', 'frozen'],
   ['calc_result', 'Калькулятор облигаций: получили расчёт (secid, complete)', 'frozen'],
+  ['calc_dividend_select', 'Калькулятор дивидендов: выбрали акцию (secid)', 'frozen'],
+  ['calc_dividend_result', 'Калькулятор дивидендов: получили расчёт (secid)', 'frozen'],
   ['tag_click', 'Клик по тегу'],
   ['post_open', 'Открытие поста'],
   ['pain_selected', 'Выбор карточки в «Готовых решениях»'],
