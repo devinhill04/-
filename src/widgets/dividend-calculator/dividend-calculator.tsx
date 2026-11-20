@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Decision, QTY_MAX, Share, SharePrice, calcDividends, decisionLabel, defaultDecision, loadDecisions, loadPrice, loadShares } from '../../entities/dividends/model/dividends';
+import { Decision, QTY_MAX, Share, SharePrice, calcDividends, decisionLabel, defaultDecision, loadDecisions, loadPrice, loadShares, searchShares } from '../../entities/dividends/model/dividends';
 import { AnalyticsService } from '../../shared/analytics/analytics';
 import { reportSource } from '../../shared/diagnostics/source-status';
 import { openPostLink } from '../../shared/lib/open-telegram-link';
@@ -28,7 +28,9 @@ const btnCls = 'h-11 px-5 rounded-[10px] bg-[var(--accent)] text-white text-[14p
 
 export const DividendCalculator: React.FC<{ source: string }> = ({ source }) => {
   const [shares, setShares] = useState<Share[]>([]);
-  const [choice, setChoice] = useState(DEFAULT_SECID); // в списке; применяется кнопкой «Выбрать акцию», как на сайте
+  const [choice, setChoice] = useState(DEFAULT_SECID);
+  const [shareQuery, setShareQuery] = useState('Сбербанк (SBER)');
+  const [showShareSuggestions, setShowShareSuggestions] = useState(false);
   const [secid, setSecid] = useState<string | null>(null);
   const [price, setPrice] = useState<SharePrice | null>(null);
   const [decisions, setDecisions] = useState<Decision[] | null>(null);
@@ -41,10 +43,17 @@ export const DividendCalculator: React.FC<{ source: string }> = ({ source }) => 
   const [loading, setLoading] = useState(false);
 
   const name = (id: string | null) => shares.find((s) => s.secid === id)?.name ?? id ?? '';
+  const suggestions = searchShares(shares, shareQuery);
+  const chooseShare = (share: Share) => {
+    setChoice(share.secid);
+    setShareQuery(`${share.name} (${share.secid})`);
+    setShowShareSuggestions(false);
+    void select(share.secid);
+  };
 
   useEffect(() => {
     AnalyticsService.track('calc_open', { source });
-    loadShares().then((list) => { setShares(list); select(DEFAULT_SECID); }).catch((e) => { setError('Не удалось загрузить список акций с Мосбиржи. Проверьте интернет и попробуйте ещё раз.'); reportSource('dividends', false, e); });
+    loadShares().then((list) => { setShares(list); const initial = list.find((s) => s.secid === DEFAULT_SECID); if (initial) setShareQuery(`${initial.name} (${initial.secid})`); void select(DEFAULT_SECID); }).catch((e) => { setError('Не удалось загрузить список акций с Мосбиржи. Проверьте интернет и попробуйте ещё раз.'); reportSource('dividends', false, e); });
   }, []);
 
   const select = async (id: string) => {
@@ -89,11 +98,38 @@ export const DividendCalculator: React.FC<{ source: string }> = ({ source }) => 
         <H>Выберите акцию для расчёта</H>
         <div className="mt-3">
           <Label>Компания и класс акций</Label>
-          <select value={choice} onChange={(e) => setChoice(e.target.value)} className={selectCls} data-share-select>
-            {shares.length === 0 && <option value={DEFAULT_SECID}>Сбербанк (SBER)</option>}
-            {shares.map((s) => <option key={s.secid} value={s.secid}>{s.name} ({s.secid})</option>)}
-          </select>
-          <button onClick={() => select(choice)} disabled={loading} className={`${btnCls} mt-3`} data-choose-button>Выбрать акцию</button>
+          <div className="relative">
+            <input
+              value={shareQuery}
+              onFocus={(e) => { e.currentTarget.select(); setShowShareSuggestions(true); }}
+              onBlur={() => { window.setTimeout(() => setShowShareSuggestions(false), 150); }}
+              onChange={(e) => { setShareQuery(e.target.value); setChoice(''); setShowShareSuggestions(true); }}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') setShowShareSuggestions(false);
+                if (e.key === 'Enter' && showShareSuggestions && suggestions[0]) { e.preventDefault(); chooseShare(suggestions[0]); }
+              }}
+              placeholder="Название компании или тикер"
+              aria-label="Поиск акции"
+              aria-autocomplete="list"
+              aria-expanded={showShareSuggestions && shareQuery.trim().length > 0}
+              aria-controls="dividend-share-suggestions"
+              role="combobox"
+              className={selectCls}
+              data-share-search
+            />
+            {showShareSuggestions && shareQuery.trim().length > 0 && (
+              <div id="dividend-share-suggestions" role="listbox" className="absolute z-30 mt-1 w-full max-h-64 overflow-auto rounded-[10px] border border-[#E3E1EA] bg-white shadow-lg dark:border-white/15 dark:bg-neutral-900" data-share-suggestions>
+                {suggestions.length ? suggestions.map((share) => (
+                  <button key={share.secid} type="button" role="option" aria-selected={choice === share.secid}
+                    onMouseDown={(e) => e.preventDefault()} onClick={() => chooseShare(share)}
+                    className="flex w-full items-center justify-between gap-2 border-b border-black/5 px-3 py-3 text-left text-[14px] last:border-0 hover:bg-[#F8F6FF] dark:border-white/10 dark:hover:bg-neutral-800">
+                    <span>{share.name}</span><span className="text-[12px] text-[#777] dark:text-neutral-400">{share.secid}</span>
+                  </button>
+                )) : <p className="px-3 py-3 text-[13px] text-[#777]">Акции не найдены</p>}
+              </div>
+            )}
+          </div>
+          <button onClick={() => select(choice)} disabled={loading || !choice} className={`${btnCls} mt-3`} data-choose-button>Выбрать акцию</button>
         </div>
         {secid && <div className="mt-3"><LinkBtn url={SITE.dividends} title={`Дивиденды ${name(secid)}`}>Все дивиденды {name(secid)} ({secid}) и история решений</LinkBtn></div>}
         {error && <p className="text-[13px] text-[#BA1111] mt-3">{error}</p>}
