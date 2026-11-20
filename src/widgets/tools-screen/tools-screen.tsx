@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { BondCalculator } from '../bond-calculator/bond-calculator';
 import { DividendCalculator } from '../dividend-calculator/dividend-calculator';
 import { PortfolioCalculator } from '../portfolio-calculator/portfolio-calculator';
+import { PortfolioPerformanceCalculator } from '../portfolio-performance/portfolio-performance';
 import { useCalculator } from '../../shared/lib/calculator-context';
 import { AnalyticsService } from '../../shared/analytics/analytics';
 import { triggerHaptic } from '../../lib/telegram';
@@ -16,7 +17,7 @@ const Pill: React.FC<{ active: boolean; onClick: () => void; children: React.Rea
   </button>
 );
 
-type Tab = 'bond' | 'dividends' | 'portfolio';
+type Tab = 'bond' | 'dividends' | 'portfolio' | 'performance';
 
 export const ToolsScreen: React.FC = () => {
   const { request } = useCalculator();
@@ -31,17 +32,20 @@ export const ToolsScreen: React.FC = () => {
   return (
     <div className="w-full max-w-[390px] mx-auto flex flex-col gap-4 px-3 pt-3 pb-6" data-screen="tools">
       <Title>Калькуляторы</Title>
-      <div className="flex gap-1">
+      <div className="grid grid-cols-2 gap-1">
         <Pill active={tab === 'bond'} onClick={() => select('bond')}>Облигации</Pill>
         <Pill active={tab === 'dividends'} onClick={() => select('dividends')}>Дивиденды</Pill>
-        <Pill active={tab === 'portfolio'} onClick={() => select('portfolio')}>Портфель</Pill>
+        <Pill active={tab === 'portfolio'} onClick={() => select('portfolio')}>Выплаты портфеля</Pill>
+        <Pill active={tab === 'performance'} onClick={() => select('performance')}>Результат портфеля</Pill>
       </div>
       {tab === 'bond' ? (
         <BondCalculator key={request?.n ?? 0} initialCode={request?.code ?? null} source={request?.source ?? 'nav'} />
       ) : tab === 'dividends' ? (
         <DividendCalculator source="subtab" />
-      ) : (
+      ) : tab === 'portfolio' ? (
         <PortfolioCalculator onOpenDividends={() => select('dividends')} />
+      ) : (
+        <PortfolioPerformanceCalculator />
       )}
     </div>
   );
