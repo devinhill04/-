@@ -31,6 +31,16 @@ export function parseShares(json: any): Share[] {
 
 // Поиск по тикеру и словам названия; ввод без учёта регистра, пробелов и ё/е.
 const normalizeShareQuery = (value: string) => value.toLocaleLowerCase('ru').replace(/ё/g, 'е').trim();
+const isOrderedMatch = (word: string, term: string): boolean => {
+  if (!word.startsWith(term[0])) return false;
+  let at = 0;
+  for (const letter of term) {
+    at = word.indexOf(letter, at);
+    if (at < 0) return false;
+    at += 1;
+  }
+  return true;
+};
 export function searchShares(shares: Share[], query: string, limit = 12): Share[] {
   const terms = normalizeShareQuery(query).split(/\s+/).filter(Boolean);
   if (!terms.length || limit <= 0) return [];
@@ -38,12 +48,13 @@ export function searchShares(shares: Share[], query: string, limit = 12): Share[
     const ticker = normalizeShareQuery(share.secid);
     const name = normalizeShareQuery(share.name);
     const words = name.split(/[^\p{L}\p{N}]+/u).filter(Boolean);
-    if (!terms.every((t) => ticker.includes(t) || name.includes(t))) return null;
+    if (!terms.every((t) => ticker.includes(t) || name.includes(t) || (t.length >= 2 && words.some((w) => isOrderedMatch(w, t))))) return null;
     if (terms.length === 1 && ticker === terms[0]) return 0;
     if (terms.every((t) => ticker.startsWith(t))) return 1;
     if (terms.every((t) => name.startsWith(t))) return 2;
     if (terms.every((t) => words.some((w) => w.startsWith(t)))) return 3;
-    return 4;
+    if (terms.every((t) => ticker.includes(t) || name.includes(t))) return 4;
+    return 5;
   };
   return shares
     .map((share) => ({ share, score: rank(share) }))
