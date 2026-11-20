@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { calcDividends, decisionLabel, defaultDecision, parseDecisions, parsePrice, parseShares } from '../src/entities/dividends/model/dividends';
+import { calcDividends, decisionLabel, defaultDecision, parseDecisions, parsePrice, parseShares, searchShares } from '../src/entities/dividends/model/dividends';
 
 describe('калькулятор дивидендов', () => {
   it('сверка со скриншотом сайта: 100 акций SBER × 37,64 ₽ = 3 764,00 ₽', () => {
@@ -24,4 +24,31 @@ describe('калькулятор дивидендов', () => {
   it('список акций: краткие названия, без повторов, по алфавиту', () => {
     expect(parseShares({ securities: { columns: ['SECID', 'SHORTNAME'], data: [['SBER', 'Сбербанк'], ['AFLT', 'Аэрофлот'], ['SBER', 'Сбербанк']] } })).toEqual([{ secid: 'AFLT', name: 'Аэрофлот' }, { secid: 'SBER', name: 'Сбербанк' }]);
   });
+  it('поиск по тикеру, началу слов, частям слова и нескольким словам', () => {
+    const list = [
+      { secid: 'SBER', name: 'Сбербанк' },
+      { secid: 'SBERP', name: 'Сбербанк-п' },
+      { secid: 'GAZP', name: 'Газпром' },
+      { secid: 'AFLT', name: 'Аэрофлот' },
+      { secid: 'XYZ', name: 'Большая Компания' },
+    ];
+    expect(searchShares(list, 'SBER').map((s) => s.secid)).toEqual(['SBER', 'SBERP']);
+    expect(searchShares(list, 'сб').map((s) => s.secid)).toEqual(['SBER', 'SBERP']);
+    expect(searchShares(list, 'газ').map((s) => s.secid)).toEqual(['GAZP']);
+    expect(searchShares(list, 'сбер п').map((s) => s.secid)).toEqual(['SBERP']);
+    expect(searchShares(list, 'пания').map((s) => s.secid)).toEqual(['XYZ']);
+    expect(searchShares(list, '  ').length).toBe(0);
+  });
+  it('поиск игнорирует регистр и ё, сортирует точные тикеры первыми и ограничивает подсказки', () => {
+    const list = [
+      { secid: 'ABCP', name: 'Ёлочная корпорация' },
+      { secid: 'ELKA', name: 'Елочная фабрика' },
+      { secid: 'ABC', name: 'Компания ABC' },
+      { secid: 'ABCX', name: 'ABC сервис' },
+    ];
+    expect(searchShares(list, 'ЕЛОЧНАЯ').map((s) => s.secid)).toEqual(['ELKA', 'ABCP']);
+    expect(searchShares(list, 'abc').map((s) => s.secid)).toEqual(['ABC', 'ABCX']);
+    expect(searchShares(list, 'abc', 1).map((s) => s.secid)).toEqual(['ABC']);
+  });
+
 });
