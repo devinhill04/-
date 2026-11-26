@@ -17,7 +17,7 @@ export interface Decision {
   amount: number; // на одну акцию
   currency: string;
   period?: string | null; // «2025 год» — с API
-  status?: 'approved' | 'recommended' | null; // с API
+  status?: 'approved' | 'recommended' | 'forecast' | null; // с API
   paymentDeadline?: string | null; // срок выплаты — с API
 }
 
@@ -92,7 +92,7 @@ export function defaultDecision(list: Decision[], today: string): Decision | nul
 
 const dmy = (iso: string) => iso.split('-').reverse().join('.');
 const money = (x: number, cur = 'RUB') => `${x.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${cur === 'RUB' ? '₽' : cur}`;
-const STATUS = { approved: 'Утверждён', recommended: 'Рекомендация' } as const;
+const STATUS = { approved: 'Утверждён', recommended: 'Рекомендация', forecast: 'Прогноз' } as const;
 
 // «2025 год · 37,64 ₽ · реестр 20.07.2026 · Утверждён» — части без данных опускаются
 export function decisionLabel(d: Decision): string {
@@ -149,7 +149,7 @@ export function parseIfqDecisions(json: any): Decision[] {
       amount: num(x.amount)!,
       currency: x.currency === 'SUR' ? 'RUB' : String(x.currency ?? 'RUB'),
       period: typeof x.period === 'string' ? x.period : null,
-      status: x.status === 'confirmed' ? 'approved' as const : x.status === 'recommended' ? 'recommended' as const : null,
+      status: x.status === 'confirmed' ? 'approved' as const : x.status === 'recommended' ? 'recommended' as const : 'forecast' as const,
       paymentDeadline: date(x.paymentDeadline),
     }))
     .sort((a: Decision, b: Decision) => b.recordDate.localeCompare(a.recordDate));
