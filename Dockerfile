@@ -25,6 +25,7 @@ FROM nginx:1.27-alpine
 RUN apk add --no-cache wget curl ca-certificates \
   && printf '%s\n' \
   'proxy_cache_path /var/cache/nginx/ifquotes levels=1:2 keys_zone=ifquotes:1m max_size=10m inactive=10m use_temp_path=off;' \
+  'limit_req_zone $binary_remote_addr zone=ifq_per_ip:1m rate=2r/s;' \
   'server {' \
   '  listen 80;' \
   '  server_name _;' \
