@@ -97,8 +97,7 @@ build-docker:
         --destination "${TAG}" \
         --build-arg "VITE_APP_TITLE=${VITE_APP_TITLE}" \
         --build-arg "VITE_TELEGRAM_BOT_USERNAME=${VITE_TELEGRAM_BOT_USERNAME}" \
-        --build-arg "VITE_ANALYTICS_WEBHOOK_URL=${VITE_ANALYTICS_WEBHOOK_URL}" \
-        --build-arg "QUOTES_API_TOKEN=${QUOTES_API_TOKEN:-}"
+        --build-arg "VITE_ANALYTICS_WEBHOOK_URL=${VITE_ANALYTICS_WEBHOOK_URL}"
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_COMMIT_BRANCH
