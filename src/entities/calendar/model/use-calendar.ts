@@ -22,41 +22,45 @@ const keyOf = (e: BondEvent) => `${e.payDate}|${e.type}|${e.isin}|${e.amount}`;
 
 export function useBonds(filters: BondsFilters) {
   const [events, setEvents] = useState<BondEvent[]>([]);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState<number | null>(null);
+  const [cursor, setCursor] = useState<string | null>(null);
   const [totalEvents, setTotalEvents] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState(false);
-  const req = useRef(0); // номер запроса: ответ на устаревший запрос (фильтр уже сменили) игнорируется
+  const req = useRef(0);
 
   useEffect(() => {
     const id = ++req.current;
-    setIsLoading(true); setError(false); setEvents([]); setPage(1); setTotalPages(null); setTotalEvents(null);
-    fetchBonds(filters, 1)
+    setIsLoading(true); setError(false); setEvents([]); setCursor(null); setTotalEvents(null);
+    fetchBonds(filters)
       .then((p) => {
         if (id !== req.current) return;
-        setEvents(p.events); setPage(p.page ?? 1); setTotalPages(p.totalPages); setTotalEvents(p.totalEvents); setIsLoading(false);
+        setEvents(p.events); setCursor(p.nextCursor ?? null);
+        setTotalEvents(p.totalEvents); setIsLoading(false);
       })
-      .catch((err) => { console.error('[calendar/bonds]', err); if (id === req.current) { setError(true); setIsLoading(false); } });
+      .catch((err) => {
+        console.error('[calendar/bonds]', err);
+        if (id === req.current) { setError(true); setIsLoading(false); }
+      });
   }, [filters.period, filters.type]);
 
-  const hasMore = totalPages !== null && page < totalPages;
-
+  const hasMore = cursor !== null;
   const loadMore = () => {
-    if (!hasMore || isLoadingMore) return;
+    if (!cursor || isLoadingMore) return;
     const id = req.current;
-    const next = page + 1;
+    const nextCursor = cursor;
     setIsLoadingMore(true);
-    fetchBonds(filters, next)
+    fetchBonds(filters, nextCursor)
       .then((p) => {
         if (id !== req.current) return;
-        // граница страниц может разрезать один день пополам — повторы убираем
-        setEvents((prev) => { const seen = new Set(prev.map(keyOf)); return [...prev, ...p.events.filter((e) => !seen.has(keyOf(e)))]; });
-        setPage(next);
+        setEvents((prev) => {
+          const seen = new Set(prev.map(keyOf));
+          return [...prev, ...p.events.filter((e) => !seen.has(keyOf(e)))];
+        });
+        setCursor(p.nextCursor ?? null);
       })
-      .catch((err) => console.error('[calendar/bonds] ещё', err))
-      .finally(() => setIsLoadingMore(false));
+      .catch((err) => console.error('[calendar/bonds] следующая страница', err))
+      .finally(() => { if (id === req.current) setIsLoadingMore(false); });
   };
 
   return { events, totalEvents, hasMore, isLoading, isLoadingMore, error, loadMore };
