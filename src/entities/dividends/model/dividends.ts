@@ -164,7 +164,7 @@ const addCalendarDays = (dateIso: string, days: number) => {
 
 export const loadShares = async (): Promise<Share[]> => {
   try {
-    const q = new URLSearchParams({ source: '4', type: '1', withQuotes: 'true', limit: '1000' });
+    const q = new URLSearchParams({ source: '4', type: '1', withQuotes: 'false', limit: '1000' });
     const all: Share[] = [];
     const seen = new Set<string>();
     let cursor: string | null = null;
