@@ -3,6 +3,8 @@ services:
     image: ${DOCKER_IMAGE}
     container_name: if-navigation-miniapp
     restart: unless-stopped
+    environment:
+      QUOTES_API_TOKEN: ${QUOTES_API_TOKEN:-}
     networks:
       - if-navigation-miniapp
     ports:
