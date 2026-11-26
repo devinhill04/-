@@ -111,6 +111,97 @@ const get = async (url: string) => {
   finally { clearTimeout(t); }
 };
 const TQBR = `${ISS}/engines/stock/markets/shares/boards/TQBR/securities`;
-export const loadShares = async () => parseShares(await get(`${TQBR}.json?iss.meta=off&iss.only=securities&securities.columns=SECID,SHORTNAME`));
-export const loadPrice = async (secid: string) => parsePrice(await get(`${TQBR}/${encodeURIComponent(secid)}.json?iss.meta=off&iss.only=securities,marketdata`));
-export const loadDecisions = async (secid: string) => parseDecisions(await get(`${ISS}/securities/${encodeURIComponent(secid)}/dividends.json?iss.meta=off`));
+// Quotes API 1.2.0 — основной источник, доступный только через серверный proxy.
+// При отсутствии серверного токена или сбое сохраняем предыдущую интеграцию MOEX.
+const ifqGet = async (endpoint: string, query: URLSearchParams) => {
+  const ctl = new AbortController();
+  const timer = setTimeout(() => ctl.abort(), 9000);
+  try {
+    const res = await fetch(`/api/ifq/${endpoint}?${query}`, { signal: ctl.signal });
+    if (!res.ok) throw new Error(`Quotes API: HTTP ${res.status}`);
+    return await res.json();
+  } finally { clearTimeout(timer); }
+};
+export function parseIfqShares(json: any): Share[] {
+  if (!Array.isArray(json?.instruments)) throw new Error('Неверный справочник Quotes API');
+  const seen = new Set<string>();
+  return json.instruments
+    .filter((x: any) => typeof x?.ticker === 'string' && typeof x?.name === 'string'
+      && /^stocks-[A-Z0-9-]+$/.test(x?.instrumentId) && !seen.has(x.ticker) && seen.add(x.ticker))
+    .map((x: any) => ({ secid: x.ticker as string, name: x.name as string }))
+    .sort((a: Share, b: Share) => a.name.localeCompare(b.name, 'ru'));
+}
+export function parseIfqPrice(json: any, secid: string): SharePrice {
+  if (!Array.isArray(json?.quotes)) throw new Error('Неверный ответ котировок Quotes API');
+  const q = json.quotes.find((x: any) => x?.instrumentId === `stocks-${secid}`);
+  if (!q) return { price: null, changePct: null, at: null };
+  return { price: num(q.value), changePct: null,
+    // Для MOEX priceDate — московское локальное время, не UTC.
+    at: typeof q.priceDate === 'string' ? q.priceDate : null };
+}
+export function parseIfqDecisions(json: any): Decision[] {
+  if (!Array.isArray(json?.events)) throw new Error('Неверный ответ дивидендов Quotes API');
+  return json.events
+    .filter((x: any) => ['confirmed', 'recommended', 'forecast'].includes(x?.status)
+      && date(x?.recordDate) && num(x?.amount) !== null && num(x.amount)! > 0)
+    .map((x: any) => ({
+      recordDate: date(x.recordDate)!,
+      amount: num(x.amount)!,
+      currency: x.currency === 'SUR' ? 'RUB' : String(x.currency ?? 'RUB'),
+      period: typeof x.period === 'string' ? x.period : null,
+      status: x.status === 'confirmed' ? 'approved' as const : x.status === 'recommended' ? 'recommended' as const : null,
+      paymentDeadline: date(x.paymentDeadline),
+    }))
+    .sort((a: Decision, b: Decision) => b.recordDate.localeCompare(a.recordDate));
+}
+const moscowDate = () => new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Moscow',
+  year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+const addCalendarDays = (dateIso: string, days: number) => {
+  const value = new Date(`${dateIso}T12:00:00Z`);
+  value.setUTCDate(value.getUTCDate() + days);
+  return value.toISOString().slice(0, 10);
+};
+
+export const loadShares = async (): Promise<Share[]> => {
+  try {
+    const q = new URLSearchParams({ source: '4', type: '1', withQuotes: 'true', limit: '1000' });
+    const all: Share[] = [];
+    const seen = new Set<string>();
+    let cursor: string | null = null;
+    for (let i = 0; i < 3; i++) {
+      if (cursor) q.set('cursor', cursor);
+      const json = await ifqGet('instruments', q);
+      for (const share of parseIfqShares(json)) if (!seen.has(share.secid)) { seen.add(share.secid); all.push(share); }
+      cursor = typeof json.nextCursor === 'string' ? json.nextCursor : null;
+      if (!cursor) break;
+    }
+    if (all.length > 0) return all.sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+  } catch (error) { console.warn('[quotes/instruments] используем MOEX', error); }
+  return parseShares(await get(`${TQBR}.json?iss.meta=off&iss.only=securities&securities.columns=SECID,SHORTNAME`));
+};
+export const loadPrice = async (secid: string): Promise<SharePrice> => {
+  try {
+    const result = parseIfqPrice(await ifqGet('quotes/current',
+      new URLSearchParams({ ids: `stocks-${secid}` })), secid);
+    if (result.price !== null) return result;
+  } catch (error) { console.warn('[quotes/current] используем MOEX', error); }
+  return parsePrice(await get(`${TQBR}/${encodeURIComponent(secid)}.json?iss.meta=off&iss.only=securities,marketdata`));
+};
+export const loadDecisions = async (secid: string): Promise<Decision[]> => {
+  try {
+    const day = moscowDate();
+    const q = new URLSearchParams({ ticker: secid, status: 'confirmed,recommended,forecast',
+      dateField: 'record', from: addCalendarDays(day, -180), to: addCalendarDays(day, 185) });
+    const events: Decision[] = [];
+    let cursor: string | null = null;
+    for (let i = 0; i < 3; i++) {
+      if (cursor) q.set('cursor', cursor);
+      const json = await ifqGet('calendar/dividends', q);
+      events.push(...parseIfqDecisions(json));
+      cursor = typeof json.nextCursor === 'string' ? json.nextCursor : null;
+      if (!cursor) break;
+    }
+    return events.sort((a, b) => b.recordDate.localeCompare(a.recordDate));
+  } catch (error) { console.warn('[quotes/dividends] используем MOEX', error); }
+  return parseDecisions(await get(`${ISS}/securities/${encodeURIComponent(secid)}/dividends.json?iss.meta=off`));
+};
