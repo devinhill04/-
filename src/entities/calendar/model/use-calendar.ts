@@ -31,7 +31,7 @@ export function useBonds(filters: BondsFilters) {
 
   useEffect(() => {
     const id = ++req.current;
-    setIsLoading(true); setError(false); setEvents([]); setCursor(null); setTotalEvents(null);
+    setIsLoading(true); setIsLoadingMore(false); setError(false); setEvents([]); setCursor(null); setTotalEvents(null);
     fetchBonds(filters)
       .then((p) => {
         if (id !== req.current) return;
