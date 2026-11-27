@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useCalculator } from '../../shared/lib/calculator-context';
+import { DividendCalendar } from './dividend-calendar';
 import { CALCULATORS_ENABLED } from '../../shared/config/features';
 import { ExternalLink } from 'lucide-react';
 import { useBonds, useKeyRate, groupByDate } from '../../entities/calendar/model/use-calendar';
@@ -223,7 +224,7 @@ const BondsTab: React.FC = () => {
 
 // ---------------- Экран ----------------
 
-type Tab = 'bonds' | 'keyrate';
+type Tab = 'bonds' | 'dividends' | 'keyrate';
 
 export const CalendarScreen: React.FC = () => {
   const [tab, setTab] = useState<Tab>('bonds');
@@ -239,9 +240,10 @@ export const CalendarScreen: React.FC = () => {
       <Title>Календари</Title>
       <div className="flex gap-1">
         <Pill wide active={tab === 'bonds'} onClick={() => select('bonds')}>Облигации</Pill>
-        <Pill wide active={tab === 'keyrate'} onClick={() => select('keyrate')}>Ключевая ставка</Pill>
+        <Pill wide active={tab === 'dividends'} onClick={() => select('dividends')}>Дивиденды</Pill>
+        <Pill wide active={tab === 'keyrate'} onClick={() => select('keyrate')}>Ставка ЦБ</Pill>
       </div>
-      {tab === 'bonds' ? <BondsTab /> : <KeyRateTab />}
+      {tab === 'bonds' ? <BondsTab /> : tab === 'dividends' ? <DividendCalendar /> : <KeyRateTab />}
     </div>
   );
 };

@@ -60,6 +60,7 @@ export type AnalyticsEventType =
   | 'market_data_error'
   // Вкладка «Календари»
   | 'calendar_open'
+  | 'calendar_dividends_open'
   | 'calendar_tab'
   | 'calendar_bonds_filter'
   | 'calendar_bonds_more'

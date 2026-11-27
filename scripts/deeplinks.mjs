@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 // Список прямых ссылок на разделы мини-аппа для редакторов: docs/deeplinks.md
 //   node scripts/deeplinks.mjs --bot if_miniapp_bot --app <короткое_имя_приложения>
 // Короткое имя задаётся в BotFather (/newapp или /myapps → приложение → ссылка вида t.me/<бот>/<имя>).

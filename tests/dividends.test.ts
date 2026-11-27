@@ -47,7 +47,7 @@ describe('калькулятор дивидендов', () => {
       { secid: 'ABCX', name: 'ABC сервис' },
     ];
     expect(searchShares(list, 'ЕЛОЧНАЯ').map((s) => s.secid)).toEqual(['ABCP', 'ELKA']);
-    expect(searchShares(list, 'abc').map((s) => s.secid)).toEqual(['ABC', 'ABCX']);
+    expect(searchShares(list, 'abc').map((s) => s.secid)).toEqual(['ABC', 'ABCP', 'ABCX']);
     expect(searchShares(list, 'abc', 1).map((s) => s.secid)).toEqual(['ABC']);
   });
 

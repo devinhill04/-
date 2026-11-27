@@ -58,7 +58,19 @@ export default defineConfig(() => {
       // Локально /api/news проксируется на публичное превью канала IF News
       // (в проде то же самое делает nginx, см. Dockerfile)
       proxy: {
-        ...(ifqToken ? { '/api/ifq/overview': ifqRoute('overview'), '/api/ifq/top40': ifqRoute('moex-top40') } : {}),
+        ...(ifqToken ? {
+          '/api/ifq/overview': ifqRoute('overview'),
+          '/api/ifq/top40': ifqRoute('moex-top40'),
+          ...Object.fromEntries(
+            ['calendar/bonds', 'calendar/dividends', 'calendar/key-rate', 'instruments', 'quotes/current']
+              .map((route) => [`/api/ifq/${route}`, {
+                target: IFQ_BASE,
+                changeOrigin: true,
+                rewrite: (url: string) => `/api/v1/${route}${url.includes('?') ? url.slice(url.indexOf('?')) : ''}`,
+                headers: { Authorization: `Bearer ${ifqToken}`, Cookie: '' },
+              }]),
+          ),
+        } : {}),
         // Календари InvestFuture: фильтры (?from=&to=&type=&page=) передаются как есть
         '/api/if-calendar/bonds': {
           target: 'https://investfuture.ru',

@@ -25,6 +25,7 @@ FROM nginx:1.27-alpine
 RUN apk add --no-cache wget curl ca-certificates \
   && printf '%s\n' \
   'proxy_cache_path /var/cache/nginx/ifquotes levels=1:2 keys_zone=ifquotes:1m max_size=10m inactive=10m use_temp_path=off;' \
+  'limit_req_zone $binary_remote_addr zone=ifq_per_ip:1m rate=2r/s;' \
   'server {' \
   '  listen 80;' \
   '  server_name _;' \
@@ -80,6 +81,7 @@ RUN apk add --no-cache wget curl ca-certificates \
   '  location = /index.html { add_header Cache-Control "no-cache, no-store, must-revalidate"; }' \
   '  location / { add_header Cache-Control "no-cache, no-store, must-revalidate"; try_files $uri $uri/ /index.html; }' \
   '  include /etc/nginx/conf.d/quotes-api.inc;' \
+  '  include /etc/nginx/conf.d/quotes-api-extra.inc;' \
   '}' \
   > /etc/nginx/conf.d/default.conf
 # API котировок InvestFuture. Токен НЕ хранится в образе: при старте контейнера стандартный скрипт nginx
@@ -87,10 +89,7 @@ RUN apk add --no-cache wget curl ca-certificates \
 # из секрета в шаблон и пишет /etc/nginx/conf.d/quotes-api.inc. Если переменной нет или шаблон не обработан —
 # остаётся запасной quotes-api.inc: маршруты отвечают 503 token_not_configured, nginx стартует, приложение
 # работает на прежних источниках.
-# Токен можно передать при сборке из переменной GitLab (--build-arg QUOTES_API_TOKEN=...) — тогда он лежит в образе
-# и виден тем, у кого есть доступ к реестру. Правильнее — секрет Kubernetes в деплое: он перекрывает это значение.
-ARG QUOTES_API_TOKEN=
-ENV QUOTES_API_TOKEN=${QUOTES_API_TOKEN}
+# QUOTES_API_TOKEN передаётся только в runtime (compose / Kubernetes Secret), не через build args.
 ENV NGINX_ENVSUBST_FILTER=QUOTES_API_TOKEN
 RUN mkdir -p /etc/nginx/templates /var/cache/nginx/ifquotes \
   && printf '%s\n' \
@@ -169,6 +168,8 @@ RUN mkdir -p /etc/nginx/templates /var/cache/nginx/ifquotes \
   '  return 503 "{\"error\":\"token_not_configured\"}";' \
   '}' \
   > /etc/nginx/conf.d/quotes-api.inc
+COPY deploy/quotes-api-extra.inc.template /etc/nginx/templates/quotes-api-extra.inc.template
+COPY deploy/quotes-api-extra.inc /etc/nginx/conf.d/quotes-api-extra.inc
 COPY --from=builder /app/dist /usr/share/nginx/html
 RUN chmod -R a+rX /usr/share/nginx/html
 EXPOSE 80

@@ -14,6 +14,7 @@ export interface BondsPage {
   totalEvents: number | null;
   page: number | null;
   totalPages: number | null;
+  nextCursor?: string | null;
 }
 
 export interface KeyRateEvent {
