@@ -22,7 +22,7 @@ export function parseBondsApi(data: unknown): BondsPage {
     return { type: item.type as BondEvent['type'], isin: item.isin, name: item.name,
       amount, payDate: item.date, recordDate: validDate(item.recordDate) ? item.recordDate : null };
   });
-  return { events, totalEvents: null, page: null, totalPages: null, nextCursor: data.nextCursor };
+  return { events, totalEvents: null, page: null, totalPages: null, nextCursor: typeof data.nextCursor === 'string' ? data.nextCursor : null };
 }
 
 export function parseKeyRateApi(data: unknown): KeyRateEvent[] {
@@ -81,5 +81,5 @@ export function parseDividendsApi(data: unknown): { events: DividendCalendarEven
       sourceUrl: typeof item.sourceUrl === 'string' && /^https:\/\//.test(item.sourceUrl) ? item.sourceUrl : 'https://investfuture.ru/calendar/dividends',
     };
   });
-  return { events, nextCursor: data.nextCursor };
+  return { events, nextCursor: typeof data.nextCursor === 'string' ? data.nextCursor : null };
 }
